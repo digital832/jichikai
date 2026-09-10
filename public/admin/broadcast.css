@@ -45,6 +45,7 @@ body {
 
 .topbar {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
   gap: 8px;
   margin-bottom: 16px;
@@ -271,6 +272,16 @@ body {
 .event-list-actions .delete-btn {
   background: #fdeaea;
   color: var(--red);
+}
+
+.safety-missing-alert {
+  background: #fdeaea;
+  color: var(--red);
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 8px 10px;
+  margin-top: 6px;
+  font-size: 13px;
 }
 
 .attendance-names {

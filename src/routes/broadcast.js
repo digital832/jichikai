@@ -14,7 +14,6 @@ function buildMessageText(fields) {
   if (fields.belongings) lines.push(`持ち物: ${fields.belongings}`);
   lines.push('');
   lines.push(fields.messageBody || '');
-  if (fields.confirmSafety) lines.push('\n※安否確認のため、無事であればご返信をお願いします。');
   return lines.join('\n');
 }
 
@@ -28,20 +27,39 @@ router.post('/', async (req, res) => {
     let successCount = 0;
     const failedTokens = [];
     let attendanceSessionId = null;
+    let safetySessionId = null;
 
-    if (fields.confirmAttendance) {
-      attendanceSessionId = await sheetsClient.createAttendanceSession({
-        eventName: fields.eventName || 'お知らせ',
-        eventDate: fields.eventDate || '',
-        totalRecipients: allMembers.length,
-      });
+    const needsPersonalizedLinks = fields.confirmAttendance || fields.confirmSafety;
+
+    if (needsPersonalizedLinks) {
       const baseUrl = `${req.protocol}://${req.get('host')}`;
+
+      if (fields.confirmAttendance) {
+        attendanceSessionId = await sheetsClient.createAttendanceSession({
+          eventName: fields.eventName || 'お知らせ',
+          eventDate: fields.eventDate || '',
+          totalRecipients: allMembers.length,
+        });
+      }
+      if (fields.confirmSafety) {
+        safetySessionId = await sheetsClient.createSafetySession({
+          eventName: fields.eventName || 'お知らせ',
+          eventDate: fields.eventDate || '',
+          totalRecipients: allMembers.length,
+        });
+      }
 
       for (const [accessToken, members] of groups.entries()) {
         for (const member of members) {
-          const token = attendanceToken.encode(attendanceSessionId, member.lineUserId);
-          const link = `${baseUrl}/attend.html?token=${token}`;
-          const text = `${baseText}\n\n▼出欠のご連絡はこちらから\n${link}`;
+          let text = baseText;
+          if (attendanceSessionId) {
+            const token = attendanceToken.encode(attendanceSessionId, member.lineUserId);
+            text += `\n\n▼出欠のご連絡はこちらから\n${baseUrl}/attend.html?token=${token}`;
+          }
+          if (safetySessionId) {
+            const token = attendanceToken.encode(safetySessionId, member.lineUserId);
+            text += `\n\n▼安否のご連絡はこちらから\n${baseUrl}/safety.html?token=${token}`;
+          }
           try {
             await lineClient.sendPush(accessToken, member.lineUserId, text);
             successCount += 1;
@@ -70,6 +88,7 @@ router.post('/', async (req, res) => {
       skippedNoToken: withoutToken.length,
       failedAccountCount: failedTokens.length,
       attendanceSessionId,
+      safetySessionId,
     });
   } catch (err) {
     console.error('配信処理に失敗:', err);

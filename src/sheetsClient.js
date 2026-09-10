@@ -299,6 +299,89 @@ async function recordAttendanceResponse({ sessionId, lineUserId, realName, statu
   }
 }
 
+// --- 安否セッション / 安否回答 タブ ---
+
+function rowToSafetySession(row) {
+  return {
+    id: row[0] || '',
+    eventName: row[1] || '',
+    eventDate: row[2] || '',
+    totalRecipients: Number(row[3] || 0),
+    createdAt: row[4] || '',
+  };
+}
+
+async function createSafetySession({ eventName, eventDate, totalRecipients }) {
+  const id = `a${Date.now()}`;
+  await sheets.spreadsheets.values.append({
+    spreadsheetId: config.google.spreadsheetId,
+    range: `${config.google.safetySessionSheetName}!A:E`,
+    valueInputOption: 'RAW',
+    insertDataOption: 'INSERT_ROWS',
+    requestBody: {
+      values: [[id, eventName, eventDate, totalRecipients, new Date().toISOString()]],
+    },
+  });
+  return id;
+}
+
+async function getSafetySessions() {
+  const res = await sheets.spreadsheets.values.get({
+    spreadsheetId: config.google.spreadsheetId,
+    range: `${config.google.safetySessionSheetName}!A2:E`,
+  });
+  return (res.data.values || []).map(rowToSafetySession).filter((s) => s.id);
+}
+
+async function getSafetySession(sessionId) {
+  const sessions = await getSafetySessions();
+  return sessions.find((s) => s.id === sessionId) || null;
+}
+
+function rowToSafetyResponse(row, index) {
+  return {
+    row: index + 2,
+    sessionId: row[0] || '',
+    lineUserId: row[1] || '',
+    realName: row[2] || '',
+    status: row[3] || '',
+    missingNames: row[4] || '',
+    respondedAt: row[5] || '',
+  };
+}
+
+async function getSafetyResponses(sessionId) {
+  const res = await sheets.spreadsheets.values.get({
+    spreadsheetId: config.google.spreadsheetId,
+    range: `${config.google.safetyResponseSheetName}!A2:F`,
+  });
+  const all = (res.data.values || []).map(rowToSafetyResponse).filter((r) => r.sessionId);
+  return sessionId ? all.filter((r) => r.sessionId === sessionId) : all;
+}
+
+async function recordSafetyResponse({ sessionId, lineUserId, realName, status, missingNames }) {
+  const existing = await getSafetyResponses(sessionId);
+  const match = existing.find((r) => r.lineUserId === lineUserId);
+  const now = new Date().toISOString();
+  const values = [[sessionId, lineUserId, realName, status, missingNames || '', now]];
+  if (match) {
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: config.google.spreadsheetId,
+      range: `${config.google.safetyResponseSheetName}!A${match.row}:F${match.row}`,
+      valueInputOption: 'RAW',
+      requestBody: { values },
+    });
+  } else {
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: config.google.spreadsheetId,
+      range: `${config.google.safetyResponseSheetName}!A:F`,
+      valueInputOption: 'RAW',
+      insertDataOption: 'INSERT_ROWS',
+      requestBody: { values },
+    });
+  }
+}
+
 module.exports = {
   getAllMembers,
   updateMemberRole,
@@ -320,4 +403,9 @@ module.exports = {
   getAttendanceSession,
   getAttendanceResponses,
   recordAttendanceResponse,
+  createSafetySession,
+  getSafetySessions,
+  getSafetySession,
+  getSafetyResponses,
+  recordSafetyResponse,
 };

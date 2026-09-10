@@ -429,6 +429,61 @@
     if (e.target === attendanceHistoryOverlay) attendanceHistoryOverlay.classList.remove('open');
   });
 
+  // 安否状況
+  const safetyOverlay = document.getElementById('safetyOverlay');
+  const safetyList = document.getElementById('safetyList');
+
+  function renderSafetySessionRow(session) {
+    const row = document.createElement('div');
+    row.className = 'event-list-row';
+    const unresponded = Math.max(0, session.totalRecipients - session.responded);
+    row.innerHTML = `
+      <div class="event-list-info">
+        <span class="event-list-name"></span>
+        <span class="event-list-meta"></span>
+      </div>
+    `;
+    row.querySelector('.event-list-name').textContent = `${session.eventName}${session.eventDate ? '（' + session.eventDate + '）' : ''}`;
+    row.querySelector('.event-list-meta').textContent =
+      `全員無事: ${session.safe}人 / 行方不明: ${session.missing}人 / 未回答: ${unresponded}人`;
+    if (session.missingNames && session.missingNames.length > 0) {
+      const alertBox = document.createElement('div');
+      alertBox.className = 'safety-missing-alert';
+      alertBox.textContent = `⚠ 行方不明者情報: ${session.missingNames.join('、')}`;
+      row.querySelector('.event-list-info').appendChild(alertBox);
+    }
+    return row;
+  }
+
+  async function loadSafetyPanel() {
+    safetyList.innerHTML = '読み込み中...';
+    try {
+      const res = await fetch('/api/safety/sessions');
+      if (!res.ok) throw new Error('取得に失敗しました');
+      const data = await res.json();
+      safetyList.innerHTML = '';
+      if (data.sessions.length === 0) {
+        safetyList.innerHTML = '<p class="event-list-empty">安否確認の記録はまだありません</p>';
+        return;
+      }
+      data.sessions.forEach((s) => safetyList.appendChild(renderSafetySessionRow(s)));
+    } catch (err) {
+      console.error(err);
+      safetyList.innerHTML = '<p class="event-list-empty">安否状況の取得に失敗しました</p>';
+    }
+  }
+
+  document.getElementById('safetyHeaderButton').addEventListener('click', () => {
+    safetyOverlay.classList.add('open');
+    loadSafetyPanel();
+  });
+  document.getElementById('closeSafetyButton').addEventListener('click', () => {
+    safetyOverlay.classList.remove('open');
+  });
+  safetyOverlay.addEventListener('click', (e) => {
+    if (e.target === safetyOverlay) safetyOverlay.classList.remove('open');
+  });
+
   document.getElementById('lineSendButton').addEventListener('click', async (e) => {
     const button = e.currentTarget;
     if (!window.confirm('この内容でLINE配信します。よろしいですか？')) return;
@@ -447,6 +502,7 @@
           (data.failedAccountCount ? `\n送信に失敗したアカウント数: ${data.failedAccountCount}` : '')
       );
       if (data.attendanceSessionId) loadAttendancePanel();
+      if (data.safetySessionId) loadSafetyPanel();
     } catch (err) {
       console.error(err);
       window.alert('配信に失敗しました: ' + err.message);

@@ -11,6 +11,7 @@
 
   <div class="topbar">
     <button class="menu-button" type="button" id="attendanceHeaderButton">📋 出欠状況</button>
+    <button class="menu-button" type="button" id="safetyHeaderButton" style="background:var(--red);">🚨 安否状況</button>
     <a class="menu-button" href="members.html" style="text-decoration:none;">🏠 名簿一覧へ</a>
   </div>
 
@@ -130,6 +131,17 @@
 
     <div class="sheet-actions">
       <button class="word-button" type="button" id="closeAttendanceHistoryButton">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet-overlay" id="safetyOverlay">
+  <div class="sheet-panel" id="safetyPanel">
+    <div class="sheet-handle"></div>
+    <p class="card-heading">安否状況</p>
+    <div id="safetyList"></div>
+    <div class="sheet-actions">
+      <button class="word-button" type="button" id="closeSafetyButton">閉じる</button>
     </div>
   </div>
 </div>
