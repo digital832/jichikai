@@ -9,6 +9,8 @@ const attendanceRouter = require('./routes/attendance');
 
 const app = express();
 
+app.get('/', (req, res) => res.redirect('/admin/broadcast.html'));
+
 app.use('/api/events', express.json(), eventsRouter);
 app.use('/api/broadcast', express.json(), broadcastRouter);
 app.use('/api/groups', express.json(), groupsRouter);
