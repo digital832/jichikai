@@ -382,6 +382,50 @@ async function recordSafetyResponse({ sessionId, lineUserId, realName, status, m
   }
 }
 
+// --- 入出金 タブ ---
+// 列: A:日付, B:種別(入金/出金), C:金額, D:内容, E:登録日時
+
+function rowToTransaction(row, index) {
+  return {
+    row: index + 2,
+    date: row[0] || '',
+    type: row[1] || '',
+    amount: Number(row[2] || 0),
+    description: row[3] || '',
+    createdAt: row[4] || '',
+  };
+}
+
+async function getTransactions() {
+  const res = await sheets.spreadsheets.values.get({
+    spreadsheetId: config.google.spreadsheetId,
+    range: `${config.google.transactionsSheetName}!A2:E`,
+  });
+  return (res.data.values || [])
+    .map(rowToTransaction)
+    .filter((t) => t.date || t.amount)
+    .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+}
+
+async function addTransaction({ date, type, amount, description }) {
+  await sheets.spreadsheets.values.append({
+    spreadsheetId: config.google.spreadsheetId,
+    range: `${config.google.transactionsSheetName}!A:E`,
+    valueInputOption: 'RAW',
+    insertDataOption: 'INSERT_ROWS',
+    requestBody: {
+      values: [[date, type, amount, description, new Date().toISOString()]],
+    },
+  });
+}
+
+async function deleteTransaction(row) {
+  await sheets.spreadsheets.values.clear({
+    spreadsheetId: config.google.spreadsheetId,
+    range: `${config.google.transactionsSheetName}!A${row}:E${row}`,
+  });
+}
+
 module.exports = {
   getAllMembers,
   updateMemberRole,
@@ -408,4 +452,7 @@ module.exports = {
   getSafetySession,
   getSafetyResponses,
   recordSafetyResponse,
+  getTransactions,
+  addTransaction,
+  deleteTransaction,
 };

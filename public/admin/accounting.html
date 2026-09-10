@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>入出金管理</title>
+<link rel="stylesheet" href="broadcast.css" />
+<style>
+  .balance-card {
+    text-align: center;
+  }
+  .balance-label { font-size: 14px; color: var(--text-sub); margin: 0 0 4px; }
+  .balance-amount { font-size: 36px; font-weight: 700; margin: 0 0 16px; }
+  .balance-sub-row { display: flex; justify-content: space-around; }
+  .balance-sub { font-size: 14px; }
+  .balance-sub .amount { font-size: 18px; font-weight: 700; display: block; }
+  .balance-sub.income .amount { color: var(--green-dark); }
+  .balance-sub.expense .amount { color: var(--red); }
+
+  .type-toggle { display: flex; gap: 10px; margin-bottom: 16px; }
+  .type-button {
+    flex: 1;
+    padding: 18px;
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    background: var(--input-bg);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-sub);
+    cursor: pointer;
+  }
+  .type-button.income.active { background: var(--green-light); border-color: var(--green); color: var(--green-dark); }
+  .type-button.expense.active { background: #fdeaea; border-color: var(--red); color: var(--red); }
+
+  .amount-input {
+    width: 100%;
+    padding: 20px;
+    font-size: 28px;
+    font-weight: 700;
+    text-align: right;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-input);
+    color: var(--text);
+  }
+
+  .register-button {
+    width: 100%;
+    padding: 20px;
+    margin-top: 8px;
+    border: none;
+    border-radius: 999px;
+    background: var(--green);
+    color: #fff;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .transaction-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .transaction-row:last-child { border-bottom: none; }
+  .transaction-info { display: flex; flex-direction: column; gap: 2px; }
+  .transaction-date { font-size: 12px; color: var(--text-sub); }
+  .transaction-desc { font-size: 14px; font-weight: 700; }
+  .transaction-amount { font-size: 18px; font-weight: 700; }
+  .transaction-amount.income { color: var(--green-dark); }
+  .transaction-amount.expense { color: var(--red); }
+  .transaction-delete {
+    flex: none;
+    border: none;
+    background: #fdeaea;
+    color: var(--red);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <a class="menu-button" href="broadcast.html" style="text-decoration:none;">▷ 配信ウィザードへ</a>
+  </div>
+
+  <div class="card balance-card">
+    <p class="balance-label">現在の残高</p>
+    <p class="balance-amount" id="balanceAmount">¥0</p>
+    <div class="balance-sub-row">
+      <div class="balance-sub income">収入合計<span class="amount" id="totalIncome">¥0</span></div>
+      <div class="balance-sub expense">支出合計<span class="amount" id="totalExpense">¥0</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="card-heading"><span class="badge">＋</span>記録する</p>
+
+    <div class="type-toggle">
+      <button class="type-button income active" type="button" id="incomeButton">入金</button>
+      <button class="type-button expense" type="button" id="expenseButton">出金</button>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="amountInput">金額</label>
+      <input class="amount-input" type="text" inputmode="numeric" id="amountInput" placeholder="0" />
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="dateInput">📅 日付</label>
+      <input class="text-input" type="text" id="dateInput" placeholder="例：2026/10/01" />
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="descriptionInput">内容</label>
+      <input class="text-input" type="text" id="descriptionInput" placeholder="例：会費、郵便代など" />
+    </div>
+
+    <button class="register-button" type="button" id="registerButton">登録する</button>
+  </div>
+
+  <div class="card">
+    <p class="card-heading">記録一覧</p>
+    <div id="transactionListContainer"></div>
+  </div>
+</div>
+<script src="accounting.js"></script>
+</body>
+</html>

@@ -7,6 +7,7 @@ const rolesRouter = require('./routes/roles');
 const membersRouter = require('./routes/members');
 const attendanceRouter = require('./routes/attendance');
 const safetyRouter = require('./routes/safety');
+const transactionsRouter = require('./routes/transactions');
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use('/api/roles', express.json(), rolesRouter);
 app.use('/api/members', express.json(), membersRouter);
 app.use('/api/attendance', express.json(), attendanceRouter);
 app.use('/api/safety', express.json(), safetyRouter);
+app.use('/api/transactions', express.json(), transactionsRouter);
 
 app.use(express.static('public'));
 
