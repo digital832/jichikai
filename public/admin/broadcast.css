@@ -134,6 +134,12 @@ body {
   font-family: inherit;
 }
 
+.date-input {
+  /* WebKit系ブラウザはネイティブ日付ピッカーの内部表示に余分な幅を取ることがあるため、少し狭めに確保する */
+  width: 90%;
+  max-width: 90%;
+}
+
 .time-range {
   min-width: 0;
 }
