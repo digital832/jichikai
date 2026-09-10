@@ -53,6 +53,16 @@
         transactionListContainer.innerHTML = '<p class="event-list-empty">まだ記録がありません</p>';
         return;
       }
+
+      // 記録は新しい順に表示するが、「その時点の残高」は古い順に積み上げて計算する
+      const chronological = [...data.transactions].sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
+      let running = 0;
+      const balanceAfterByRow = {};
+      chronological.forEach((t) => {
+        running += t.type === '入金' ? t.amount : -t.amount;
+        balanceAfterByRow[t.row] = running;
+      });
+
       data.transactions.forEach((t) => {
         const row = document.createElement('div');
         row.className = 'transaction-row';
@@ -63,12 +73,16 @@
             <span class="transaction-desc"></span>
             <span class="transaction-date"></span>
           </div>
-          <span class="transaction-amount ${typeClass}"></span>
+          <div class="transaction-info" style="text-align:right;">
+            <span class="transaction-amount ${typeClass}"></span>
+            <span class="transaction-date balance-after"></span>
+          </div>
           <button type="button" class="transaction-delete">削除</button>
         `;
         row.querySelector('.transaction-desc').textContent = t.description || t.type;
-        row.querySelector('.transaction-date').textContent = t.date;
+        row.querySelectorAll('.transaction-date')[0].textContent = t.date;
         row.querySelector('.transaction-amount').textContent = `${sign}${formatYen(t.amount)}`;
+        row.querySelector('.balance-after').textContent = `残高 ${formatYen(balanceAfterByRow[t.row])}`;
         row.querySelector('.transaction-delete').addEventListener('click', async () => {
           if (!window.confirm('この記録を削除しますか？')) return;
           try {
