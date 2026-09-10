@@ -19,12 +19,16 @@
 
 html {
   overflow-x: hidden;
+  overflow-x: clip;
+  width: 100%;
 }
 
 body {
   margin: 0;
+  width: 100%;
   max-width: 100vw;
   overflow-x: hidden;
+  overflow-x: clip;
   background: var(--bg);
   color: var(--text);
   font-family: "Hiragino Sans", "Noto Sans JP", "Yu Gothic", -apple-system, BlinkMacSystemFont, sans-serif;
@@ -33,8 +37,10 @@ body {
 
 .page {
   max-width: 480px;
+  width: 100%;
   margin: 0 auto;
   padding: 16px 16px 40px;
+  overflow-x: hidden;
 }
 
 .topbar {
