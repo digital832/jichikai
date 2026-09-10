@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<title>出欠のご連絡</title>
+<style>
+  :root { --green: #06c755; --red: #ef4444; --bg: #f4f6f5; --text: #1c1f1e; --text-sub: #6b716f; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Hiragino Sans", "Noto Sans JP", "Yu Gothic", sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  .card {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    padding: 32px 24px;
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+  }
+  .event-name { font-size: 22px; font-weight: 700; margin: 0 0 8px; }
+  .event-date { font-size: 16px; color: var(--text-sub); margin: 0 0 28px; }
+  .question { font-size: 18px; font-weight: 700; margin: 0 0 20px; }
+  .big-button {
+    display: block;
+    width: 100%;
+    padding: 24px;
+    margin-bottom: 16px;
+    border: none;
+    border-radius: 16px;
+    font-size: 24px;
+    font-weight: 700;
+    color: #fff;
+    cursor: pointer;
+  }
+  .big-button.attend { background: var(--green); }
+  .big-button.not-attend { background: var(--red); }
+  .big-button:disabled { opacity: 0.5; }
+  .status-text { font-size: 20px; font-weight: 700; margin: 12px 0; }
+  .error-text { font-size: 16px; color: var(--red); }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div id="loadingView">
+    <p>読み込み中です…</p>
+  </div>
+
+  <div id="formView" hidden>
+    <p class="event-name" id="eventNameText"></p>
+    <p class="event-date" id="eventDateText"></p>
+    <p class="question">ご参加いただけますか？</p>
+    <button class="big-button attend" id="attendButton">参加します</button>
+    <button class="big-button not-attend" id="notAttendButton">参加しません</button>
+  </div>
+
+  <div id="doneView" hidden>
+    <p class="status-text" id="doneText"></p>
+    <p>ご回答ありがとうございました。</p>
+  </div>
+
+  <div id="errorView" hidden>
+    <p class="error-text">このリンクは無効か、期限が切れています。</p>
+  </div>
+</div>
+<script src="attend.js"></script>
+</body>
+</html>

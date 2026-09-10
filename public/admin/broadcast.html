@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>お知らせ配信</title>
+<link rel="stylesheet" href="broadcast.css" />
+</head>
+<body>
+<div class="page">
+
+  <div class="topbar">
+    <button class="menu-button" type="button" id="attendanceHeaderButton">📋 出欠状況</button>
+    <a class="menu-button" href="members.html" style="text-decoration:none;">🏠 名簿一覧へ</a>
+  </div>
+
+  <div class="wizard-grid">
+  <div class="card">
+    <p class="card-heading"><span class="badge">1</span>イベントをえらぶ</p>
+    <div class="field">
+      <div class="field-with-button">
+        <select class="select-input" id="eventSelect"></select>
+        <button class="icon-button" type="button" id="manageEventsButton" title="イベントを編集・削除" aria-label="イベントを編集・削除">✏️</button>
+      </div>
+    </div>
+    <button class="add-event-button" type="button" id="addEventButton">＋ 新しいイベントを追加</button>
+  </div>
+
+  <div class="card">
+    <p class="card-heading"><span class="badge">2</span>くわしい内容を入力する</p>
+
+    <div class="field">
+      <label class="field-label" for="eventDate">📅 行事日</label>
+      <input class="date-input" type="date" id="eventDate" name="eventDate" />
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="place">📍 場所</label>
+      <input class="text-input" type="text" id="place" name="place" placeholder="例：自治会館 集会室" />
+    </div>
+
+    <div class="field">
+      <label class="field-label">🕐 時間</label>
+      <div class="time-range">
+        <input class="time-input" type="time" id="timeStart" name="timeStart" />
+        <span>〜</span>
+        <input class="time-input" type="time" id="timeEnd" name="timeEnd" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="belongings">🗑 持ち物</label>
+      <input class="text-input" type="text" id="belongings" name="belongings" placeholder="例：筆記用具、認め印" />
+    </div>
+
+    <div class="field">
+      <label class="field-label">👥 対象グループ</label>
+      <div class="pill-group" id="groupPillGroup"></div>
+      <p class="field-hint">なにも選ばなければ「全員」に配信されます。<a href="#" id="syncGroupsLink">班の一覧を更新</a></p>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="card-heading"><span class="badge">3</span>確認方法をえらぶ</p>
+
+    <div class="toggle-card-row">
+      <div>
+        <div class="toggle-text-label">✅ 参加人数を確認する</div>
+        <div class="toggle-text-hint">参加できるかどうか、会員から返信をもらいます</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="confirmAttendance" />
+        <span class="switch-track"></span>
+      </label>
+    </div>
+
+    <div class="toggle-card-row">
+      <div>
+        <div class="toggle-text-label">⚠️ 緊急安否確認をする</div>
+        <div class="toggle-text-hint">災害時などに、安否の回答を求めます</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="confirmSafety" />
+        <span class="switch-track"></span>
+      </label>
+    </div>
+
+    <button class="disaster-button" type="button" id="disasterTemplateButton">⚠️ 被災時の定型文を使う</button>
+  </div>
+
+  <div class="card">
+    <p class="card-heading with-action">
+      <span class="card-heading-left"><span class="badge">4</span>メッセージを書く</span>
+      <button class="template-button" type="button" id="templateButton">定型文から選ぶ</button>
+    </p>
+    <div class="field">
+      <label class="field-label" for="messageBody">内容（改行はEnterでOK）</label>
+      <textarea class="textarea-input" id="messageBody" name="messageBody" placeholder="ここにお知らせしたい内容を書いてください"></textarea>
+    </div>
+  </div>
+  </div>
+
+  <div class="footer-card">
+    <div class="checkbox-row">
+      <input type="checkbox" id="crossPost" />
+      <div>
+        <div class="checkbox-row-label">他の自治会にもお知らせする</div>
+        <div class="checkbox-row-hint">回覧板に掲載されます（1か月3回まで）</div>
+      </div>
+    </div>
+
+    <a class="print-link" id="printFolderLink" href="#" target="_blank" rel="noopener">🖨 印刷フォルダを開く</a>
+
+    <button class="word-button" type="button" id="wordSaveButton">📄 Wordで保存</button>
+    <button class="send-button" type="button" id="lineSendButton">▷ LINEで送信する</button>
+  </div>
+
+</div>
+
+<div class="sheet-overlay" id="attendanceHistoryOverlay">
+  <div class="sheet-panel" id="attendanceHistoryPanel">
+    <div class="sheet-handle"></div>
+    <p class="card-heading">出欠状況</p>
+
+    <p class="field-label" style="margin-top:4px;">今回開催分</p>
+    <div id="attendanceOngoingList"></div>
+
+    <p class="field-label" style="margin-top:16px;">以前の参加状況</p>
+    <div id="attendanceHistoryList"></div>
+
+    <div class="sheet-actions">
+      <button class="word-button" type="button" id="closeAttendanceHistoryButton">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet-overlay" id="eventListOverlay">
+  <div class="sheet-panel" id="eventListPanel">
+    <div class="sheet-handle"></div>
+    <p class="card-heading">イベント一覧</p>
+    <div id="eventListContainer"></div>
+    <div class="sheet-actions">
+      <button class="word-button" type="button" id="closeEventListButton">閉じる</button>
+      <button class="send-button" type="button" id="addEventFromListButton">＋ 新しいイベントを追加</button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet-overlay" id="eventSheetOverlay">
+  <div class="sheet-panel" id="eventSheetPanel">
+    <div class="sheet-handle"></div>
+    <p class="card-heading" id="eventFormTitle">新しいイベントを追加</p>
+
+    <div class="field">
+      <label class="field-label" for="newEventName">イベント名<span class="required">必須</span></label>
+      <input class="text-input" type="text" id="newEventName" placeholder="例：資源ごみ収集" />
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="newEventPlace">📍 場所</label>
+      <input class="text-input" type="text" id="newEventPlace" placeholder="例：自治会館 集会室" />
+    </div>
+
+    <div class="field">
+      <label class="field-label">🕐 時間</label>
+      <div class="time-range">
+        <input class="time-input" type="time" id="newEventTimeStart" />
+        <span>〜</span>
+        <input class="time-input" type="time" id="newEventTimeEnd" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="newEventBelongings">🗑 持ち物</label>
+      <input class="text-input" type="text" id="newEventBelongings" placeholder="例：筆記用具、認め印" />
+    </div>
+
+    <div class="sheet-actions">
+      <button class="word-button" type="button" id="cancelEventButton">キャンセル</button>
+      <button class="send-button" type="button" id="saveEventButton">保存する</button>
+    </div>
+  </div>
+</div>
+
+<script src="broadcast.js"></script>
+</body>
+</html>

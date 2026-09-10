@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>会員登録</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="page">
+  <div class="brand-panel">
+    <h2>自治会 会員登録</h2>
+    <p>LINEのプロフィール情報をもとに、かんたんに会員登録ができます。ご登録いただいた情報は、自治会からのお知らせ配信にのみ利用します。</p>
+  </div>
+
+  <div class="form-panel">
+    <h1 class="page-title">会員登録</h1>
+
+    <div class="card">
+      <p class="card-heading"><span class="badge">1</span>LINEプロフィールを確認</p>
+      <div class="profile-chip">
+        <div class="profile-avatar">山</div>
+        <div class="profile-info">
+          <span class="profile-name">山田 太郎</span>
+          <span class="profile-hint">LINE IDは自動的に登録されます</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="card-heading"><span class="badge">2</span>基本情報を入力する</p>
+
+      <div class="field">
+        <label class="field-label" for="realName">本名<span class="required">必須</span></label>
+        <input class="text-input" type="text" id="realName" name="realName" placeholder="例：山田 太郎" />
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="group">所属（班）<span class="required">必須</span></label>
+        <select class="select-input" id="group" name="group">
+          <option value="">選択してください</option>
+          <option value="1班" selected>1班</option>
+          <option value="2班">2班</option>
+          <option value="3班">3班</option>
+          <option value="4班">4班</option>
+          <option value="5班">5班</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-row-label">役員ですか？</div>
+            <div class="toggle-row-hint">班長・自治会役員の方はONにしてください</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="isOfficer" name="isOfficer" />
+            <span class="switch-track"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <button class="submit-button" type="button">登録する</button>
+    <p class="note">登録いただいた情報は自治会からのお知らせ配信にのみ利用します。</p>
+  </div>
+</div>
+</body>
+</html>
