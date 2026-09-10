@@ -117,6 +117,8 @@ body {
 .time-input,
 .textarea-input {
   width: 100%;
+  min-width: 0;
+  max-width: 100%;
   padding: 12px 14px;
   font-size: 15px;
   background: var(--input-bg);
@@ -124,6 +126,22 @@ body {
   border-radius: var(--radius-input);
   color: var(--text);
   font-family: inherit;
+}
+
+.date-input,
+.time-input {
+  /* iOS/Android系ブラウザのネイティブ日付・時刻ピッカーは中身に応じて幅が広がりやすいため抑える */
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.time-range {
+  min-width: 0;
+}
+
+.time-range .time-input {
+  min-width: 0;
+  flex: 1 1 0;
 }
 
 .select-input {
