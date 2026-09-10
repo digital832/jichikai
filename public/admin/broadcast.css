@@ -128,13 +128,6 @@ body {
   font-family: inherit;
 }
 
-.date-input,
-.time-input {
-  /* iOS/Android系ブラウザのネイティブ日付・時刻ピッカーは中身に応じて幅が広がりやすいため抑える */
-  -webkit-appearance: none;
-  appearance: none;
-}
-
 .time-range {
   min-width: 0;
 }
