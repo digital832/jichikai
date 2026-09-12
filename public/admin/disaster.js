@@ -21,6 +21,7 @@
   let shelterMap = null;
   let shelterMarker = null;
   let shelterCoords = null;
+  let editingShelterRow = null;
 
   // 国土地理院の無料の住所検索サービスで、住所を緯度経度に変換する（日本の細かい住所（丁目・番地）に強い）
   async function geocodeWithGsi(address) {
@@ -136,6 +137,49 @@
     }
   });
 
+  const shelterCancelEditLink = document.getElementById('shelterCancelEditLink');
+
+  function stopEditShelter() {
+    editingShelterRow = null;
+    shelterNameInput.value = '';
+    shelterAddressInput.value = '';
+    shelterMapDiv.hidden = true;
+    shelterMapHint.textContent = '';
+    shelterCoords = null;
+    shelterAddButton.textContent = 'この内容で追加する';
+    shelterAddButton.disabled = true;
+    shelterCancelEditLink.hidden = true;
+  }
+
+  function startEditShelter(s) {
+    editingShelterRow = s.row;
+    shelterNameInput.value = s.name;
+    shelterAddressInput.value = s.address;
+    shelterCoords = { lat: s.lat, lng: s.lng };
+    shelterMapDiv.hidden = false;
+    if (!shelterMap) {
+      shelterMap = L.map(shelterMapDiv).setView([s.lat, s.lng], 16);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+      }).addTo(shelterMap);
+      shelterMarker = L.marker([s.lat, s.lng]).addTo(shelterMap);
+    } else {
+      shelterMap.setView([s.lat, s.lng], 16);
+      shelterMarker.setLatLng([s.lat, s.lng]);
+      shelterMap.invalidateSize();
+    }
+    shelterMapHint.textContent = '内容を確認・修正して「この内容で更新する」を押してください';
+    shelterAddButton.disabled = false;
+    shelterAddButton.textContent = 'この内容で更新する';
+    shelterCancelEditLink.hidden = false;
+    shelterNameInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  shelterCancelEditLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    stopEditShelter();
+  });
+
   shelterAddButton.addEventListener('click', async () => {
     if (!shelterCoords) return;
     const name = shelterNameInput.value.trim();
@@ -144,28 +188,28 @@
       return;
     }
     shelterAddButton.disabled = true;
+    const isEditing = !!editingShelterRow;
     try {
-      const res = await fetch('/api/disaster/shelters', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name,
-          address: shelterAddressInput.value.trim(),
-          lat: shelterCoords.lat,
-          lng: shelterCoords.lng,
-        }),
-      });
-      if (!res.ok) throw new Error('追加に失敗しました');
-      shelterNameInput.value = '';
-      shelterAddressInput.value = '';
-      shelterMapDiv.hidden = true;
-      shelterMapHint.textContent = '';
-      shelterCoords = null;
+      const res = await fetch(
+        isEditing ? `/api/disaster/shelters/${editingShelterRow}` : '/api/disaster/shelters',
+        {
+          method: isEditing ? 'PUT' : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name,
+            address: shelterAddressInput.value.trim(),
+            lat: shelterCoords.lat,
+            lng: shelterCoords.lng,
+          }),
+        }
+      );
+      if (!res.ok) throw new Error(isEditing ? '更新に失敗しました' : '追加に失敗しました');
+      stopEditShelter();
       await loadShelterList();
-      window.alert('避難所を追加しました');
+      window.alert(isEditing ? '避難所を更新しました' : '避難所を追加しました');
     } catch (err) {
       console.error(err);
-      window.alert('追加に失敗しました');
+      window.alert(isEditing ? '更新に失敗しました' : '追加に失敗しました');
     } finally {
       shelterAddButton.disabled = false;
     }
@@ -197,11 +241,14 @@
             <span class="transaction-desc"></span>
             <span class="transaction-date"></span>
           </div>
+          <button type="button" class="transaction-delete" style="background:var(--input-bg);color:var(--text);margin-right:6px;">編集</button>
           <button type="button" class="transaction-delete">削除</button>
         `;
         row.querySelector('.transaction-desc').textContent = s.name;
         row.querySelector('.transaction-date').textContent = s.address;
-        row.querySelector('.transaction-delete').addEventListener('click', async () => {
+        const [editBtn, deleteBtn] = row.querySelectorAll('.transaction-delete');
+        editBtn.addEventListener('click', () => startEditShelter(s));
+        deleteBtn.addEventListener('click', async () => {
           if (!window.confirm(`「${s.name}」を削除しますか？`)) return;
           try {
             const delRes = await fetch(`/api/disaster/shelters/${s.row}`, { method: 'DELETE' });

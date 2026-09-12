@@ -501,6 +501,17 @@ async function addShelter({ name, address, lat, lng }) {
   });
 }
 
+async function updateShelter(row, { name, address, lat, lng }) {
+  await sheets.spreadsheets.values.update({
+    spreadsheetId: config.google.spreadsheetId,
+    range: `${config.google.disasterSheetName}!A${row}:F${row}`,
+    valueInputOption: 'RAW',
+    requestBody: {
+      values: [['避難所', name, address, lat, lng, new Date().toISOString()]],
+    },
+  });
+}
+
 async function deleteShelter(row) {
   await sheets.spreadsheets.values.clear({
     spreadsheetId: config.google.spreadsheetId,
@@ -541,5 +552,6 @@ module.exports = {
   getDisasterEntries,
   setBaseEntry,
   addShelter,
+  updateShelter,
   deleteShelter,
 };

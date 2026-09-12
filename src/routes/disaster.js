@@ -43,6 +43,20 @@ router.post('/shelters', async (req, res) => {
   }
 });
 
+router.put('/shelters/:row', async (req, res) => {
+  const { name, address, lat, lng } = req.body;
+  if (!name || !address || !lat || !lng) {
+    return res.status(400).json({ error: '名称・住所・地図上の位置は必須です' });
+  }
+  try {
+    await sheetsClient.updateShelter(Number(req.params.row), { name, address, lat: Number(lat), lng: Number(lng) });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('避難所の更新に失敗:', err);
+    res.status(500).json({ error: '避難所の更新に失敗しました' });
+  }
+});
+
 router.delete('/shelters/:row', async (req, res) => {
   try {
     await sheetsClient.deleteShelter(Number(req.params.row));
