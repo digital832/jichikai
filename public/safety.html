@@ -44,7 +44,10 @@
   }
   .big-button.safe { background: var(--green); }
   .big-button.missing { background: var(--red); }
+  .big-button.location { background: #1976d2; font-size: 18px; padding: 18px; margin-top: 20px; }
+  .big-button.sos { background: #1976d2; margin-top: 4px; }
   .big-button:disabled { opacity: 0.5; }
+  .location-hint { font-size: 14px; color: var(--text-sub); margin-top: 10px; }
   .status-text { font-size: 20px; font-weight: 700; margin: 12px 0; }
   .error-text { font-size: 16px; color: var(--red); }
   .name-field-label { display: block; text-align: left; font-size: 15px; font-weight: 700; margin: 20px 0 8px; }
@@ -73,6 +76,7 @@
     <p class="question">ご家族は全員ご無事ですか？</p>
     <button class="big-button safe" id="safeButton">はい、家族全員無事です</button>
     <button class="big-button missing" id="missingButton">いいえ、行方不明者がいます</button>
+    <button class="big-button sos" id="sosButton">📍 現在地を教える（SOS）</button>
   </div>
 
   <div id="missingFormView" hidden>
@@ -86,6 +90,11 @@
   <div id="doneView" hidden>
     <p class="status-text" id="doneText"></p>
     <p>ご回答ありがとうございました。</p>
+    <div id="locationSection" hidden>
+      <p class="question" style="color:var(--red);">今いる場所を伝えてください</p>
+      <button class="big-button location" id="locationButton">📍 現在地を報告する</button>
+      <p class="location-hint" id="locationHint"></p>
+    </div>
   </div>
 
   <div id="errorView" hidden>

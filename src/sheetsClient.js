@@ -347,16 +347,33 @@ function rowToSafetyResponse(row, index) {
     status: row[3] || '',
     missingNames: row[4] || '',
     respondedAt: row[5] || '',
+    lat: row[6] ? Number(row[6]) : null,
+    lng: row[7] ? Number(row[7]) : null,
   };
 }
 
 async function getSafetyResponses(sessionId) {
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: config.google.spreadsheetId,
-    range: `${config.google.safetyResponseSheetName}!A2:F`,
+    range: `${config.google.safetyResponseSheetName}!A2:H`,
   });
   const all = (res.data.values || []).map(rowToSafetyResponse).filter((r) => r.sessionId);
   return sessionId ? all.filter((r) => r.sessionId === sessionId) : all;
+}
+
+// 回答済みの人が、追加で現在地だけを報告する（回答内容はそのまま、G・H列だけ更新する）
+async function reportSafetyLocation({ sessionId, lineUserId, lat, lng }) {
+  const existing = await getSafetyResponses(sessionId);
+  const match = existing.find((r) => r.lineUserId === lineUserId);
+  if (!match) {
+    throw new Error('先に安否確認への回答が必要です');
+  }
+  await sheets.spreadsheets.values.update({
+    spreadsheetId: config.google.spreadsheetId,
+    range: `${config.google.safetyResponseSheetName}!G${match.row}:H${match.row}`,
+    valueInputOption: 'RAW',
+    requestBody: { values: [[lat, lng]] },
+  });
 }
 
 async function recordSafetyResponse({ sessionId, lineUserId, realName, status, missingNames }) {
@@ -426,6 +443,71 @@ async function deleteTransaction(row) {
   });
 }
 
+// --- 防災設定 タブ ---
+// 列: A:種別(拠点/避難所), B:名称, C:住所, D:緯度, E:経度, F:登録日時
+
+function rowToDisasterEntry(row, index) {
+  return {
+    row: index + 2,
+    type: row[0] || '',
+    name: row[1] || '',
+    address: row[2] || '',
+    lat: Number(row[3] || 0),
+    lng: Number(row[4] || 0),
+    createdAt: row[5] || '',
+  };
+}
+
+async function getDisasterEntries() {
+  const res = await sheets.spreadsheets.values.get({
+    spreadsheetId: config.google.spreadsheetId,
+    range: `${config.google.disasterSheetName}!A2:F`,
+  });
+  return (res.data.values || []).map(rowToDisasterEntry).filter((e) => e.type);
+}
+
+// 拠点（自治会館など）は1件だけ。既存があれば上書きし、なければ追加する
+async function setBaseEntry({ name, address, lat, lng }) {
+  const entries = await getDisasterEntries();
+  const existing = entries.find((e) => e.type === '拠点');
+  const values = [['拠点', name, address, lat, lng, new Date().toISOString()]];
+  if (existing) {
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: config.google.spreadsheetId,
+      range: `${config.google.disasterSheetName}!A${existing.row}:F${existing.row}`,
+      valueInputOption: 'RAW',
+      requestBody: { values },
+    });
+  } else {
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: config.google.spreadsheetId,
+      range: `${config.google.disasterSheetName}!A:F`,
+      valueInputOption: 'RAW',
+      insertDataOption: 'INSERT_ROWS',
+      requestBody: { values },
+    });
+  }
+}
+
+async function addShelter({ name, address, lat, lng }) {
+  await sheets.spreadsheets.values.append({
+    spreadsheetId: config.google.spreadsheetId,
+    range: `${config.google.disasterSheetName}!A:F`,
+    valueInputOption: 'RAW',
+    insertDataOption: 'INSERT_ROWS',
+    requestBody: {
+      values: [['避難所', name, address, lat, lng, new Date().toISOString()]],
+    },
+  });
+}
+
+async function deleteShelter(row) {
+  await sheets.spreadsheets.values.clear({
+    spreadsheetId: config.google.spreadsheetId,
+    range: `${config.google.disasterSheetName}!A${row}:F${row}`,
+  });
+}
+
 module.exports = {
   getAllMembers,
   updateMemberRole,
@@ -452,7 +534,12 @@ module.exports = {
   getSafetySession,
   getSafetyResponses,
   recordSafetyResponse,
+  reportSafetyLocation,
   getTransactions,
   addTransaction,
   deleteTransaction,
+  getDisasterEntries,
+  setBaseEntry,
+  addShelter,
+  deleteShelter,
 };

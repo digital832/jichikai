@@ -5,6 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>お知らせ配信</title>
 <link rel="stylesheet" href="broadcast.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+  .safety-detail-map { width: 100%; height: 260px; border-radius: 14px; margin: 10px 0; background: var(--input-bg); }
+  .safety-response-row { padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .safety-response-row:last-child { border-bottom: none; }
+  .safety-response-name { font-size: 14px; font-weight: 700; margin: 0; }
+  .safety-response-status { font-size: 13px; color: var(--text-sub); margin: 2px 0 0; }
+</style>
 </head>
 <body>
 <div class="page">
@@ -14,6 +23,7 @@
     <button class="menu-button" type="button" id="safetyHeaderButton" style="background:var(--red);">🚨 安否状況</button>
     <a class="menu-button" href="recording.html" style="text-decoration:none;">🎙 録音</a>
     <a class="menu-button" href="accounting.html" style="text-decoration:none;">💰 入出金</a>
+    <a class="menu-button" href="disaster.html" style="text-decoration:none;">🚨 防災</a>
     <a class="menu-button" href="members.html" style="text-decoration:none;">🏠 名簿一覧へ</a>
   </div>
 
@@ -144,6 +154,18 @@
     <div id="safetyList"></div>
     <div class="sheet-actions">
       <button class="word-button" type="button" id="closeSafetyButton">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet-overlay" id="safetyDetailOverlay">
+  <div class="sheet-panel" id="safetyDetailPanel">
+    <div class="sheet-handle"></div>
+    <p class="card-heading" id="safetyDetailTitle">安否状況の詳細</p>
+    <div class="safety-detail-map" id="safetyDetailMap"></div>
+    <div id="safetyDetailList"></div>
+    <div class="sheet-actions">
+      <button class="word-button" type="button" id="closeSafetyDetailButton">閉じる</button>
     </div>
   </div>
 </div>

@@ -19,6 +19,7 @@ module.exports = {
     safetySessionSheetName: process.env.GOOGLE_SHEETS_SAFETY_SESSION_SHEET_NAME || '安否セッション',
     safetyResponseSheetName: process.env.GOOGLE_SHEETS_SAFETY_RESPONSE_SHEET_NAME || '安否回答',
     transactionsSheetName: process.env.GOOGLE_SHEETS_TRANSACTIONS_SHEET_NAME || '入出金',
+    disasterSheetName: process.env.GOOGLE_SHEETS_DISASTER_SHEET_NAME || '防災設定',
     districtFolderId: process.env.GOOGLE_DRIVE_DISTRICT_FOLDER_ID || '',
     clientEmail: required('GOOGLE_SA_CLIENT_EMAIL'),
     // JSONキーファイルのprivate_keyは "\n" が文字として入っているため、実際の改行に変換する

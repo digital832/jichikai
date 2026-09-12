@@ -79,4 +79,19 @@ router.post('/respond', async (req, res) => {
   }
 });
 
+router.post('/respond/location', async (req, res) => {
+  const { token, lat, lng } = req.body;
+  if (!token || !lat || !lng) {
+    return res.status(400).json({ error: '不正なリクエストです' });
+  }
+  try {
+    const { sessionId, lineUserId } = attendanceToken.decode(token);
+    await sheetsClient.reportSafetyLocation({ sessionId, lineUserId, lat: Number(lat), lng: Number(lng) });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('現在地の報告に失敗:', err);
+    res.status(400).json({ error: 'このリンクは無効です' });
+  }
+});
+
 module.exports = router;

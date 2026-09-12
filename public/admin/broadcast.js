@@ -436,6 +436,7 @@
   function renderSafetySessionRow(session) {
     const row = document.createElement('div');
     row.className = 'event-list-row';
+    row.style.cursor = 'pointer';
     const unresponded = Math.max(0, session.totalRecipients - session.responded);
     row.innerHTML = `
       <div class="event-list-info">
@@ -452,8 +453,93 @@
       alertBox.textContent = `⚠ 行方不明者情報: ${session.missingNames.join('、')}`;
       row.querySelector('.event-list-info').appendChild(alertBox);
     }
+    row.addEventListener('click', () => openSafetyDetail(session));
     return row;
   }
+
+  // 安否状況の詳細（回答者ごとの現在地を地図で表示）
+  const safetyDetailOverlay = document.getElementById('safetyDetailOverlay');
+  const safetyDetailTitle = document.getElementById('safetyDetailTitle');
+  const safetyDetailMapDiv = document.getElementById('safetyDetailMap');
+  const safetyDetailList = document.getElementById('safetyDetailList');
+  let safetyDetailMap = null;
+
+  async function openSafetyDetail(session) {
+    safetyDetailTitle.textContent = `安否状況の詳細：${session.eventName}`;
+    safetyDetailList.innerHTML = '読み込み中...';
+    safetyDetailOverlay.classList.add('open');
+
+    try {
+      const res = await fetch(`/api/safety/sessions/${encodeURIComponent(session.id)}`);
+      if (!res.ok) throw new Error('取得に失敗しました');
+      const data = await res.json();
+      renderSafetyDetailMap(data.responses);
+      renderSafetyDetailList(data.responses);
+    } catch (err) {
+      console.error(err);
+      safetyDetailList.innerHTML = '<p class="event-list-empty">詳細の取得に失敗しました</p>';
+    }
+  }
+
+  function renderSafetyDetailMap(responses) {
+    const points = responses.filter((r) => r.lat && r.lng);
+
+    if (safetyDetailMap) {
+      safetyDetailMap.remove();
+      safetyDetailMap = null;
+    }
+
+    if (points.length === 0) {
+      safetyDetailMapDiv.textContent = 'まだ現在地を報告した人はいません';
+      return;
+    }
+    safetyDetailMapDiv.textContent = '';
+
+    safetyDetailMap = L.map(safetyDetailMapDiv).setView([points[0].lat, points[0].lng], 14);
+    L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png', {
+      attribution: '地理院タイル',
+      maxNativeZoom: 18,
+    }).addTo(safetyDetailMap);
+
+    points.forEach((r) => {
+      const color = r.status === '行方不明' ? '#ef4a4a' : '#05a648';
+      L.circleMarker([r.lat, r.lng], {
+        radius: 9, color: '#fff', weight: 2, fillColor: color, fillOpacity: 1,
+      }).addTo(safetyDetailMap).bindPopup(`<b>${r.realName || '（名前未登録）'}</b><br>${r.status}`);
+    });
+
+    if (points.length > 1) {
+      safetyDetailMap.fitBounds(points.map((r) => [r.lat, r.lng]), { padding: [30, 30] });
+    }
+  }
+
+  function renderSafetyDetailList(responses) {
+    safetyDetailList.innerHTML = '';
+    if (responses.length === 0) {
+      safetyDetailList.innerHTML = '<p class="event-list-empty">まだ回答がありません</p>';
+      return;
+    }
+    responses.forEach((r) => {
+      const row = document.createElement('div');
+      row.className = 'safety-response-row';
+      const name = document.createElement('p');
+      name.className = 'safety-response-name';
+      name.textContent = r.realName || '（名前未登録）';
+      const status = document.createElement('p');
+      status.className = 'safety-response-status';
+      status.textContent = `${r.status}${r.lat && r.lng ? '（現在地を報告済み）' : ''}`;
+      row.appendChild(name);
+      row.appendChild(status);
+      safetyDetailList.appendChild(row);
+    });
+  }
+
+  document.getElementById('closeSafetyDetailButton').addEventListener('click', () => {
+    safetyDetailOverlay.classList.remove('open');
+  });
+  safetyDetailOverlay.addEventListener('click', (e) => {
+    if (e.target === safetyDetailOverlay) safetyDetailOverlay.classList.remove('open');
+  });
 
   async function loadSafetyPanel() {
     safetyList.innerHTML = '読み込み中...';
