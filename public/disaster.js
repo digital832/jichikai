@@ -6,6 +6,12 @@
   const navHint = document.getElementById('navHint');
   const shelterListCard = document.getElementById('shelterListCard');
   const shelterListContainer = document.getElementById('shelterListContainer');
+  const homeAddressInput = document.getElementById('homeAddressInput');
+  const homeAddressButton = document.getElementById('homeAddressButton');
+  const homeAddressHint = document.getElementById('homeAddressHint');
+
+  let map = null;
+  let homeMarker = null;
 
   function hazardMapUrl(lat, lng) {
     return `https://disaportal.gsi.go.jp/maps/?ll=${lat},${lng}&z=16`;
@@ -90,13 +96,70 @@
     });
   }
 
+  // 国土地理院の無料の住所検索サービスで、住所を緯度経度に変換する（日本の細かい住所（丁目・番地）に強い）
+  async function geocodeWithGsi(address) {
+    const url = `https://msearch.gsi.go.jp/address-search/AddressSearch?q=${encodeURIComponent(address)}`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const results = await res.json();
+    if (!results || results.length === 0) return null;
+    const [lng, lat] = results[0].geometry.coordinates;
+    return { lat, lng };
+  }
+
+  // 国土地理院で見つからなかった場合の予備として、OpenStreetMapでも探してみる
+  async function geocodeWithNominatim(address) {
+    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=jp&q=${encodeURIComponent(address)}`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const results = await res.json();
+    if (!results || results.length === 0) return null;
+    return { lat: Number(results[0].lat), lng: Number(results[0].lon) };
+  }
+
+  async function geocodeAddress(address) {
+    const gsiResult = await geocodeWithGsi(address);
+    if (gsiResult) return gsiResult;
+    const nominatimResult = await geocodeWithNominatim(address);
+    if (nominatimResult) return nominatimResult;
+    throw new Error('見つかりませんでした');
+  }
+
+  homeAddressButton.addEventListener('click', async () => {
+    const address = homeAddressInput.value.trim();
+    if (!address) {
+      homeAddressHint.textContent = '住所を入力してください';
+      return;
+    }
+    if (!map) return;
+    homeAddressButton.disabled = true;
+    homeAddressHint.textContent = '探しています…';
+    try {
+      const coords = await geocodeAddress(address);
+      map.setView([coords.lat, coords.lng], 17);
+      if (!homeMarker) {
+        homeMarker = L.circleMarker([coords.lat, coords.lng], {
+          radius: 9, color: '#fff', weight: 2, fillColor: '#e65100', fillOpacity: 1,
+        }).addTo(map).bindTooltip('自宅', { permanent: true, direction: 'right', className: 'map-label' });
+      } else {
+        homeMarker.setLatLng([coords.lat, coords.lng]);
+      }
+      homeAddressHint.textContent = 'この住所は保存されません。この画面を閉じると消えます。';
+    } catch (err) {
+      console.error(err);
+      homeAddressHint.textContent = '住所から場所を見つけられませんでした。住所を見直してください';
+    } finally {
+      homeAddressButton.disabled = false;
+    }
+  });
+
   function renderMap(base, shelters) {
     const points = [];
     if (base && base.lat && base.lng) points.push([base.lat, base.lng]);
     shelters.forEach((s) => { if (s.lat && s.lng) points.push([s.lat, s.lng]); });
 
     const center = points[0];
-    const map = L.map(mapDiv).setView(center, base ? 15 : 14);
+    map = L.map(mapDiv).setView(center, base ? 15 : 14);
     // ハザード情報の色が見やすいように、国土地理院の「淡色地図」を背景に使う
     L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png', {
       attribution: '地理院タイル',
