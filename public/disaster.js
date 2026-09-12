@@ -107,13 +107,19 @@
     if (base && base.lat && base.lng) {
       L.circleMarker([base.lat, base.lng], {
         radius: 10, color: '#fff', weight: 2, fillColor: '#1976d2', fillOpacity: 1,
-      }).addTo(map).bindPopup(`<b>${escapeHtml(base.name || '拠点')}</b><br>${escapeHtml(base.address || '')}`);
+      })
+        .addTo(map)
+        .bindPopup(`<b>${escapeHtml(base.name || '拠点')}</b><br>${escapeHtml(base.address || '')}`)
+        .bindTooltip(escapeHtml(base.name || '拠点'), { permanent: true, direction: 'right', className: 'map-label' });
     }
     shelters.forEach((s) => {
       if (!s.lat || !s.lng) return;
       L.circleMarker([s.lat, s.lng], {
         radius: 9, color: '#fff', weight: 2, fillColor: '#05a648', fillOpacity: 1,
-      }).addTo(map).bindPopup(`<b>${escapeHtml(s.name)}</b><br>${escapeHtml(s.address || '')}`);
+      })
+        .addTo(map)
+        .bindPopup(`<b>${escapeHtml(s.name)}</b><br>${escapeHtml(s.address || '')}`)
+        .bindTooltip(escapeHtml(s.name), { permanent: true, direction: 'right', className: 'map-label' });
     });
 
     if (points.length > 1) {

@@ -111,6 +111,21 @@
     setCoords: (c) => { shelterCoords = c; },
   }));
 
+  // 住所を書き換えたら、地図の位置とズレたまま保存されないように確認し直しを必須にする
+  baseAddressInput.addEventListener('input', () => {
+    if (baseCoords === null) return;
+    baseCoords = null;
+    baseSaveButton.disabled = true;
+    baseMapHint.textContent = '住所を変更しました。もう一度「地図で確認する」を押してください';
+  });
+
+  shelterAddressInput.addEventListener('input', () => {
+    if (shelterCoords === null) return;
+    shelterCoords = null;
+    shelterAddButton.disabled = true;
+    shelterMapHint.textContent = '住所を変更しました。もう一度「地図で確認する」を押してください';
+  });
+
   baseSaveButton.addEventListener('click', async () => {
     if (!baseCoords) return;
     baseSaveButton.disabled = true;
