@@ -153,7 +153,7 @@
       eventFormTitle.textContent = '新しいイベントを追加';
       newEventName.value = '';
       newEventPlace.value = '';
-      newEventTimeStart.value = '';
+      newEventTimeStart.value = '09:00';
       newEventTimeEnd.value = '';
       newEventBelongings.value = '';
     }
