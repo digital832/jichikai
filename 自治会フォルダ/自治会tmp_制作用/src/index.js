@@ -1,6 +1,7 @@
 const express = require('express');
 const config = require('./config');
 const eventsRouter = require('./routes/events');
+const templatesRouter = require('./routes/templates');
 const broadcastRouter = require('./routes/broadcast');
 const groupsRouter = require('./routes/groups');
 const rolesRouter = require('./routes/roles');
@@ -15,6 +16,7 @@ const app = express();
 app.get('/', (req, res) => res.redirect('/admin/broadcast.html'));
 
 app.use('/api/events', express.json(), eventsRouter);
+app.use('/api/templates', express.json(), templatesRouter);
 app.use('/api/broadcast', express.json(), broadcastRouter);
 app.use('/api/groups', express.json(), groupsRouter);
 app.use('/api/roles', express.json(), rolesRouter);

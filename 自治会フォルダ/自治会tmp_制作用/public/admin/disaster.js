@@ -1,4 +1,243 @@
 (function () {
+  const DISASTER_TEMPLATE =
+    '【地域のみなさまへ】大きな災害がありました。ご無事でしょうか？下のリンクから、今の状況を教えてください。';
+
+  // ------------------------------------------------------------------
+  // ① 安否確認を送る
+  // ------------------------------------------------------------------
+  const emergencyGroupPillGroup = document.getElementById('emergencyGroupPillGroup');
+  const emergencyMessage = document.getElementById('emergencyMessage');
+  const emergencySendButton = document.getElementById('emergencySendButton');
+
+  emergencyMessage.value = DISASTER_TEMPLATE;
+
+  function getSelectedEmergencyGroup() {
+    const active = emergencyGroupPillGroup.querySelector('.pill-option.active');
+    return active ? active.dataset.group : '全員';
+  }
+
+  function renderGroupPills(fixedGroups, roleGroups, dynamicGroups) {
+    emergencyGroupPillGroup.innerHTML = '';
+    [...fixedGroups, ...roleGroups, ...dynamicGroups].forEach((name, i) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'pill-option' + (i === 0 ? ' active' : '');
+      button.dataset.group = name;
+      button.textContent = name;
+      emergencyGroupPillGroup.appendChild(button);
+    });
+  }
+
+  emergencyGroupPillGroup.addEventListener('click', (e) => {
+    const button = e.target.closest('.pill-option');
+    if (!button) return;
+    emergencyGroupPillGroup.querySelectorAll('.pill-option').forEach((el) => el.classList.remove('active'));
+    button.classList.add('active');
+  });
+
+  fetch('/api/groups')
+    .then((res) => {
+      if (!res.ok) throw new Error('グループ取得に失敗しました');
+      return res.json();
+    })
+    .then((data) => renderGroupPills(data.fixedGroups, data.roleGroups, data.dynamicGroups))
+    .catch((err) => console.error(err));
+
+  emergencySendButton.addEventListener('click', async () => {
+    const messageBody = emergencyMessage.value.trim();
+    if (!messageBody) {
+      window.alert('送るメッセージを入力してください');
+      return;
+    }
+    if (!window.confirm('この内容で今すぐ安否確認をLINEで送信します。よろしいですか？')) return;
+
+    emergencySendButton.disabled = true;
+    try {
+      const res = await fetch('/api/broadcast', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          group: getSelectedEmergencyGroup(),
+          eventName: '緊急安否確認',
+          messageBody,
+          confirmSafety: true,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || '配信に失敗しました');
+      window.alert(
+        `${data.successCount}件に安否確認を送信しました。` +
+          (data.skippedNoToken ? `\nトークン未設定のため送信できなかった会員: ${data.skippedNoToken}件` : '') +
+          (data.failedAccountCount ? `\n送信に失敗したアカウント数: ${data.failedAccountCount}` : '')
+      );
+      await refreshSafetySessions();
+    } catch (err) {
+      console.error(err);
+      window.alert('安否確認の送信に失敗しました: ' + err.message);
+    } finally {
+      emergencySendButton.disabled = false;
+    }
+  });
+
+  // ------------------------------------------------------------------
+  // ② 安否確認の記録を見る（一覧・詳細・上部の状況バナー）
+  // ------------------------------------------------------------------
+  const statusBannerContainer = document.getElementById('statusBannerContainer');
+  const safetySessionList = document.getElementById('safetySessionList');
+
+  function renderStatusBanner(sessions) {
+    statusBannerContainer.innerHTML = '';
+    if (!sessions || sessions.length === 0) return;
+
+    const latest = sessions[0];
+    const unresponded = Math.max(0, latest.totalRecipients - latest.responded);
+    const hasMissing = latest.missing > 0;
+
+    const banner = document.createElement('div');
+    banner.className = 'status-banner ' + (hasMissing ? 'is-alert' : 'is-clear');
+    banner.innerHTML = `
+      <p class="status-banner-title">${hasMissing ? '⚠️ 行方不明の方がいます' : '✅ 最新の安否確認'}：${latest.eventName}${latest.eventDate ? '（' + latest.eventDate + '）' : ''}</p>
+      <p class="status-banner-nums">
+        全員無事：<strong>${latest.safe}人</strong>
+        行方不明：<strong>${latest.missing}人</strong>
+        未回答：<strong>${unresponded}人</strong>
+      </p>
+      ${hasMissing && latest.missingNames && latest.missingNames.length > 0
+        ? `<div class="safety-missing-alert">⚠ 行方不明者情報: ${latest.missingNames.join('、')}</div>`
+        : ''}
+      <a class="status-banner-link" href="#safetySessionList">くわしく見る ▼</a>
+    `;
+    statusBannerContainer.appendChild(banner);
+  }
+
+  function renderSafetySessionRow(session) {
+    const row = document.createElement('div');
+    row.className = 'safety-session-row';
+    const unresponded = Math.max(0, session.totalRecipients - session.responded);
+    row.innerHTML = `
+      <p class="safety-session-name">${session.eventName}${session.eventDate ? '（' + session.eventDate + '）' : ''}</p>
+      <p class="safety-session-meta">全員無事: ${session.safe}人 / 行方不明: ${session.missing}人 / 未回答: ${unresponded}人</p>
+    `;
+    if (session.missingNames && session.missingNames.length > 0) {
+      const alertBox = document.createElement('div');
+      alertBox.className = 'safety-missing-alert';
+      alertBox.textContent = `⚠ 行方不明者情報: ${session.missingNames.join('、')}`;
+      row.appendChild(alertBox);
+    }
+    row.addEventListener('click', () => openSafetyDetail(session));
+    return row;
+  }
+
+  async function refreshSafetySessions() {
+    safetySessionList.innerHTML = '<p class="event-list-empty">読み込み中...</p>';
+    try {
+      const res = await fetch('/api/safety/sessions');
+      if (!res.ok) throw new Error('取得に失敗しました');
+      const data = await res.json();
+
+      renderStatusBanner(data.sessions);
+
+      safetySessionList.innerHTML = '';
+      if (data.sessions.length === 0) {
+        safetySessionList.innerHTML = '<p class="event-list-empty">安否確認の記録はまだありません</p>';
+        return;
+      }
+      data.sessions.forEach((s) => safetySessionList.appendChild(renderSafetySessionRow(s)));
+    } catch (err) {
+      console.error(err);
+      safetySessionList.innerHTML = '<p class="event-list-empty">安否状況の取得に失敗しました</p>';
+    }
+  }
+
+  // 安否状況の詳細（回答者ごとの現在地を地図で表示）
+  const safetyDetailOverlay = document.getElementById('safetyDetailOverlay');
+  const safetyDetailTitle = document.getElementById('safetyDetailTitle');
+  const safetyDetailMapDiv = document.getElementById('safetyDetailMap');
+  const safetyDetailList = document.getElementById('safetyDetailList');
+  let safetyDetailMap = null;
+
+  async function openSafetyDetail(session) {
+    safetyDetailTitle.textContent = `安否状況の詳細：${session.eventName}`;
+    safetyDetailList.innerHTML = '読み込み中...';
+    safetyDetailOverlay.classList.add('open');
+
+    try {
+      const res = await fetch(`/api/safety/sessions/${encodeURIComponent(session.id)}`);
+      if (!res.ok) throw new Error('取得に失敗しました');
+      const data = await res.json();
+      renderSafetyDetailMap(data.responses);
+      renderSafetyDetailList(data.responses);
+    } catch (err) {
+      console.error(err);
+      safetyDetailList.innerHTML = '<p class="event-list-empty">詳細の取得に失敗しました</p>';
+    }
+  }
+
+  function renderSafetyDetailMap(responses) {
+    const points = responses.filter((r) => r.lat && r.lng);
+
+    if (safetyDetailMap) {
+      safetyDetailMap.remove();
+      safetyDetailMap = null;
+    }
+
+    if (points.length === 0) {
+      safetyDetailMapDiv.textContent = 'まだ現在地を報告した人はいません';
+      return;
+    }
+    safetyDetailMapDiv.textContent = '';
+
+    safetyDetailMap = L.map(safetyDetailMapDiv).setView([points[0].lat, points[0].lng], 14);
+    L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png', {
+      attribution: '地理院タイル',
+      maxNativeZoom: 18,
+    }).addTo(safetyDetailMap);
+
+    points.forEach((r) => {
+      const color = r.status === '行方不明' ? '#ef4a4a' : '#05a648';
+      L.circleMarker([r.lat, r.lng], {
+        radius: 9, color: '#fff', weight: 2, fillColor: color, fillOpacity: 1,
+      }).addTo(safetyDetailMap).bindPopup(`<b>${r.realName || '（名前未登録）'}</b><br>${r.status}`);
+    });
+
+    if (points.length > 1) {
+      safetyDetailMap.fitBounds(points.map((r) => [r.lat, r.lng]), { padding: [30, 30] });
+    }
+  }
+
+  function renderSafetyDetailList(responses) {
+    safetyDetailList.innerHTML = '';
+    if (responses.length === 0) {
+      safetyDetailList.innerHTML = '<p class="event-list-empty">まだ回答がありません</p>';
+      return;
+    }
+    responses.forEach((r) => {
+      const row = document.createElement('div');
+      row.className = 'safety-response-row';
+      const name = document.createElement('p');
+      name.className = 'safety-response-name';
+      name.textContent = r.realName || '（名前未登録）';
+      const status = document.createElement('p');
+      status.className = 'safety-response-status';
+      status.textContent = `${r.status}${r.lat && r.lng ? '（現在地を報告済み）' : ''}`;
+      row.appendChild(name);
+      row.appendChild(status);
+      safetyDetailList.appendChild(row);
+    });
+  }
+
+  document.getElementById('closeSafetyDetailButton').addEventListener('click', () => {
+    safetyDetailOverlay.classList.remove('open');
+  });
+  safetyDetailOverlay.addEventListener('click', (e) => {
+    if (e.target === safetyDetailOverlay) safetyDetailOverlay.classList.remove('open');
+  });
+
+  refreshSafetySessions();
+
+  // ------------------------------------------------------------------
+  // ③ 避難場所の準備をする（拠点・避難所）
+  // ------------------------------------------------------------------
   const baseNameInput = document.getElementById('baseNameInput');
   const baseAddressInput = document.getElementById('baseAddressInput');
   const baseCheckButton = document.getElementById('baseCheckButton');
@@ -250,20 +489,21 @@
 
       data.shelters.forEach((s) => {
         const row = document.createElement('div');
-        row.className = 'transaction-row';
+        row.className = 'event-list-row';
         row.innerHTML = `
-          <div class="transaction-info">
-            <span class="transaction-desc"></span>
-            <span class="transaction-date"></span>
+          <div class="event-list-info">
+            <span class="event-list-name"></span>
+            <span class="event-list-meta"></span>
           </div>
-          <button type="button" class="transaction-delete" style="background:var(--input-bg);color:var(--text);margin-right:6px;">編集</button>
-          <button type="button" class="transaction-delete">削除</button>
+          <div class="event-list-actions">
+            <button type="button" class="edit-btn">編集</button>
+            <button type="button" class="delete-btn">削除</button>
+          </div>
         `;
-        row.querySelector('.transaction-desc').textContent = s.name;
-        row.querySelector('.transaction-date').textContent = s.address;
-        const [editBtn, deleteBtn] = row.querySelectorAll('.transaction-delete');
-        editBtn.addEventListener('click', () => startEditShelter(s));
-        deleteBtn.addEventListener('click', async () => {
+        row.querySelector('.event-list-name').textContent = s.name;
+        row.querySelector('.event-list-meta').textContent = s.address;
+        row.querySelector('.edit-btn').addEventListener('click', () => startEditShelter(s));
+        row.querySelector('.delete-btn').addEventListener('click', async () => {
           if (!window.confirm(`「${s.name}」を削除しますか？`)) return;
           try {
             const delRes = await fetch(`/api/disaster/shelters/${s.row}`, { method: 'DELETE' });

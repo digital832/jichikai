@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>定型文の管理</title>
+<link rel="stylesheet" href="broadcast.css" />
+<style>
+  .page-title { font-size: 20px; font-weight: 700; margin: 0 0 16px; }
+  .template-row { padding: 16px 0; border-bottom: 1px solid var(--border); }
+  .template-row:last-child { border-bottom: none; }
+  .template-row-text { font-size: 15px; line-height: 1.7; white-space: pre-wrap; margin: 0 0 12px; }
+  .template-row-actions { display: flex; gap: 10px; }
+  .template-row-actions button { flex: 1; }
+  .template-edit-textarea { margin-bottom: 12px; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <a class="menu-button" href="broadcast.html" style="text-decoration:none;">▷ 配信ウィザードへ戻る</a>
+  </div>
+
+  <h1 class="page-title">定型文の管理</h1>
+
+  <div class="card">
+    <p class="card-heading">定型文を追加する</p>
+    <div class="field">
+      <label class="field-label" for="newTemplateText">定型文の内容<span class="required">必須</span></label>
+      <textarea class="textarea-input" id="newTemplateText" placeholder="例：来月の定例会議についてお知らせします。ご都合のつく方はぜひご参加ください。"></textarea>
+    </div>
+    <button class="send-button" type="button" id="addTemplateButton" style="width:100%;">＋ この内容を保存する</button>
+  </div>
+
+  <div class="card">
+    <p class="card-heading">登録ずみの定型文（編集・削除はここから）</p>
+    <div id="templateListContainer"></div>
+  </div>
+</div>
+
+<script src="templates.js"></script>
+</body>
+</html>

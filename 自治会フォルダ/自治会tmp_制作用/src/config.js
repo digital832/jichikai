@@ -12,6 +12,7 @@ module.exports = {
     spreadsheetId: required('GOOGLE_SHEETS_SPREADSHEET_ID'),
     sheetName: process.env.GOOGLE_SHEETS_SHEET_NAME || '名簿',
     eventsSheetName: process.env.GOOGLE_SHEETS_EVENTS_SHEET_NAME || 'Events',
+    templatesSheetName: process.env.GOOGLE_SHEETS_TEMPLATES_SHEET_NAME || '定型文マスタ',
     groupMasterSheetName: process.env.GOOGLE_SHEETS_GROUP_MASTER_SHEET_NAME || 'グループマスタ',
     roleMasterSheetName: process.env.GOOGLE_SHEETS_ROLE_MASTER_SHEET_NAME || '役職マスタ',
     attendanceSessionSheetName: process.env.GOOGLE_SHEETS_ATTENDANCE_SESSION_SHEET_NAME || '出欠セッション',

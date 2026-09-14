@@ -133,6 +133,51 @@ async function deleteEvent(id) {
   });
 }
 
+// --- 定型文マスタ タブ（メッセージのひな形） ---
+// 列順: A:本文
+
+function rowToTemplate(row, index) {
+  return {
+    // シート上の行番号（2行目始まり）をIDとして使う
+    id: index + 2,
+    text: row[0] || '',
+  };
+}
+
+async function getTemplates() {
+  const res = await sheets.spreadsheets.values.get({
+    spreadsheetId: config.google.spreadsheetId,
+    range: `${config.google.templatesSheetName}!A2:A`,
+  });
+  return (res.data.values || []).map(rowToTemplate).filter((t) => t.text);
+}
+
+async function addTemplate(text) {
+  await sheets.spreadsheets.values.append({
+    spreadsheetId: config.google.spreadsheetId,
+    range: `${config.google.templatesSheetName}!A:A`,
+    valueInputOption: 'RAW',
+    insertDataOption: 'INSERT_ROWS',
+    requestBody: { values: [[text]] },
+  });
+}
+
+async function updateTemplate(id, text) {
+  await sheets.spreadsheets.values.update({
+    spreadsheetId: config.google.spreadsheetId,
+    range: `${config.google.templatesSheetName}!A${id}:A${id}`,
+    valueInputOption: 'RAW',
+    requestBody: { values: [[text]] },
+  });
+}
+
+async function deleteTemplate(id) {
+  await sheets.spreadsheets.values.clear({
+    spreadsheetId: config.google.spreadsheetId,
+    range: `${config.google.templatesSheetName}!A${id}:A${id}`,
+  });
+}
+
 // --- グループマスタ タブ（対象グループの班名一覧） ---
 // 列: A:グループ名
 
@@ -528,6 +573,10 @@ module.exports = {
   addEvent,
   updateEvent,
   deleteEvent,
+  getTemplates,
+  addTemplate,
+  updateTemplate,
+  deleteTemplate,
   getGroupMasterList,
   replaceGroupMasterList,
   getRoles,

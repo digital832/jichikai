@@ -194,6 +194,13 @@ body {
   /* WebKit系ブラウザはネイティブ日付ピッカーの内部表示に余分な幅を取ることがあるため、少し狭めに確保する */
   width: 90%;
   max-width: 90%;
+  background: #fff0f0;
+  border-color: #f3bcbc;
+}
+
+#eventSelect {
+  background-color: #fff0f0;
+  border-color: #f3bcbc;
 }
 
 .time-range {
@@ -481,7 +488,7 @@ body {
   padding: 8px 14px;
   border: none;
   border-radius: 999px;
-  background: var(--green);
+  background: #1155e0;
   color: #fff;
   font-size: 12px;
   font-weight: 700;
