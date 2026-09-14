@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>名簿一覧</title>
+<link rel="stylesheet" href="broadcast.css" />
+<style>
+  .member-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .member-row:last-child { border-bottom: none; }
+  .member-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .member-name-input { font-weight: 700; font-size: 14px; padding: 6px 8px; max-width: 160px; }
+  .member-meta { font-size: 12px; color: var(--text-sub); }
+  .member-role-select { flex: none; width: 140px; }
+  .role-color-dot { flex: none; width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 8px; }
+  .role-select-wrap { display: flex; align-items: center; }
+  .new-role-row { display: flex; gap: 8px; align-items: center; }
+  .new-role-row .text-input { flex: 1; }
+  .color-dropdown { position: relative; display: inline-block; flex: none; }
+  .color-dot-button {
+    width: 26px; height: 26px; border-radius: 50%;
+    border: 2px solid var(--border); cursor: pointer; padding: 0;
+  }
+  .color-dropdown-menu {
+    position: absolute; top: 32px; left: 0; z-index: 50;
+    background: #fff; border: 1px solid var(--border); border-radius: 12px;
+    padding: 8px; box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+  }
+  .color-dropdown-menu[hidden] { display: none; }
+  .color-option-dot {
+    width: 20px; height: 20px; border-radius: 50%;
+    border: 2px solid transparent; cursor: pointer; padding: 0;
+  }
+  .color-option-dot.selected { border-color: var(--text); }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <a class="menu-button" href="broadcast.html" style="text-decoration:none;">▷ 配信ウィザードへ</a>
+  </div>
+
+  <div class="card">
+    <p class="card-heading with-action">
+      <span class="card-heading-left">名簿一覧</span>
+      <button class="template-button" type="button" id="manageRolesButton">役職を管理</button>
+    </p>
+    <div id="memberListContainer"></div>
+  </div>
+</div>
+
+<div class="sheet-overlay" id="roleListOverlay">
+  <div class="sheet-panel" id="roleListPanel">
+    <div class="sheet-handle"></div>
+    <p class="card-heading">役職マスタ</p>
+    <div class="field">
+      <label class="field-label" for="newRoleName">新しい役職名</label>
+      <div class="new-role-row">
+        <input class="text-input" type="text" id="newRoleName" placeholder="例：婦人会" />
+        <div id="newRoleColorPicker"></div>
+        <button class="icon-button" type="button" id="addRoleButton">＋</button>
+      </div>
+    </div>
+    <div id="roleListContainer"></div>
+    <div class="sheet-actions">
+      <button class="word-button" type="button" id="closeRoleListButton">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<script src="members.js"></script>
+</body>
+</html>

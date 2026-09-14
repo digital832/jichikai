@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>自治会システム_JS リンク一覧</title>
+<style>
+  :root {
+    --green: #06c755;
+    --green-dark: #05a648;
+    --green-light: #e7f9ee;
+    --bg: #f4f6f5;
+    --card-bg: #ffffff;
+    --text: #1c1f1e;
+    --text-sub: #6b716f;
+    --border: #e4e7e5;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Hiragino Sans", "Noto Sans JP", "Yu Gothic", -apple-system, BlinkMacSystemFont, sans-serif;
+    padding: 24px 16px 60px;
+  }
+  .page { max-width: 820px; margin: 0 auto; }
+  h1 { font-size: 19px; margin: 0 0 4px; }
+  .lead { font-size: 13px; color: var(--text-sub); margin: 0 0 20px; line-height: 1.7; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card-bg);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  }
+  th, td {
+    text-align: left;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    vertical-align: top;
+  }
+  th {
+    background: var(--green-light);
+    color: var(--green-dark);
+    font-size: 12px;
+    font-weight: 700;
+  }
+  tr:last-child td { border-bottom: none; }
+  td.name { font-weight: 700; white-space: nowrap; width: 30%; }
+  td.name a { color: var(--green-dark); text-decoration: none; }
+  td.name a:hover { text-decoration: underline; }
+  td.desc { color: var(--text); line-height: 1.7; }
+  td.desc code { background: var(--bg); padding: 1px 5px; border-radius: 5px; font-size: 12px; }
+
+  .group-row td {
+    background: var(--bg);
+    color: var(--text-sub);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 8px 14px;
+  }
+
+  footer { text-align: center; font-size: 11px; color: var(--text-sub); margin-top: 20px; }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>自治会システム_JS リンク一覧</h1>
+  <p class="lead">複製・展開まわりでツールやフォルダが増えてきたので、ここに一覧としてまとめています。増えたら表に行を足してください。フォルダのリンクはクリックするとエクスプローラーで開きます。</p>
+
+  <table>
+    <thead>
+      <tr><th>リンク</th><th>説明</th></tr>
+    </thead>
+    <tbody>
+      <tr class="group-row"><td colspan="2">複製手順</td></tr>
+      <tr>
+        <td class="name"><a href="複製マニュアル/複製マニュアル.html">複製マニュアル.html</a></td>
+        <td class="desc">新しい自治会を追加するときの手順書。GitHubリポジトリ作成・スプレッドシート複製・Driveフォルダ・LINE公式アカウント・Renderの環境変数などを、記録しながら順番に進められます。</td>
+      </tr>
+      <tr>
+        <td class="name"><a href="https://script.google.com/macros/s/AKfycbyeSCYKF9WxD31WKHZDWAkS2LNnaWoj7MaRsghjOaGl2Rp08bzgqUmOqWSMmYEzxLykeA/exec" target="_blank" rel="noopener">班別LINEリスト準備ツール</a></td>
+        <td class="desc">Google Apps Script製のWebアプリ。①自治会用Driveフォルダをテンプレートから複製、②班ごとのスプレッドシートを複製してチャンネルアクセストークンを貼り付け、をボタン操作だけで行える。</td>
+      </tr>
+      <tr>
+        <td class="name"><a href="file:///C:/Users/user/Desktop/%E9%98%BF%E9%83%A8%E5%BC%98%E8%A1%8C/%E3%83%97%E3%83%AD%E3%82%B8%E3%82%A7%E3%82%AF%E3%83%88/%E8%87%AA%E6%B2%BB%E4%BC%9A%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0_JS/%E8%A4%87%E8%A3%BD%E3%83%9E%E3%83%8B%E3%83%A5%E3%82%A2%E3%83%AB/">複製マニュアルフォルダ（jichikaidup連携）</a></td>
+        <td class="desc"><code>jichikaidup_handler.bat</code> / <code>jichikaidup_run.ps1</code> ： リンクをクリックするだけでフォルダを複製できるようにする仕組み（<code>jichikaidup:</code> 形式のリンクに対応）。このパソコンで使うには初回だけ登録が必要。</td>
+      </tr>
+
+      <tr class="group-row"><td colspan="2">量産・反映まわり（自治会フォルダ）</td></tr>
+      <tr>
+        <td class="name"><a href="file:///C:/Users/user/Desktop/%E9%98%BF%E9%83%A8%E5%BC%98%E8%A1%8C/%E3%83%97%E3%83%AD%E3%82%B8%E3%82%A7%E3%82%AF%E3%83%88/%E8%87%AA%E6%B2%BB%E4%BC%9A%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0_JS/%E8%87%AA%E6%B2%BB%E4%BC%9A%E3%83%95%E3%82%A9%E3%83%AB%E3%83%80/%E4%B8%80%E6%96%89%E5%8F%8D%E6%98%A0%E3%82%A2%E3%83%97%E3%83%AA/">一斉反映アプリ（フォルダを開く）</a></td>
+        <td class="desc">中の<code>起動.bat</code>をダブルクリックすると起動します。「自治会tmp_制作用」の最新デザイン・テキストを、量産済みの各自治会フォルダへ一括反映し、それぞれのGitHubリポジトリへ自動push。起動すると <a href="http://localhost:4173/" target="_blank" rel="noopener">http://localhost:4173/</a> が開きます。</td>
+      </tr>
+      <tr>
+        <td class="name"><a href="file:///C:/Users/user/Desktop/%E9%98%BF%E9%83%A8%E5%BC%98%E8%A1%8C/%E3%83%97%E3%83%AD%E3%82%B8%E3%82%A7%E3%82%AF%E3%83%88/%E8%87%AA%E6%B2%BB%E4%BC%9A%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0_JS/%E8%87%AA%E6%B2%BB%E4%BC%9A%E3%83%95%E3%82%A9%E3%83%AB%E3%83%80/%E8%87%AA%E6%B2%BB%E4%BC%9Atmp_%E5%88%B6%E4%BD%9C%E7%94%A8/">自治会tmp_制作用（フォルダを開く）</a></td>
+        <td class="desc">新しい自治会を作るときの複製元になるマスターテンプレート本体（コード一式）。ここを直接編集し、「一斉反映アプリ」で各自治会に配る運用。</td>
+      </tr>
+      <tr>
+        <td class="name"><a href="file:///C:/Users/user/Desktop/%E9%98%BF%E9%83%A8%E5%BC%98%E8%A1%8C/%E3%83%97%E3%83%AD%E3%82%B8%E3%82%A7%E3%82%AF%E3%83%88/%E8%87%AA%E6%B2%BB%E4%BC%9A%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0_JS/%E8%87%AA%E6%B2%BB%E4%BC%9A%E3%83%95%E3%82%A9%E3%83%AB%E3%83%80/test/">test（フォルダを開く）</a></td>
+        <td class="desc">動作確認用に複製したテスト用フォルダ。本番の自治会ではない。</td>
+      </tr>
+
+      <tr class="group-row"><td colspan="2">管理画面（本番・平野自治会／jichikai-1048017269324.asia-northeast1.run.app）</td></tr>
+      <tr>
+        <td class="name"><a href="https://jichikai-1048017269324.asia-northeast1.run.app/admin/broadcast.html" target="_blank" rel="noopener">お知らせ配信</a></td>
+        <td class="desc">トップページ。班・対象者を選んでLINEへ一斉配信するメイン画面。</td>
+      </tr>
+      <tr>
+        <td class="name"><a href="https://jichikai-1048017269324.asia-northeast1.run.app/admin/members.html" target="_blank" rel="noopener">名簿一覧</a></td>
+        <td class="desc">会員の名簿確認・役職の管理。</td>
+      </tr>
+      <tr>
+        <td class="name"><a href="https://jichikai-1048017269324.asia-northeast1.run.app/admin/accounting.html" target="_blank" rel="noopener">入出金管理</a></td>
+        <td class="desc">自治会の会計（入出金）の記録・管理。</td>
+      </tr>
+      <tr>
+        <td class="name"><a href="https://jichikai-1048017269324.asia-northeast1.run.app/admin/disaster.html" target="_blank" rel="noopener">防災コーナー設定</a></td>
+        <td class="desc">会員向け「防災コーナー」に表示する内容の管理。</td>
+      </tr>
+      <tr>
+        <td class="name"><a href="https://jichikai-1048017269324.asia-northeast1.run.app/admin/recording.html" target="_blank" rel="noopener">録音</a></td>
+        <td class="desc">音声を録音して、お知らせ配信などに使う機能。</td>
+      </tr>
+
+      <tr class="group-row"><td colspan="2">会員向けページ・登録ページ（本番）</td></tr>
+      <tr>
+        <td class="name"><a href="https://jichikai-1048017269324.asia-northeast1.run.app/liff/index.html" target="_blank" rel="noopener">会員登録（LIFF）</a></td>
+        <td class="desc">LINEから開くLINE会員登録ページ。LINEアプリ内で開くことを想定（LIFF）。</td>
+      </tr>
+      <tr>
+        <td class="name"><a href="https://jichikai-1048017269324.asia-northeast1.run.app/attend.html" target="_blank" rel="noopener">出欠のご連絡</a></td>
+        <td class="desc">イベントの出欠を会員がLINEから回答するページ。</td>
+      </tr>
+      <tr>
+        <td class="name"><a href="https://jichikai-1048017269324.asia-northeast1.run.app/safety.html" target="_blank" rel="noopener">安否確認</a></td>
+        <td class="desc">災害時に会員が安否を回答するページ。</td>
+      </tr>
+      <tr>
+        <td class="name"><a href="https://jichikai-1048017269324.asia-northeast1.run.app/disaster.html" target="_blank" rel="noopener">防災コーナー</a></td>
+        <td class="desc">会員が見る防災情報ページ（ハザードマップ・持ち出し品リストなど、admin側の防災コーナー設定で管理）。</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="lead" style="margin-top:14px;">上の「管理画面」「会員向けページ」は本番URLへのリンクです。ソースの実体は <code>自治会フォルダ/自治会tmp_制作用/public/</code> 以下にあり、直すときはそこを編集して「一斉反映アプリ」で反映します。</p>
+
+  <footer>自治会システム_JS リンク一覧</footer>
+</div>
+</body>
+</html>

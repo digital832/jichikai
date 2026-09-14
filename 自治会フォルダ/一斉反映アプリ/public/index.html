@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>一斉反映アプリ</title>
+<style>
+  :root {
+    --green: #06c755;
+    --green-dark: #05a648;
+    --green-light: #e7f9ee;
+    --red: #ef4a4a;
+    --red-light: #fdeaea;
+    --amber: #b8860b;
+    --amber-bg: #fff8e6;
+    --bg: #f4f6f5;
+    --card-bg: #ffffff;
+    --text: #1c1f1e;
+    --text-sub: #6b716f;
+    --border: #e4e7e5;
+    --input-bg: #f5f6f5;
+    --radius-card: 18px;
+    --radius-input: 12px;
+  }
+  * { box-sizing: border-box; }
+  html { overflow-x: hidden; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Hiragino Sans", "Noto Sans JP", "Yu Gothic", -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page { max-width: 680px; width: 100%; margin: 0 auto; padding: 20px 16px 60px; }
+
+  .hero {
+    background: linear-gradient(135deg, var(--green), var(--green-dark));
+    color: #fff;
+    border-radius: var(--radius-card);
+    padding: 24px 22px;
+    margin-bottom: 16px;
+  }
+  .hero h1 { margin: 0 0 8px; font-size: 20px; }
+  .hero p { margin: 0; font-size: 13px; line-height: 1.7; opacity: 0.95; }
+
+  .card {
+    background: var(--card-bg);
+    border-radius: var(--radius-card);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    padding: 20px 18px;
+    margin-bottom: 14px;
+  }
+  .card-heading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0 0 10px;
+  }
+  .badge {
+    flex: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--green);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .step-desc { font-size: 13px; line-height: 1.8; color: var(--text); margin: 0 0 12px; }
+  .step-desc b { color: var(--green-dark); }
+
+  .toolbar-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .toolbar-link {
+    font-size: 12px;
+    color: var(--text-sub);
+    background: none;
+    border: none;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .org-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
+  .org-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--input-bg);
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .org-row input { width: 17px; height: 17px; accent-color: var(--green); flex: none; }
+
+  .empty-hint, .loading-hint { font-size: 13px; color: var(--text-sub); padding: 12px 0; }
+
+  .action-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+  .btn {
+    border: none;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 12px 18px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .btn-primary { background: var(--green); color: #fff; }
+  .btn-primary:hover { background: var(--green-dark); }
+  .btn-secondary { background: #fff; color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--green); color: var(--green-dark); }
+  .btn:disabled { background: var(--border); color: var(--text-sub); cursor: not-allowed; }
+
+  .note-box {
+    background: var(--amber-bg);
+    color: #6b5000;
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 12px;
+    line-height: 1.7;
+    margin-top: 14px;
+  }
+  .note-box b { color: var(--amber); }
+
+  .result-list { display: flex; flex-direction: column; gap: 8px; }
+  .result-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    font-size: 13px;
+    line-height: 1.6;
+    border: 1px solid var(--border);
+  }
+  .result-row .result-name { font-weight: 700; flex: none; min-width: 110px; }
+  .result-row.status-done { background: var(--green-light); border-color: var(--green); color: var(--green-dark); }
+  .result-row.status-no-change { background: var(--input-bg); color: var(--text-sub); }
+  .result-row.status-dry-run { background: #eef4ff; border-color: #7fa8ff; color: #1d4ed8; }
+  .result-row.status-push-failed, .result-row.status-error { background: var(--red-light); border-color: var(--red); color: #b91c1c; }
+
+  footer { text-align: center; font-size: 11px; color: var(--text-sub); margin-top: 24px; line-height: 1.8; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="hero">
+    <h1>一斉反映アプリ</h1>
+    <p>「自治会tmp_制作用」の最新デザイン・テキストを、量産済みの各自治会フォルダへまとめて反映します。反映すると、各自治会自身のGitHubリポジトリへ自動でpushされます（Renderにも反映されます）。</p>
+  </div>
+
+  <div class="card">
+    <p class="card-heading"><span class="badge">1</span>反映する自治会を選ぶ</p>
+    <p class="step-desc">「自治会フォルダ」の中にある自治会が、自動で一覧に出てきます。</p>
+
+    <div class="toolbar-row">
+      <span class="step-desc" style="margin:0;" id="countLabel"></span>
+      <button class="toolbar-link" id="toggleAllButton" type="button">全て選択/解除</button>
+    </div>
+
+    <div class="org-list" id="orgList">
+      <p class="loading-hint">読み込み中…</p>
+    </div>
+
+    <div class="action-row">
+      <button class="btn btn-secondary" id="dryRunButton" type="button">🔍 確認だけする（お試し）</button>
+      <button class="btn btn-primary" id="runButton" type="button">🚀 反映してpushする</button>
+    </div>
+
+    <div class="note-box">
+      <b>反映されるもの：</b>「自治会tmp_制作用」の中身がそのままコピーされます。<b>反映されないもの：</b> <code>.git</code> <code>.env</code> <code>node_modules</code>（各自治会ごとに固有の情報として保護されます）。
+    </div>
+  </div>
+
+  <div class="card" id="resultCard" hidden>
+    <p class="card-heading"><span class="badge">2</span>結果</p>
+    <div class="result-list" id="resultList"></div>
+  </div>
+
+  <footer>一斉反映アプリ ／ このパソコン上でのみ動作し、外部には送信されません</footer>
+</div>
+
+<script>
+(function () {
+  const orgListEl = document.getElementById('orgList');
+  const countLabel = document.getElementById('countLabel');
+  const toggleAllButton = document.getElementById('toggleAllButton');
+  const dryRunButton = document.getElementById('dryRunButton');
+  const runButton = document.getElementById('runButton');
+  const resultCard = document.getElementById('resultCard');
+  const resultList = document.getElementById('resultList');
+
+  const STATUS_LABEL = {
+    'done': '✅ 反映・push完了',
+    'no-change': '— 変更なし',
+    'dry-run': '🔍 お試し確認OK',
+    'push-failed': '⚠️ push失敗',
+    'error': '❌ 失敗',
+  };
+
+  let orgs = [];
+
+  async function loadOrgs() {
+    orgListEl.innerHTML = '<p class="loading-hint">読み込み中…</p>';
+    try {
+      const res = await fetch('/api/orgs');
+      const data = await res.json();
+      orgs = data.orgs || [];
+    } catch (err) {
+      orgListEl.innerHTML = '<p class="empty-hint">読み込みに失敗しました。サーバーが起動しているか確認してください。</p>';
+      return;
+    }
+
+    if (!orgs.length) {
+      orgListEl.innerHTML = '<p class="empty-hint">反映先の自治会フォルダがまだありません（自治会tmp_制作用しか無いようです）。</p>';
+      countLabel.textContent = '';
+      return;
+    }
+
+    orgListEl.innerHTML = '';
+    orgs.forEach((name) => {
+      const row = document.createElement('label');
+      row.className = 'org-row';
+      row.innerHTML = `<input type="checkbox" class="org-check" value="${name}" checked /> ${name}`;
+      orgListEl.appendChild(row);
+    });
+    updateCountLabel();
+  }
+
+  function getChecked() {
+    return Array.from(orgListEl.querySelectorAll('.org-check:checked')).map((el) => el.value);
+  }
+
+  function updateCountLabel() {
+    const total = orgListEl.querySelectorAll('.org-check').length;
+    const checked = getChecked().length;
+    countLabel.textContent = `${checked} / ${total} 自治会を選択中`;
+  }
+
+  orgListEl.addEventListener('change', updateCountLabel);
+
+  toggleAllButton.addEventListener('click', () => {
+    const boxes = orgListEl.querySelectorAll('.org-check');
+    const allChecked = Array.from(boxes).every((b) => b.checked);
+    boxes.forEach((b) => { b.checked = !allChecked; });
+    updateCountLabel();
+  });
+
+  function renderResults(results) {
+    resultCard.hidden = false;
+    resultList.innerHTML = '';
+    results.forEach((r) => {
+      const row = document.createElement('div');
+      row.className = 'result-row status-' + r.status;
+      row.innerHTML = `<span class="result-name">${r.org}</span><span>${STATUS_LABEL[r.status] || r.status}：${r.message}</span>`;
+      resultList.appendChild(row);
+    });
+    resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  async function runSync(dryRun) {
+    const selected = getChecked();
+    if (!selected.length) {
+      alert('自治会を1つ以上選んでください');
+      return;
+    }
+    if (!dryRun && !confirm(`${selected.length}件の自治会に反映してpushします。よろしいですか？`)) {
+      return;
+    }
+
+    dryRunButton.disabled = true;
+    runButton.disabled = true;
+    resultCard.hidden = false;
+    resultList.innerHTML = '<p class="loading-hint">実行中…</p>';
+
+    try {
+      const res = await fetch('/api/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orgs: selected, dryRun }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      renderResults(data.results || []);
+    } catch (err) {
+      resultList.innerHTML = `<p class="empty-hint">失敗しました: ${err.message}</p>`;
+    } finally {
+      dryRunButton.disabled = false;
+      runButton.disabled = false;
+    }
+  }
+
+  dryRunButton.addEventListener('click', () => runSync(true));
+  runButton.addEventListener('click', () => runSync(false));
+
+  loadOrgs();
+})();
+</script>
+</body>
+</html>

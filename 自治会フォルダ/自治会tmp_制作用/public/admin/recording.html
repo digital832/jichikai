@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>録音</title>
+<link rel="stylesheet" href="broadcast.css" />
+<style>
+  .record-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 28px;
+    border: none;
+    border-radius: 20px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    background: var(--green);
+    cursor: pointer;
+  }
+  .record-button.recording {
+    background: var(--red);
+  }
+  .record-timer {
+    text-align: center;
+    font-size: 32px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    margin: 16px 0;
+    color: var(--text-sub);
+  }
+  .record-timer.active { color: var(--red); }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <a class="menu-button" href="broadcast.html" style="text-decoration:none;">▷ 配信ウィザードへ</a>
+  </div>
+
+  <div class="card">
+    <p class="card-heading"><span class="badge">●</span>議事録の録音</p>
+    <p class="record-timer" id="recordTimer">00:00</p>
+    <button class="record-button" type="button" id="recordButton">🔴 録音を開始</button>
+    <p class="field-hint" id="recordStatus" style="text-align:center;margin-top:10px;"></p>
+    <p class="field-hint" style="text-align:center;">録音停止後、そのままこの端末にファイルとして保存されます（サーバーには保存されません）。</p>
+  </div>
+</div>
+<script src="recording.js"></script>
+</body>
+</html>

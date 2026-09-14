@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>自治会システム 複製・導入マニュアル</title>
+<style>
+  :root {
+    --green: #06c755;
+    --green-dark: #05a648;
+    --green-light: #e7f9ee;
+    --red: #ef4a4a;
+    --amber: #b8860b;
+    --amber-bg: #fff8e6;
+    --bg: #f4f6f5;
+    --card-bg: #ffffff;
+    --text: #1c1f1e;
+    --text-sub: #6b716f;
+    --border: #e4e7e5;
+    --input-bg: #f5f6f5;
+    --radius-card: 18px;
+    --radius-input: 12px;
+  }
+  * { box-sizing: border-box; }
+  html { overflow-x: hidden; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Hiragino Sans", "Noto Sans JP", "Yu Gothic", -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page { max-width: 760px; width: 100%; margin: 0 auto; padding: 20px 16px 60px; }
+
+  .hero {
+    background: linear-gradient(135deg, var(--green), var(--green-dark));
+    color: #fff;
+    border-radius: var(--radius-card);
+    padding: 24px 22px;
+    margin-bottom: 16px;
+  }
+  .hero h1 { margin: 0 0 8px; font-size: 20px; }
+  .hero p { margin: 0; font-size: 13px; line-height: 1.7; opacity: 0.95; }
+
+  .progress-bar-track {
+    background: rgba(255,255,255,0.35);
+    border-radius: 999px;
+    height: 8px;
+    margin-top: 16px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    background: #fff;
+    height: 100%;
+    width: 0%;
+    transition: width 0.2s ease;
+  }
+  .progress-label { font-size: 12px; margin-top: 6px; opacity: 0.95; }
+
+  .card {
+    background: var(--card-bg);
+    border-radius: var(--radius-card);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    padding: 20px 18px;
+    margin-bottom: 14px;
+  }
+  .card-heading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0 0 6px;
+  }
+  .step-card .card-heading { margin-bottom: 12px; }
+  .badge {
+    flex: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--green);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .step-card.done .badge { background: var(--text-sub); }
+  .step-card.done { opacity: 0.75; }
+
+  .step-desc { font-size: 13px; line-height: 1.8; color: var(--text); margin: 0 0 14px; white-space: pre-line; }
+  .step-desc b { color: var(--green-dark); }
+
+  .field { margin-bottom: 14px; }
+  .field:last-child { margin-bottom: 0; }
+  .field-label { display: block; font-size: 12px; font-weight: 700; color: var(--text-sub); margin-bottom: 6px; }
+  .field-hint { font-size: 11px; color: var(--text-sub); margin-top: 5px; line-height: 1.6; }
+
+  .text-input, .textarea-input {
+    width: 100%;
+    padding: 11px 13px;
+    font-size: 14px;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-input);
+    color: var(--text);
+    font-family: inherit;
+  }
+  .text-input:focus, .textarea-input:focus { outline: none; border-color: var(--green); background: #fff; }
+  .textarea-input { min-height: 90px; resize: vertical; font-family: "SFMono-Regular", Consolas, monospace; font-size: 12px; }
+
+  .link-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+  .ext-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--green-light);
+    color: var(--green-dark);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 9px 14px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+  }
+  .ext-link:hover { border-color: var(--green); }
+
+  .copy-block { position: relative; margin-bottom: 14px; }
+  .copy-pre {
+    background: #1c1f1e;
+    color: #e7f9ee;
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.7;
+    padding: 14px 16px;
+    border-radius: var(--radius-input);
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+    margin: 0;
+  }
+  .copy-btn {
+    margin-top: 8px;
+    border: 1px solid var(--border);
+    background: #fff;
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 8px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .copy-btn.copied { background: var(--green-light); border-color: var(--green); color: var(--green-dark); }
+
+  .note-box {
+    background: var(--amber-bg);
+    color: #6b5000;
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 12px;
+    line-height: 1.7;
+    margin-bottom: 14px;
+  }
+  .note-box b { color: var(--amber); }
+
+  .checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    margin-top: 14px;
+  }
+  .checkbox-row input { width: 18px; height: 18px; accent-color: var(--green); flex: none; }
+  .checkbox-row label { font-size: 13px; font-weight: 700; cursor: pointer; }
+
+  .setup-card .field-label { color: var(--text); font-size: 13px; }
+  .two-col { display: flex; gap: 10px; flex-wrap: wrap; }
+  .two-col .field { flex: 1; min-width: 200px; }
+
+  select.text-input { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%236b716f' d='M7 10l5 5 5-5z'/></svg>"); background-repeat: no-repeat; background-position: right 12px center; background-size: 18px; padding-right: 32px; }
+
+  .reset-link { font-size: 12px; color: var(--text-sub); text-decoration: underline; cursor: pointer; background: none; border: none; padding: 0; }
+
+  .toc { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .toc a {
+    font-size: 11px;
+    color: var(--text-sub);
+    background: var(--input-bg);
+    border-radius: 999px;
+    padding: 5px 10px;
+    text-decoration: none;
+    border: 1px solid var(--border);
+  }
+
+  footer { text-align: center; font-size: 11px; color: var(--text-sub); margin-top: 24px; }
+
+  @media print {
+    .ext-link, .copy-btn, .checkbox-row input, .toc, .hero .progress-bar-track, .reset-link { display: none !important; }
+    body { background: #fff; }
+    .card { box-shadow: none; border: 1px solid #ccc; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="hero">
+    <h1>自治会システム 複製・導入マニュアル</h1>
+    <p>新しい自治会にLINE回覧板システムを導入するときの手順書です。この仕組みは「1自治会 = 1フォルダ（1セット）」で運用します。既存の自治会のコードを触らず、フォルダをまるごと複製して新しい独立した1セットを作ってください。この画面の入力欄はこのパソコンのブラウザ内だけに保存され、外部には送信されません。</p>
+    <div class="progress-bar-track"><div class="progress-bar-fill" id="progressFill"></div></div>
+    <div class="progress-label" id="progressLabel">0 / 7 完了</div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="card step-card" id="step1" data-step="1">
+    <p class="card-heading"><span class="badge">1</span>LINE公式アカウントを用意する</p>
+    <p class="step-desc">この自治会専用のLINE公式アカウントを作成し、Messaging APIのチャネルアクセストークンを発行します。班によって複数のLINE公式アカウントを使い分ける場合は、班の数だけこの手順を繰り返してください。審査に数日かかることがあるため、最初に着手しておくのがおすすめです。</p>
+    <div class="link-row">
+      <a class="ext-link" href="https://manager.line.biz/" target="_blank" rel="noopener">↗ LINE公式アカウントを作成</a>
+      <a class="ext-link" href="https://developers.line.biz/console/" target="_blank" rel="noopener">↗ LINE Developersでトークン発行</a>
+    </div>
+    <p class="step-desc">LINE Developersコンソールで、作成した公式アカウントに対応するチャネルを開き、「Messaging API設定」タブの一番下にある「チャネルアクセストークン（長期）」を発行してください。</p>
+    <div class="field">
+      <label class="field-label" for="lineToken">発行したチャネルアクセストークン</label>
+      <textarea class="textarea-input" id="lineToken" placeholder="発行したトークンを貼り付け"></textarea>
+      <p class="field-hint">このトークンは、名簿スプレッドシートの「名簿」タブ・<b>F列「アクセストークン」</b>に、対象になる会員の行すべてへコピペします（1人ずつ手作業になります）。班ごとに公式アカウントを分ける場合は、該当する班の行にそれぞれのトークンを入れてください。</p>
+    </div>
+    <div class="checkbox-row">
+      <input type="checkbox" id="check1" />
+      <label for="check1">LINE公式アカウントの用意・名簿への貼り付けが完了した</label>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="card-heading"><span class="badge">🚀</span>班別LINEリスト準備ツール</p>
+    <p class="step-desc">班によって複数のLINE公式アカウントを使い分ける場合に使う、別のツールです。テンプレートフォルダのこの自治会用への複製から、班ごとのスプレッドシート複製・チャンネルアクセストークンの貼り付けまで、ボタン操作だけで行えます（上の①・下の②で複数の公式アカウントを使う場合はこちらを使ってください）。</p>
+    <div class="link-row">
+      <a class="ext-link" href="https://script.google.com/macros/s/AKfycbyeSCYKF9WxD31WKHZDWAkS2LNnaWoj7MaRsghjOaGl2Rp08bzgqUmOqWSMmYEzxLykeA/exec" target="_blank" rel="noopener">↗ 班別LINEリスト準備ツールを開く</a>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="card step-card" id="step2" data-step="2">
+    <p class="card-heading"><span class="badge">2</span>LINEの友だちリストを名簿に取り込む</p>
+    <p class="step-desc">名簿スプレッドシートには、LINEの友だちリストを名簿タブに自動で取り込むためのスクリプト（GAS）が用意されています。スプレッドシートのメニュー「拡張機能」→「Apps Script」から、取り込み用のスクリプトを実行してください。手順やボタンの場所が分からない場合は、テンプレート作成担当（阿部さん）に確認してください。ここはこのマニュアルの対象外（スプレッドシート側の作業）です。</p>
+    <div class="checkbox-row">
+      <input type="checkbox" id="check2" />
+      <label for="check2">友だちリストの取り込みが完了した</label>
+    </div>
+  </div>
+
+  <div class="card setup-card">
+    <p class="card-heading"><span class="badge">📋</span>この自治会の記録</p>
+    <div class="two-col">
+      <div class="field">
+        <label class="field-label" for="orgName">自治会の正式名称</label>
+        <input class="text-input" type="text" id="orgName" placeholder="例：○○自治会" />
+      </div>
+      <div class="field">
+        <label class="field-label" for="orgId">管理用ID（英数字）</label>
+        <input class="text-input" type="text" id="orgId" placeholder="例：nakayama" />
+      </div>
+    </div>
+    <p class="field-hint">管理用IDは、フォルダ名やGitHubリポジトリ名に使う半角英数字です（ひらがな・漢字は使えません）。入力すると自動でこのブラウザに保存され、画面を閉じても入力内容が残ります。</p>
+    <button class="reset-link" id="resetButton" type="button">入力内容を消してやり直す</button>
+    <div class="toc">
+      <a href="#step1">①LINE公式アカウント</a>
+      <a href="#step2">②友だちリスト取込</a>
+      <a href="#step3">③フォルダ複製</a>
+      <a href="#step4">④GitHub</a>
+      <a href="#step5">⑤環境変数</a>
+      <a href="#step6">⑥Renderデプロイ</a>
+      <a href="#step7">⑦動作確認</a>
+    </div>
+  </div>
+
+  <!-- SETUP: protocol handler -->
+  <div class="card">
+    <p class="card-heading"><span class="badge">🔧</span>初回セットアップ（最初の1回だけ）</p>
+    <p class="step-desc">下のコマンドを1回だけPowerShellにコピー＆ペーストして実行しておくと、次のStep③でボタンを押すだけでPowerShellが自動的に開いてフォルダ複製が実行されるようになります（このパソコン限定の設定です）。実行時にWindowsから「このアプリを開きますか？」のような確認が出ることがありますが、許可してください。スキップしても、Step③の「コマンドをコピー」から今まで通り手動で複製できます。</p>
+    <div class="copy-block">
+      <pre class="copy-pre" id="setupCommands"></pre>
+      <button class="copy-btn" data-copy-target="setupCommands" type="button">コマンドをコピー</button>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="card step-card" id="step3" data-step="3">
+    <p class="card-heading"><span class="badge">3</span>プロジェクトフォルダを複製する</p>
+    <p class="step-desc">下にフォルダ名を入力し、「自動で複製を実行」ボタンを押す（上のセットアップ済みの場合）か、コマンドをコピーしてPowerShellに貼り付けて実行すると、「自治会フォルダ」の中に「自治会tmp_制作用」フォルダがまるごと複製され、GitHubに繋がった「.git」隠しフォルダも自動で削除されます（これを消さずに進めると、新しい自治会の変更が誤って元のリポジトリに送られてしまう危険があるため）。
+・今動いている自治会のシステムには一切触れません。安心して実行してください。</p>
+    <div class="field">
+      <label class="field-label" for="folderPath">複製後のフォルダ名</label>
+      <input class="text-input" type="text" id="folderPath" placeholder="例：nakayama（未入力なら管理用IDを使用）" />
+      <p class="field-hint">フルパスは不要です。「自治会フォルダ」の中に作る新しいフォルダの名前だけを入力してください。</p>
+    </div>
+    <div class="link-row">
+      <a class="ext-link" id="autoRunLink" href="#">⚡ 自動で複製を実行（要セットアップ）</a>
+    </div>
+    <div class="copy-block">
+      <pre class="copy-pre" id="duplicateCommands"></pre>
+      <button class="copy-btn" data-copy-target="duplicateCommands" type="button">コマンドをコピー</button>
+    </div>
+    <div class="checkbox-row">
+      <input type="checkbox" id="check3" />
+      <label for="check3">フォルダの複製が完了した</label>
+    </div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="card step-card" id="step4" data-step="4">
+    <p class="card-heading"><span class="badge">4</span>新しいGitHubリポジトリを作って、コードをアップロードする</p>
+    <p class="step-desc">RenderにWebサービスとしてデプロイするために、複製したコードを新しいGitHubリポジトリにアップロードします。</p>
+    <div class="link-row">
+      <a class="ext-link" href="https://github.com/new" target="_blank" rel="noopener">↗ GitHubで新しいリポジトリを作成</a>
+    </div>
+    <p class="step-desc">「Repository name」に下のリポジトリ名を入力し、<b>Private</b>を選んで「Create repository」を押してください（README等は追加しないでOK）。作成できたら、下のコマンドをそのままコピーして、PowerShellで複製したフォルダに対して実行してください。</p>
+    <div class="two-col">
+      <div class="field">
+        <label class="field-label" for="githubUser">GitHubのユーザー名／組織名</label>
+        <input class="text-input" type="text" id="githubUser" placeholder="digital832" />
+      </div>
+      <div class="field">
+        <label class="field-label" for="repoName">新しいリポジトリ名</label>
+        <input class="text-input" type="text" id="repoName" placeholder="例：jichikai-nakayama" />
+      </div>
+    </div>
+    <div class="copy-block">
+      <pre class="copy-pre" id="gitCommands"></pre>
+      <button class="copy-btn" data-copy-target="gitCommands" type="button">コマンドをコピー</button>
+    </div>
+    <div class="checkbox-row">
+      <input type="checkbox" id="check4" />
+      <label for="check4">GitHubへのアップロードが完了した</label>
+    </div>
+  </div>
+
+  <!-- STEP 5 -->
+  <div class="card step-card" id="step5" data-step="5">
+    <p class="card-heading"><span class="badge">5</span>環境変数（.env）の内容を作る</p>
+    <p class="step-desc">ここまでで集めた情報から、Renderに設定する環境変数をまとめて作ります。秘密鍵（GOOGLE_SA_PRIVATE_KEY）は全自治会共通のものを使い回すので、今動いている自治会のシステムの.envファイル、または阿部さんが管理している保管場所から同じ内容をコピーしてください。</p>
+    <div class="field">
+      <label class="field-label" for="privateKey">GOOGLE_SA_PRIVATE_KEY（秘密鍵）</label>
+      <textarea class="textarea-input" id="privateKey" placeholder='"-----BEGIN PRIVATE KEY-----&#10;...&#10;-----END PRIVATE KEY-----&#10;" の形式で貼り付け'></textarea>
+      <p class="field-hint">この内容はこのブラウザにのみ保存されます。人に渡すときは画面共有やチャットへの直接貼り付けを避け、口頭やパスワード管理ツールなど安全な方法で伝えてください。</p>
+    </div>
+    <div class="field">
+      <label class="field-label" for="printFolderUrl">PRINT_FOLDER_URL（任意・印刷用Driveフォルダ）</label>
+      <input class="text-input" type="text" id="printFolderUrl" placeholder="未定なら空欄でOK（後で設定可）" />
+    </div>
+    <p class="step-desc">下に、ここまでに入力した自治会名と、このステップで入力した内容から自動生成した.envの中身が表示されます。空欄の項目は手順を戻って埋めてください。</p>
+    <div class="copy-block">
+      <pre class="copy-pre" id="envOutput"></pre>
+      <button class="copy-btn" data-copy-target="envOutput" type="button">.envの内容をコピー</button>
+    </div>
+    <div class="note-box">スプレッドシートのタブ名（名簿・Events・グループマスタ・防災設定など）をテンプレートから変更していない場合、上記以外の環境変数は設定不要です（プログラム側に既定値が入っています）。</div>
+    <div class="checkbox-row">
+      <input type="checkbox" id="check5" />
+      <label for="check5">.envの内容を準備できた</label>
+    </div>
+  </div>
+
+  <!-- STEP 6 -->
+  <div class="card step-card" id="step6" data-step="6">
+    <p class="card-heading"><span class="badge">6</span>Renderにデプロイする</p>
+    <p class="step-desc">1.「New +」→「Web Service」を選択
+2.「Build and deploy from a Git repository」で、④で作成したGitHubリポジトリを選択（一覧に出ない場合は「Configure GitHub App」でRenderにリポジトリへのアクセスを許可）
+3. Environmentは「Docker」が自動選択されます（フォルダにDockerfileが入っているため）
+4.「Environment Variables」の「Add from .env」に、⑤でコピーした内容をそのまま貼り付け
+5.「Create Web Service」を押してデプロイ開始（数分かかります）</p>
+    <div class="link-row">
+      <a class="ext-link" href="https://dashboard.render.com/" target="_blank" rel="noopener">↗ Renderダッシュボードを開く</a>
+    </div>
+    <div class="field">
+      <label class="field-label" for="renderUrl">発行されたURL（https://〜.onrender.com）</label>
+      <input class="text-input" type="text" id="renderUrl" placeholder="https://jichikai-nakayama.onrender.com" />
+    </div>
+    <div class="checkbox-row">
+      <input type="checkbox" id="check6" />
+      <label for="check6">Renderへのデプロイが完了した</label>
+    </div>
+  </div>
+
+  <!-- STEP 7 -->
+  <div class="card step-card" id="step7" data-step="7">
+    <p class="card-heading"><span class="badge">7</span>動作確認</p>
+    <p class="step-desc">□ 発行されたURLを開くと「配信ウィザード」画面が表示される
+□ 「名簿一覧」に、②で取り込んだ会員が表示される
+□ 自分のLINEを対象にテスト配信して、メッセージが届く
+□ 問題があれば、Renderの「Logs」タブでエラー内容を確認する</p>
+    <div class="link-row">
+      <a class="ext-link" id="openRenderUrl" href="#" target="_blank" rel="noopener">↗ 発行されたURLを開く</a>
+    </div>
+    <div class="checkbox-row">
+      <input type="checkbox" id="check7" />
+      <label for="check7">動作確認が完了し、この自治会の導入が完了した</label>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="card-heading"><span class="badge">✓</span>この自治会の記録まとめ</p>
+    <pre class="copy-pre" id="summaryOutput" style="background:#fff;color:var(--text);border:1px solid var(--border);"></pre>
+    <button class="copy-btn" onclick="window.print()" type="button">この画面を印刷／PDF保存</button>
+  </div>
+
+  <footer>自治会システム 複製・導入マニュアル ／ 記録内容はこのパソコンのブラウザにのみ保存されます</footer>
+</div>
+
+<script>
+(function () {
+  var STORAGE_KEY = 'jichikaiDupGuide::draft';
+  var FIELD_IDS = [
+    'orgName', 'orgId', 'folderPath', 'githubUser', 'repoName',
+    'lineToken', 'privateKey', 'printFolderUrl', 'renderUrl'
+  ];
+  var CHECK_IDS = ['check1','check2','check3','check4','check5','check6','check7'];
+  var SA_EMAIL = 'id-533@jichikai-tmp.iam.gserviceaccount.com';
+
+  var els = {};
+  FIELD_IDS.concat(CHECK_IDS).forEach(function (id) { els[id] = document.getElementById(id); });
+
+  function collectState() {
+    var state = {};
+    FIELD_IDS.forEach(function (id) { state[id] = els[id].value; });
+    CHECK_IDS.forEach(function (id) { state[id] = els[id].checked; });
+    return state;
+  }
+
+  function applyState(state) {
+    state = state || {};
+    FIELD_IDS.forEach(function (id) { els[id].value = state[id] || ''; });
+    CHECK_IDS.forEach(function (id) { els[id].checked = !!state[id]; });
+  }
+
+  function save() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(collectState()));
+    render();
+  }
+
+  function load() {
+    var raw = localStorage.getItem(STORAGE_KEY);
+    applyState(raw ? JSON.parse(raw) : {});
+    render();
+  }
+
+  document.getElementById('resetButton').addEventListener('click', function () {
+    if (!confirm('入力内容を消します。よろしいですか？')) return;
+    localStorage.removeItem(STORAGE_KEY);
+    applyState({});
+    render();
+  });
+
+  var BASE_FOLDER = 'C:\\Users\\user\\Desktop\\阿部弘行\\プロジェクト\\自治会システム_JS\\自治会フォルダ\\';
+  var HANDLER_PATH = 'C:\\Users\\user\\Desktop\\阿部弘行\\プロジェクト\\自治会システム_JS\\複製マニュアル\\jichikaidup_handler.bat';
+
+  document.getElementById('setupCommands').textContent =
+    "$handlerPath = '" + HANDLER_PATH + "'\n" +
+    "New-Item -Path 'HKCU:\\Software\\Classes\\jichikaidup' -Force | Out-Null\n" +
+    "Set-ItemProperty -Path 'HKCU:\\Software\\Classes\\jichikaidup' -Name '(Default)' -Value 'URL:Jichikai Duplicate Protocol'\n" +
+    "Set-ItemProperty -Path 'HKCU:\\Software\\Classes\\jichikaidup' -Name 'URL Protocol' -Value ''\n" +
+    "New-Item -Path 'HKCU:\\Software\\Classes\\jichikaidup\\shell\\open\\command' -Force | Out-Null\n" +
+    "Set-ItemProperty -Path 'HKCU:\\Software\\Classes\\jichikaidup\\shell\\open\\command' -Name '(Default)' -Value ('\"' + $handlerPath + '\" \"%1\"')\n" +
+    "Write-Host 'セットアップが完了しました。'";
+
+  function slugSuggest() {
+    var id = (els.orgId.value || '').trim();
+    return id || '（管理用IDを入力してください）';
+  }
+
+  function getDuplicatePaths() {
+    var folderName = els.folderPath.value.trim() || slugSuggest();
+    return {
+      src: BASE_FOLDER + '自治会tmp_制作用',
+      dst: BASE_FOLDER + folderName
+    };
+  }
+
+  function render() {
+    var orgId = (els.orgId.value || '').trim();
+    var paths = getDuplicatePaths();
+    var folderPath = paths.dst;
+    var githubUser = els.githubUser.value.trim() || 'digital832';
+    var repoName = els.repoName.value.trim() || ('jichikai-' + slugSuggest());
+
+    document.getElementById('autoRunLink').href =
+      'jichikaidup:src=' + encodeURIComponent(paths.src) + '&dst=' + encodeURIComponent(paths.dst);
+
+    document.getElementById('duplicateCommands').textContent =
+      'Copy-Item -Path "' + paths.src + '" -Destination "' + paths.dst + '" -Recurse\n' +
+      'Remove-Item -Recurse -Force "' + paths.dst + '\\.git" -ErrorAction SilentlyContinue';
+
+    document.getElementById('gitCommands').textContent =
+      'cd "' + folderPath + '"\n' +
+      'git init\n' +
+      'git add .\n' +
+      'git commit -m "初回コミット"\n' +
+      'git branch -M main\n' +
+      'git remote add origin https://github.com/' + githubUser + '/' + repoName + '.git\n' +
+      'git push -u origin main';
+
+    var privateKey = els.privateKey.value.trim();
+    var printFolderUrl = els.printFolderUrl.value.trim();
+
+    var envLines = [
+      '# ' + (els.orgName.value.trim() || '（自治会名未入力）') + ' 用 環境変数',
+      'PORT=3000',
+      '',
+      'GOOGLE_SA_CLIENT_EMAIL=' + SA_EMAIL,
+      'GOOGLE_SA_PRIVATE_KEY=' + (privateKey || '（⑤で秘密鍵を入力してください）'),
+      '',
+      'PRINT_FOLDER_URL=' + printFolderUrl
+    ];
+    document.getElementById('envOutput').textContent = envLines.join('\n');
+
+    document.getElementById('openRenderUrl').href = els.renderUrl.value.trim() || '#';
+
+    var doneCount = CHECK_IDS.filter(function (id) { return els[id].checked; }).length;
+    document.getElementById('progressFill').style.width = (doneCount / CHECK_IDS.length * 100) + '%';
+    document.getElementById('progressLabel').textContent = doneCount + ' / ' + CHECK_IDS.length + ' 完了';
+
+    CHECK_IDS.forEach(function (id, i) {
+      var card = document.getElementById('step' + (i + 1));
+      if (card) card.classList.toggle('done', els[id].checked);
+    });
+
+    document.getElementById('summaryOutput').textContent = [
+      '自治会名： ' + (els.orgName.value.trim() || '（未入力）'),
+      '管理用ID： ' + (orgId || '（未入力）'),
+      '複製フォルダ： ' + folderPath,
+      'GitHubリポジトリ： https://github.com/' + githubUser + '/' + repoName,
+      'サービスアカウント： ' + SA_EMAIL,
+      'RenderのURL： ' + (els.renderUrl.value.trim() || '（未入力）'),
+      '進捗： ' + doneCount + ' / ' + CHECK_IDS.length
+    ].join('\n');
+  }
+
+  FIELD_IDS.concat(CHECK_IDS).forEach(function (id) {
+    els[id].addEventListener('input', save);
+    els[id].addEventListener('change', save);
+  });
+
+  document.querySelectorAll('.copy-btn[data-copy-target]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var target = document.getElementById(btn.getAttribute('data-copy-target'));
+      var text = target.textContent;
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+      document.body.removeChild(ta);
+      if (!ok && navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).catch(function () {});
+      }
+      var original = btn.textContent;
+      btn.textContent = 'コピーしました';
+      btn.classList.add('copied');
+      setTimeout(function () { btn.textContent = original; btn.classList.remove('copied'); }, 1500);
+    });
+  });
+
+  load();
+})();
+</script>
+</body>
+</html>

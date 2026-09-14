@@ -1,0 +1,18 @@
+{
+  "name": "jichikai-system",
+  "version": "1.0.0",
+  "private": true,
+  "description": "自治会 LINE会員登録・お知らせ配信システム",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test:sheets": "node scripts/test-sheets-read.js"
+  },
+  "dependencies": {
+    "@line/bot-sdk": "^9.7.1",
+    "docx": "^9.1.1",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "googleapis": "^144.0.0"
+  }
+}

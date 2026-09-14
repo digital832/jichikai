@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base target="_top">
+<meta charset="UTF-8" />
+<style>
+  :root {
+    --green: #06c755;
+    --green-dark: #05a648;
+    --green-light: #e7f9ee;
+    --red: #ef4a4a;
+    --red-light: #fdeaea;
+    --amber: #b8860b;
+    --amber-bg: #fff8e6;
+    --bg: #f4f6f5;
+    --card-bg: #ffffff;
+    --text: #1c1f1e;
+    --text-sub: #6b716f;
+    --border: #e4e7e5;
+    --input-bg: #f5f6f5;
+    --radius-card: 18px;
+    --radius-input: 12px;
+  }
+  * { box-sizing: border-box; }
+  html { overflow-x: hidden; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Hiragino Sans", "Noto Sans JP", "Yu Gothic", -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .page { max-width: 760px; width: 100%; margin: 0 auto; padding: 20px 16px 60px; }
+
+  .hero {
+    background: linear-gradient(135deg, var(--green), var(--green-dark));
+    color: #fff;
+    border-radius: var(--radius-card);
+    padding: 24px 22px;
+    margin-bottom: 16px;
+  }
+  .hero h1 { margin: 0 0 8px; font-size: 20px; }
+  .hero p { margin: 0; font-size: 13px; line-height: 1.7; opacity: 0.95; }
+
+  .card {
+    background: var(--card-bg);
+    border-radius: var(--radius-card);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    padding: 20px 18px;
+    margin-bottom: 14px;
+  }
+  .card-heading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0 0 6px;
+  }
+  .badge {
+    flex: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--green);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .step-desc { font-size: 13px; line-height: 1.8; color: var(--text); margin: 0 0 14px; white-space: pre-line; }
+  .step-desc b { color: var(--green-dark); }
+
+  .link-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+  .ext-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--green-light);
+    color: var(--green-dark);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 9px 14px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+  }
+  .ext-link:hover { border-color: var(--green); }
+
+  .note-box {
+    background: var(--amber-bg);
+    color: #6b5000;
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 12px;
+    line-height: 1.7;
+    margin-bottom: 14px;
+  }
+  .note-box b { color: var(--amber); }
+
+  .auto-duplicate-box {
+    background: var(--green-light);
+    border: 1px solid var(--green);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+  }
+
+  .han-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 14px; }
+
+  .han-card {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 16px 14px;
+    background: var(--input-bg);
+  }
+  .han-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .han-card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-sub);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .han-number {
+    flex: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #fff;
+    border: 1px solid var(--border);
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text);
+  }
+  .han-remove {
+    border: none;
+    background: none;
+    color: var(--text-sub);
+    font-size: 12px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 8px;
+  }
+  .han-remove:hover { background: var(--red-light); color: var(--red); }
+
+  .field { margin-bottom: 12px; }
+  .field:last-child { margin-bottom: 0; }
+  .field-label { display: block; font-size: 12px; font-weight: 700; color: var(--text-sub); margin-bottom: 6px; }
+  .field-hint { font-size: 11px; color: var(--text-sub); margin-top: 5px; line-height: 1.6; }
+
+  .text-input {
+    width: 100%;
+    padding: 11px 13px;
+    font-size: 14px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-input);
+    color: var(--text);
+    font-family: inherit;
+  }
+  .text-input:focus { outline: none; border-color: var(--green); }
+
+  .token-row { display: flex; gap: 8px; align-items: stretch; }
+  .token-row .text-input { flex: 1; font-family: "SFMono-Regular", Consolas, monospace; font-size: 12.5px; }
+  .token-toggle, .token-copy {
+    flex: none;
+    border: 1px solid var(--border);
+    background: #fff;
+    color: var(--text-sub);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 0 12px;
+    border-radius: var(--radius-input);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .token-copy.copied { background: var(--green-light); border-color: var(--green); color: var(--green-dark); }
+
+  .han-guide {
+    margin-top: 12px;
+    background: #fff;
+    border: 1px dashed var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 12.5px;
+    line-height: 1.9;
+    color: var(--text);
+  }
+  .han-guide b { color: var(--green-dark); }
+  .han-guide .filename-chip {
+    display: inline-block;
+    background: var(--green-light);
+    color: var(--green-dark);
+    font-weight: 700;
+    padding: 1px 8px;
+    border-radius: 6px;
+  }
+
+  .auto-row {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .auto-button {
+    border: none;
+    background: var(--green);
+    color: #fff;
+    font-size: 12.5px;
+    font-weight: 700;
+    padding: 10px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .auto-button:hover { background: var(--green-dark); }
+  .auto-button:disabled { background: var(--border); color: var(--text-sub); cursor: not-allowed; }
+  .auto-status { font-size: 12px; color: var(--text-sub); line-height: 1.6; }
+  .auto-status.ok { color: var(--green-dark); font-weight: 700; }
+  .auto-status.error { color: var(--red); font-weight: 700; }
+  .auto-status a { color: inherit; }
+
+  .checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-top: 12px;
+    margin-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+  .checkbox-row input { width: 17px; height: 17px; accent-color: var(--green); flex: none; }
+  .checkbox-row label { font-size: 12.5px; font-weight: 700; cursor: pointer; }
+  .han-card.done { opacity: 0.7; }
+  .han-card.done .han-number { background: var(--text-sub); color: #fff; border-color: var(--text-sub); }
+
+  .add-han-button {
+    width: 100%;
+    border: 1.5px dashed var(--green);
+    background: var(--green-light);
+    color: var(--green-dark);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 12px;
+    border-radius: 14px;
+    cursor: pointer;
+  }
+  .add-han-button:hover { background: #d7f4e3; }
+
+  .progress-label { font-size: 12px; color: var(--text-sub); margin-bottom: 12px; }
+
+  footer { text-align: center; font-size: 11px; color: var(--text-sub); margin-top: 24px; line-height: 1.8; }
+
+  .back-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border: 1px solid var(--border);
+    background: #fff;
+    color: var(--text-sub);
+    font-size: 12.5px;
+    font-weight: 700;
+    padding: 8px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    margin-bottom: 12px;
+  }
+  .back-button:hover { border-color: var(--green); color: var(--green-dark); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <button type="button" class="back-button" id="backButton">← 戻る</button>
+
+  <div class="hero">
+    <h1>班別LINEリスト準備ツール</h1>
+    <p>班ごとにLINE公式アカウントを分ける場合の準備ツールです。テンプレートフォルダの複製から、班ごとのスプレッドシート作成・トークンの貼り付けまで、ボタン操作だけで行えます（うまくいかない場合は手作業の案内どおりに進めることもできます）。班名・トークンの入力途中の内容はこのブラウザにのみ保存され、「自動で複製する」を押したときだけこのツールの裏側（あなたのGoogleドライブ）に送られます。</p>
+  </div>
+
+  <div class="card">
+    <p class="card-heading"><span class="badge">1</span>テンプレートをこの自治会用に複製する</p>
+    <p class="step-desc">マスターの<b>テンプレートリンク</b>には、あらかじめ<b>グループ</b>フォルダと、その中に複製元スプレッドシート「<b>リストtmp</b>」が入っています。<b>このマスターに直接手を加えず、フォルダごと丸ごと複製</b>してから使ってください。他の自治会のデータと混ざるのを防ぐためです。</p>
+    <div class="link-row">
+      <a class="ext-link" href="https://drive.google.com/drive/folders/1Y1kfOTFH0u3JzniYNgDs_rbCF-pxjfkV?usp=drive_link" target="_blank" rel="noopener">↗ マスターのテンプレートリンクを開く</a>
+    </div>
+
+    <div class="auto-duplicate-box">
+      <p class="step-desc" style="margin-bottom:10px;"><b>🚀 自動で複製する場合：</b>自治会名を入れてボタンを押すだけでフォルダがまるごと複製され、下のURL欄に新しいフォルダのリンクが自動で入ります。</p>
+      <div class="field">
+        <label class="field-label" for="orgName">自治会名（複製後のフォルダ名に使います）</label>
+        <input class="text-input" type="text" id="orgName" placeholder="例：○○自治会" />
+      </div>
+      <div class="auto-row">
+        <button type="button" class="auto-button" id="duplicateTemplateButton">🚀 自動で複製する</button>
+        <span class="auto-status" id="duplicateTemplateStatus"></span>
+      </div>
+    </div>
+
+    <p class="step-desc"><b>手作業で複製する場合：</b><br />① 開いたフォルダを右クリック →「コピーを作成」でフォルダごと複製（この操作が出ない場合は、中身を全選択してコピーし、新しいフォルダへ移動してください）<br />② 複製してできたフォルダを、この自治会の管理用フォルダの中に移動し、分かりやすい名前に変更（例：「○○_自治会」）<br />③ 複製したフォルダのURLを下に貼り付けてください。</p>
+    <div class="field">
+      <label class="field-label" for="orgFolderUrl">この自治会用フォルダのURL</label>
+      <input class="text-input" type="text" id="orgFolderUrl" placeholder="https://drive.google.com/drive/folders/..." />
+      <p class="field-hint">未入力の間は、下の②で班を複製できません。</p>
+    </div>
+    <div class="link-row" id="orgFolderLinkRow" hidden>
+      <a class="ext-link" id="orgFolderLink" href="#" target="_blank" rel="noopener">↗ この自治会用フォルダを開く</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="card-heading"><span class="badge">2</span>班を登録する</p>
+    <p class="step-desc">①で複製した、この自治会用フォルダの中の<b>グループ</b>フォルダの中の「<b>リストtmp</b>」を班の数だけ複製します。</p>
+    <p class="progress-label" id="progressLabel">0 / 3 班の設定が完了</p>
+
+    <div class="han-list" id="hanList"></div>
+
+    <button class="add-han-button" type="button" id="addHanButton">＋ 班を追加する</button>
+  </div>
+
+  <div class="note-box">
+    <b>チャンネルアクセストークンの扱いについて：</b>このトークンは班のLINE公式アカウントを操作できる重要な情報です。貼り付けるスプレッドシートの共有先は、必要な担当者だけに絞ってください。もし誤って外部に漏れた場合は、LINE Developersコンソールでトークンを再発行すればすぐに無効化できます。このツール自体へのアクセスも、Apps Scriptのデプロイ設定で必要な人だけに絞ってあります。
+  </div>
+
+  <footer>班別LINEリスト準備ツール ／ 入力途中の内容はこのブラウザにのみ保存されます</footer>
+</div>
+
+<script>
+(function () {
+  document.getElementById('backButton').addEventListener('click', function () {
+    if (history.length > 1) {
+      history.back();
+    } else {
+      window.close();
+    }
+  });
+
+  var STORAGE_KEY = 'hanListTool::entries';
+  var ORG_FOLDER_STORAGE_KEY = 'hanListTool::orgFolderUrl';
+  var listEl = document.getElementById('hanList');
+  var addButton = document.getElementById('addHanButton');
+  var progressLabel = document.getElementById('progressLabel');
+  var orgFolderInput = document.getElementById('orgFolderUrl');
+  var orgFolderLinkRow = document.getElementById('orgFolderLinkRow');
+  var orgFolderLink = document.getElementById('orgFolderLink');
+  var orgNameInput = document.getElementById('orgName');
+  var ORG_NAME_STORAGE_KEY = 'hanListTool::orgName';
+  var duplicateTemplateButton = document.getElementById('duplicateTemplateButton');
+  var duplicateTemplateStatus = document.getElementById('duplicateTemplateStatus');
+  var nextId = 1;
+
+  function extractFolderId(url) {
+    var m = (url || '').match(/folders\/([a-zA-Z0-9-_]+)/);
+    return m ? m[1] : '';
+  }
+
+  function setAutoStatus(el, kind, html) {
+    el.className = 'auto-status' + (kind ? ' ' + kind : '');
+    el.innerHTML = html;
+  }
+
+  orgNameInput.value = localStorage.getItem(ORG_NAME_STORAGE_KEY) || '';
+  orgNameInput.addEventListener('input', function () {
+    localStorage.setItem(ORG_NAME_STORAGE_KEY, orgNameInput.value);
+  });
+
+  duplicateTemplateButton.addEventListener('click', function () {
+    var orgName = orgNameInput.value.trim();
+    if (!orgName) {
+      setAutoStatus(duplicateTemplateStatus, 'error', '自治会名を入力してください');
+      return;
+    }
+    duplicateTemplateButton.disabled = true;
+    setAutoStatus(duplicateTemplateStatus, '', '実行中…（フォルダの中身が多いと数十秒かかることがあります）');
+
+    google.script.run
+      .withSuccessHandler(function (result) {
+        orgFolderInput.value = result.url;
+        orgFolderInput.dispatchEvent(new Event('input'));
+        setAutoStatus(duplicateTemplateStatus, 'ok', '✅ 複製が完了し、下のURL欄に自動で入力しました　<a href="' + result.url + '" target="_blank" rel="noopener">フォルダを開く ↗</a>');
+        duplicateTemplateButton.disabled = false;
+      })
+      .withFailureHandler(function (error) {
+        setAutoStatus(duplicateTemplateStatus, 'error', '失敗しました：' + (error && error.message ? error.message : error));
+        duplicateTemplateButton.disabled = false;
+      })
+      .duplicateTemplateFolder(orgName);
+  });
+
+  function updateOrgFolderLink() {
+    var url = orgFolderInput.value.trim();
+    orgFolderLinkRow.hidden = !url;
+    orgFolderLink.href = url || '#';
+  }
+
+  orgFolderInput.addEventListener('input', function () {
+    localStorage.setItem(ORG_FOLDER_STORAGE_KEY, orgFolderInput.value);
+    updateOrgFolderLink();
+  });
+  orgFolderInput.value = localStorage.getItem(ORG_FOLDER_STORAGE_KEY) || '';
+
+  function loadSaved() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return null;
+      var parsed = JSON.parse(raw);
+      return Array.isArray(parsed) && parsed.length ? parsed : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function saveAll() {
+    var entries = [];
+    listEl.querySelectorAll('.han-card').forEach(function (card) {
+      entries.push({
+        name: card.querySelector('.han-name-input').value,
+        token: card.querySelector('.han-token-input').value,
+        done: card.querySelector('.han-done-check').checked
+      });
+    });
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+    updateProgress();
+  }
+
+  function updateProgress() {
+    var cards = listEl.querySelectorAll('.han-card');
+    var done = listEl.querySelectorAll('.han-done-check:checked').length;
+    progressLabel.textContent = done + ' / ' + cards.length + ' 班の設定が完了';
+  }
+
+  function renumber() {
+    listEl.querySelectorAll('.han-card').forEach(function (card, i) {
+      card.querySelector('.han-number').textContent = i + 1;
+      card.querySelector('.han-remove').hidden = listEl.querySelectorAll('.han-card').length <= 1;
+    });
+  }
+
+  function updateGuide(card) {
+    var name = card.querySelector('.han-name-input').value.trim();
+    var token = card.querySelector('.han-token-input').value.trim();
+    var chip = card.querySelector('.filename-chip');
+    chip.textContent = name || '（班名を入力してください）';
+    card.querySelector('.copy-token-preview').textContent = token || '（トークンを入力してください）';
+  }
+
+  function runAutoDuplicate(card, button, statusEl, doneCheck) {
+    var hanName = card.querySelector('.han-name-input').value.trim();
+    var token = card.querySelector('.han-token-input').value.trim();
+    var folderId = extractFolderId(orgFolderInput.value.trim());
+
+    if (!folderId) {
+      setAutoStatus(statusEl, 'error', '①でこの自治会用フォルダのURLを入力してください');
+      return;
+    }
+    if (!hanName) {
+      setAutoStatus(statusEl, 'error', '班名を入力してください');
+      return;
+    }
+    if (!token) {
+      setAutoStatus(statusEl, 'error', 'チャンネルアクセストークンを入力してください');
+      return;
+    }
+
+    button.disabled = true;
+    setAutoStatus(statusEl, '', '実行中…');
+
+    google.script.run
+      .withSuccessHandler(function (result) {
+        setAutoStatus(statusEl, 'ok', '✅ 複製・貼り付けが完了しました　<a href="' + result.url + '" target="_blank" rel="noopener">シートを開く ↗</a>');
+        doneCheck.checked = true;
+        doneCheck.dispatchEvent(new Event('change'));
+        button.disabled = false;
+      })
+      .withFailureHandler(function (error) {
+        setAutoStatus(statusEl, 'error', '失敗しました：' + (error && error.message ? error.message : error));
+        button.disabled = false;
+      })
+      .duplicateHanSheet(folderId, hanName, token);
+  }
+
+  function addHan(data) {
+    data = data || {};
+    var id = nextId++;
+    var card = document.createElement('div');
+    card.className = 'han-card';
+    card.innerHTML =
+      '<div class="han-card-head">' +
+        '<span class="han-card-title"><span class="han-number">' + id + '</span>班の情報</span>' +
+        '<button type="button" class="han-remove">削除</button>' +
+      '</div>' +
+      '<div class="field">' +
+        '<label class="field-label">班名</label>' +
+        '<input class="text-input han-name-input" type="text" placeholder="例：1班" />' +
+      '</div>' +
+      '<div class="field">' +
+        '<label class="field-label">チャンネルアクセストークン</label>' +
+        '<div class="token-row">' +
+          '<input class="text-input han-token-input" type="password" placeholder="LINE Developersで発行したトークンを貼り付け" />' +
+          '<button type="button" class="token-toggle">表示</button>' +
+          '<button type="button" class="token-copy">コピー</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="han-guide">' +
+        'この自治会用フォルダの中の、グループフォルダの中の「リストtmp」を使います。<br />' +
+        '① 「リストtmp」を右クリック →「コピーを作成」<br />' +
+        '② ファイル名を <span class="filename-chip">（班名を入力してください）</span> に変更<br />' +
+        '③ コピーしたシートの <b>C1セル</b> に、下のトークンを貼り付け<br />' +
+        '<span class="field-hint">貼り付けるトークン： <code class="copy-token-preview">（トークンを入力してください）</code></span>' +
+      '</div>' +
+      '<div class="auto-row">' +
+        '<button type="button" class="auto-button">🚀 自動で複製する</button>' +
+        '<span class="auto-status"></span>' +
+      '</div>' +
+      '<div class="checkbox-row">' +
+        '<input type="checkbox" class="han-done-check" id="hanDone' + id + '" />' +
+        '<label for="hanDone' + id + '">この班のスプレッドシート準備が完了した</label>' +
+      '</div>';
+
+    var nameInput = card.querySelector('.han-name-input');
+    var tokenInput = card.querySelector('.han-token-input');
+    var toggleBtn = card.querySelector('.token-toggle');
+    var copyBtn = card.querySelector('.token-copy');
+    var removeBtn = card.querySelector('.han-remove');
+    var doneCheck = card.querySelector('.han-done-check');
+
+    nameInput.value = data.name || '';
+    tokenInput.value = data.token || '';
+    doneCheck.checked = !!data.done;
+
+    [nameInput, tokenInput].forEach(function (el) {
+      el.addEventListener('input', function () { updateGuide(card); saveAll(); });
+    });
+    doneCheck.addEventListener('change', function () {
+      card.classList.toggle('done', doneCheck.checked);
+      saveAll();
+    });
+    toggleBtn.addEventListener('click', function () {
+      var showing = tokenInput.type === 'text';
+      tokenInput.type = showing ? 'password' : 'text';
+      toggleBtn.textContent = showing ? '表示' : '隠す';
+    });
+    copyBtn.addEventListener('click', function () {
+      var text = tokenInput.value;
+      if (!text) return;
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      var original = copyBtn.textContent;
+      copyBtn.textContent = 'コピー済み';
+      copyBtn.classList.add('copied');
+      setTimeout(function () { copyBtn.textContent = original; copyBtn.classList.remove('copied'); }, 1500);
+    });
+    removeBtn.addEventListener('click', function () {
+      if (listEl.querySelectorAll('.han-card').length <= 1) return;
+      if (!confirm('この班の入力内容を削除しますか？')) return;
+      card.remove();
+      renumber();
+      saveAll();
+    });
+
+    var autoButton = card.querySelector('.auto-button');
+    var autoStatus = card.querySelector('.auto-status');
+    autoButton.addEventListener('click', function () {
+      runAutoDuplicate(card, autoButton, autoStatus, doneCheck);
+    });
+
+    card.classList.toggle('done', doneCheck.checked);
+    listEl.appendChild(card);
+    updateGuide(card);
+    renumber();
+  }
+
+  addButton.addEventListener('click', function () {
+    addHan();
+    saveAll();
+  });
+
+  updateOrgFolderLink();
+
+  var saved = loadSaved();
+  if (saved) {
+    saved.forEach(function (entry) { addHan(entry); });
+  } else {
+    addHan();
+    addHan();
+    addHan();
+  }
+  updateProgress();
+})();
+</script>
+</body>
+</html>
