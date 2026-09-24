@@ -20,6 +20,7 @@
   let responses = [];
   let unresponded = [];
   let summary = { sos: 0, missing: 0, safe: 0, unresponded: 0 };
+  let markerByMember = new Map(); // 会員データ→地図上のマーカー（一覧を押すと該当マーカーに移動するため）
 
   function groupByTag() {
     return {
@@ -51,6 +52,8 @@
       ? groups[activeTag].filter((r) => r.lat && r.lng)
       : [];
 
+    markerByMember = new Map();
+
     if (points.length === 0) {
       safetyMapDiv.hidden = true;
       return;
@@ -75,9 +78,10 @@
 
     const tagColor = TAGS.find((t) => t.key === activeTag).color;
     points.forEach((r) => {
-      L.circleMarker([r.lat, r.lng], {
+      const marker = L.circleMarker([r.lat, r.lng], {
         radius: 9, color: '#fff', weight: 2, fillColor: tagColor, fillOpacity: 1,
       }).addTo(map).bindPopup(`<b>${r.realName || '（名前未登録）'}</b>`);
+      markerByMember.set(r, marker);
     });
 
     if (points.length === 1) {
@@ -112,18 +116,38 @@
       name.textContent = m.realName || '（名前未登録）';
       row.appendChild(name);
 
+      const hasLocation = Boolean(m.lat && m.lng);
       const metaParts = [];
       if (activeTag === 'sos' || activeTag === 'missing') {
-        metaParts.push(m.lat && m.lng ? '現在地を報告済み' : '現在地は未報告');
+        metaParts.push(hasLocation ? '📍 現在地を報告済み（押すと地図で見られます）' : '現在地は未報告');
       }
       if (activeTag === 'missing' && m.missingNames) {
         metaParts.push(`行方不明者: ${m.missingNames}`);
       }
       if (metaParts.length > 0) {
         const meta = document.createElement('p');
-        meta.className = 'member-row-meta';
+        meta.className = 'member-row-meta' + (hasLocation ? ' member-row-meta-link' : '');
         meta.textContent = metaParts.join(' / ');
         row.appendChild(meta);
+      }
+      if (hasLocation) {
+        row.classList.add('member-row-clickable');
+        row.setAttribute('role', 'button');
+        row.setAttribute('tabindex', '0');
+        const focusOnMap = () => {
+          const marker = markerByMember.get(m);
+          if (!marker || !map) return;
+          safetyMapDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          map.setView([m.lat, m.lng], 17);
+          marker.openPopup();
+        };
+        row.addEventListener('click', focusOnMap);
+        row.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            focusOnMap();
+          }
+        });
       }
       memberListContainer.appendChild(row);
     });
