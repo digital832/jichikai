@@ -3,7 +3,6 @@ const auth = require('../auth');
 const passcodeStore = require('../adminPasscodeStore');
 const sheetsClient = require('../sheetsClient');
 const lineClient = require('../lineClient');
-const { verifyPassword } = require('../passwordHash');
 const crypto = require('crypto');
 const memberRestoreToken = require('../memberRestoreToken');
 const { checkHandoverDeadlines, LIMIT_MS } = require('../handoverWatcher');
@@ -31,18 +30,6 @@ router.post('/login', async (req, res) => {
     checkHandoverDeadlines(false);
     auth.issueCookie(res);
     sheetsClient.appendLoginLog('旧自治会長').catch((err) => console.error('ログイン履歴の記録に失敗:', err));
-    return res.json({ ok: true });
-  }
-  let matched = null;
-  try {
-    const accounts = await sheetsClient.getAdminAccounts();
-    matched = accounts.find((a) => verifyPassword(code, a.passwordHash));
-  } catch (err) {
-    console.error('役員アカウントの確認に失敗:', err);
-  }
-  if (matched) {
-    auth.issueCookie(res);
-    sheetsClient.appendLoginLog(matched.name).catch((err) => console.error('ログイン履歴の記録に失敗:', err));
     return res.json({ ok: true });
   }
   if (!chairmanCode) {
