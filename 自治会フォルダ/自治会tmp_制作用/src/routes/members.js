@@ -64,7 +64,7 @@ router.delete('/:row', async (req, res) => {
   const row = Number(req.params.row);
   const { chairmanCode } = req.body || {};
   const currentCode = passcodeStore.get();
-  if (!currentCode || chairmanCode !== currentCode) {
+  if (!currentCode || !passcodeStore.isValid(chairmanCode)) {
     return res.status(401).json({ error: '自治会長のパスワードが正しくありません' });
   }
   try {

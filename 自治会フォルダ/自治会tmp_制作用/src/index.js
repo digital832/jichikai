@@ -19,7 +19,6 @@ const minutesRouter = require('./routes/minutes');
 const qrcodeRouter = require('./routes/qrcode');
 const syncRouter = require('./routes/sync');
 const authRouter = require('./routes/auth');
-const adminAccountsRouter = require('./routes/adminAccounts');
 const auth = require('./auth');
 const passcodeStore = require('./adminPasscodeStore');
 const { startScheduler } = require('./scheduler');
@@ -47,7 +46,8 @@ app.use('/api/statements', express.json(), statementsRouter);
 app.use('/api/disaster', express.json(), disasterRouter);
 app.use('/api/schedule', express.json(), scheduleRouter);
 app.use('/api/settings', express.json(), settingsRouter);
-app.use('/api/admin-accounts', express.json(), adminAccountsRouter);
+// 役員ごとの個別パスワード機能は廃止済み（自治会長の共通番号を選んだ人にだけ共有する方式に統一）。
+// routes/adminAccounts.js は使われていないため未マウント（ファイルは履歴のため残置）。
 app.use('/api/minutes', minutesRouter);
 app.use('/api/qrcode', qrcodeRouter);
 app.use('/api/sync-roster', syncRouter);

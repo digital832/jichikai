@@ -48,8 +48,15 @@ function isOldValid(code) {
   return Boolean(oldCode) && code === oldCode && Date.now() < oldExpiresAt;
 }
 
+// 現在の番号 または 引き継ぎ猶予中の旧番号 のどちらでも一致すればOK。
+// 自治会長の確認を求める画面（役員任命・削除・パスワード共有など）はすべてこれで判定し、
+// 引き継ぎ直後で旧自治会長がまだ旧番号を使っている間も操作できるようにする。
+function isValid(code) {
+  return Boolean(current) && code === current ? true : isOldValid(code);
+}
+
 function getOldExpiresAt() {
   return oldExpiresAt;
 }
 
-module.exports = { init, get, set, setOld, isOldValid, getOldExpiresAt };
+module.exports = { init, get, set, setOld, isOldValid, isValid, getOldExpiresAt };

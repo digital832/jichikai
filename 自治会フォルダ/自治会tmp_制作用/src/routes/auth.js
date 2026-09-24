@@ -238,8 +238,7 @@ router.post('/handover-notify', async (req, res) => {
 router.post('/verify-passcode', (req, res) => {
   if (!auth.isLoggedIn(req)) return res.status(401).json({ error: 'ログインが必要です' });
   const { code } = req.body || {};
-  const currentCode = passcodeStore.get();
-  if (!currentCode || code !== currentCode) {
+  if (!passcodeStore.get() || !passcodeStore.isValid(code)) {
     return res.status(401).json({ error: '自治会長の番号が正しくありません' });
   }
   res.json({ ok: true });
@@ -253,7 +252,7 @@ router.post('/share-passcode', async (req, res) => {
     return res.status(400).json({ error: '共有する相手を選んでください' });
   }
   const currentCode = passcodeStore.get();
-  if (!currentCode || chairmanCode !== currentCode) {
+  if (!currentCode || !passcodeStore.isValid(chairmanCode)) {
     return res.status(401).json({ error: '自治会長の番号が正しくありません' });
   }
   try {
