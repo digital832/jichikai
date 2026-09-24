@@ -5,6 +5,11 @@ const sheetsClient = require('../sheetsClient');
 const lineClient = require('../lineClient');
 const crypto = require('crypto');
 const memberRestoreToken = require('../memberRestoreToken');
+const config = require('../config');
+const { sendBroadcast } = require('../broadcastSender');
+const { RETRY_MARKER } = require('../scheduleFailureNotifier');
+
+const retrying = new Set(); // 二重送信を防ぐ（連打・同時アクセス）
 const { checkHandoverDeadlines, LIMIT_MS } = require('../handoverWatcher');
 
 function isHandoverExpired(request) {
@@ -302,6 +307,59 @@ router.post('/member-restore', async (req, res) => {
   } catch (err) {
     console.error('削除の取り消しに失敗:', err);
     res.status(500).json({ error: '取り消しに失敗しました' });
+  }
+});
+
+router.get('/schedule-retry-info', async (req, res) => {
+  const data = memberRestoreToken.verify(req.query.t);
+  if (!data || data.lineUserId !== RETRY_MARKER) {
+    return res.status(400).json({ error: 'このリンクは無効か、期限（30日）が過ぎています' });
+  }
+  try {
+    const schedule = await sheetsClient.getSchedule(data.row);
+    if (!schedule) return res.status(404).json({ error: '対象の予約が見つかりません' });
+    res.json({
+      eventName: schedule.eventName,
+      sendDate: schedule.sendDate,
+      sendTime: schedule.sendTime,
+      group: schedule.group || '全員',
+      status: schedule.status,
+    });
+  } catch (err) {
+    console.error('再送情報の取得に失敗:', err);
+    res.status(500).json({ error: '取得に失敗しました' });
+  }
+});
+
+router.post('/schedule-retry', async (req, res) => {
+  const data = memberRestoreToken.verify((req.body || {}).t);
+  if (!data || data.lineUserId !== RETRY_MARKER) {
+    return res.status(400).json({ error: 'このリンクは無効か、期限（30日）が過ぎています' });
+  }
+  const id = data.row;
+  if (retrying.has(id)) return res.status(409).json({ error: 'いま送信中です。少しお待ちください' });
+  retrying.add(id);
+  try {
+    const schedule = await sheetsClient.getSchedule(id);
+    if (!schedule) return res.status(404).json({ error: '対象の予約が見つかりません' });
+    if (schedule.status !== 'failed') {
+      return res.status(409).json({ error: schedule.status === 'sent' ? 'すでに送信されています' : 'この予約は再送できる状態ではありません' });
+    }
+    await sheetsClient.markScheduleStatus(id, 'sending'); // 自動配信が拾わないよう、送信中にしておく
+    try {
+      await sendBroadcast(schedule, config.baseUrl || `https://${req.get('host')}`);
+      await sheetsClient.markScheduleStatus(id, 'sent');
+      res.json({ ok: true, eventName: schedule.eventName });
+    } catch (err) {
+      console.error('予約配信の再送に失敗:', err);
+      await sheetsClient.markScheduleStatus(id, 'failed');
+      res.status(500).json({ error: '送信に失敗しました。時間をおいて、もう一度お試しください' });
+    }
+  } catch (err) {
+    console.error('予約配信の再送処理に失敗:', err);
+    res.status(500).json({ error: '送信に失敗しました' });
+  } finally {
+    retrying.delete(id);
   }
 });
 

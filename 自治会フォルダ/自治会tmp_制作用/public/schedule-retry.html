@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>予約配信をもう一度送る</title>
+<link rel="stylesheet" href="admin/broadcast.css" />
+<style>
+  .card-title { font-size: 19px; font-weight: 700; margin: 0 0 10px; }
+  .lead { font-size: 15px; line-height: 1.8; margin: 0 0 6px; }
+  .meta { font-size: 13px; color: var(--text-sub); margin: 0 0 20px; line-height: 1.7; }
+  .msg { font-size: 14px; min-height: 20px; margin: 0 0 14px; color: #c0392b; }
+</style>
+</head>
+<body>
+<div class="page" style="padding-top:28px;">
+  <div class="card">
+    <h1 class="card-title" id="title">読み込み中…</h1>
+    <p class="lead" id="lead"></p>
+    <p class="meta" id="meta"></p>
+    <p class="msg" id="msg"></p>
+    <button class="send-button" type="button" id="retryButton" style="width:100%;" hidden>もう一度送る</button>
+    <div id="navArea" hidden>
+      <a class="send-button" href="/admin/home.html" style="width:100%; display:block; text-align:center; text-decoration:none; box-sizing:border-box; margin-bottom:10px;">🏠 ホームへ戻る</a>
+      <a class="word-button" href="/admin/schedule.html" style="width:100%; display:block; text-align:center; text-decoration:none; box-sizing:border-box;">予約配信の一覧を見る</a>
+    </div>
+  </div>
+</div>
+<script src="schedule-retry.js"></script>
+</body>
+</html>

@@ -1,7 +1,7 @@
 (function () {
   const listContainer = document.getElementById('scheduleListContainer');
 
-  const STATUS_LABEL = { pending: '予約中', sent: '配信済み', failed: '失敗' };
+  const STATUS_LABEL = { pending: '予約中', sent: '配信済み', failed: '失敗', sending: '送信中' };
 
   function formatSendAt(s) {
     if (!s.sendDate || !s.sendTime) return '配信日時未設定';

@@ -1,6 +1,7 @@
 const config = require('./config');
 const sheetsClient = require('./sheetsClient');
 const { sendBroadcast } = require('./broadcastSender');
+const { notifyScheduleFailure } = require('./scheduleFailureNotifier');
 
 // 「YYYY-MM-DD」と「HH:MM」から、日本時間として解釈したDateを作る
 function toDate(sendDate, sendTime) {
@@ -27,6 +28,7 @@ async function checkAndSendDueSchedules() {
       if (schedule.confirmAttendance && !config.baseUrl) {
         console.error(`予約配信(id:${schedule.id})は出欠確認つきですが BASE_URL が未設定のため送信できません`);
         await sheetsClient.markScheduleStatus(schedule.id, 'failed');
+        await notifyScheduleFailure(schedule);
         continue;
       }
       try {
@@ -36,6 +38,7 @@ async function checkAndSendDueSchedules() {
       } catch (err) {
         console.error(`予約配信(id:${schedule.id})の自動送信に失敗:`, err);
         await sheetsClient.markScheduleStatus(schedule.id, 'failed');
+        await notifyScheduleFailure(schedule);
       }
     }
   } catch (err) {
