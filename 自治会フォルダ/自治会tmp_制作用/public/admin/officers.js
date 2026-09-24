@@ -1,5 +1,5 @@
 (function () {
-  const INITIAL_ROW_COUNT = 10;
+  const BLANK_ROW_COUNT = 3; // 現在の役員一覧の下に、新規任命用として空欄行をこの数だけ用意しておく
   let members = [];
   let roles = [];
   let chairmanCode = '';
@@ -83,14 +83,16 @@
     select.style.backgroundColor = color ? color + '2e' : '';
   }
 
-  function buildRoleOptions(select) {
+  function buildRoleOptions(select, defaultRole) {
     select.innerHTML = ROLE_CHOICES.map((r) => `<option value="${r}">${r === '一般会員' ? '一般会員（解任）' : r}</option>`).join('');
-    select.value = '役員';
+    select.value = defaultRole || '役員';
     applyRoleColor(select);
     select.addEventListener('change', () => applyRoleColor(select));
   }
 
-  function addAppointRow() {
+  // prefillを渡すと、既に役職を持っている人の行として、役職・班・名前を選んだ状態で表示する
+  // （このページを開くたびに現在の役員一覧が見えて、そこから変更・更新できるように）
+  function addAppointRow(prefill) {
     const row = document.createElement('div');
     row.className = 'appoint-row';
     row.innerHTML = `
@@ -109,9 +111,15 @@
     const groupSelect = row.querySelector('.appoint-group');
     const nameSelect = row.querySelector('.appoint-name');
 
-    buildRoleOptions(roleSelect);
+    buildRoleOptions(roleSelect, prefill && prefill.role);
     buildGroupOptions(groupSelect);
-    buildNameOptions(nameSelect, '');
+    if (prefill && prefill.group) {
+      groupSelect.value = prefill.group;
+      buildNameOptions(nameSelect, prefill.group);
+      if (prefill.lineUserId) nameSelect.value = prefill.lineUserId;
+    } else {
+      buildNameOptions(nameSelect, '');
+    }
 
     groupSelect.addEventListener('change', () => {
       buildNameOptions(nameSelect, groupSelect.value);
@@ -128,7 +136,16 @@
     roles = rolesData.roles || [];
 
     appointRowsContainer.innerHTML = '';
-    for (let i = 0; i < INITIAL_ROW_COUNT; i += 1) addAppointRow();
+    // 現在すでに役職を持っている人（自治会長・役員）を、先に一覧として表示する
+    const currentOfficers = members
+      .filter((m) => m.role && m.role !== '一般会員')
+      .sort((a, b) => {
+        if (a.role !== b.role) return a.role === '自治会長' ? -1 : b.role === '自治会長' ? 1 : 0;
+        return (a.realName || a.lineName || '').localeCompare(b.realName || b.lineName || '', 'ja');
+      });
+    currentOfficers.forEach((m) => addAppointRow({ role: m.role, group: m.group, lineUserId: m.lineUserId }));
+    // その下に、新規任命用の空欄行を用意する
+    for (let i = 0; i < BLANK_ROW_COUNT; i += 1) addAppointRow();
   }
 
   document.getElementById('addAppointRowButton').addEventListener('click', addAppointRow);
