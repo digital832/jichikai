@@ -16,6 +16,12 @@ const PUBLIC_API_PATHS = [
   '/api/safety/summary',
 ];
 
+// ログインページ自体が表示に使う静的ファイル（ログイン前でも読み込めないと画面が壊れる）
+const PUBLIC_ADMIN_PATHS = [
+  '/admin/login.html',
+  '/admin/login-bg.jpg',
+];
+
 function sign(value) {
   const hmac = crypto.createHmac('sha256', config.sessionSecret).update(value).digest('hex');
   return `${value}.${hmac}`;
@@ -70,7 +76,7 @@ function isPublicApiPath(path) {
 
 function requireAuth(req, res, next) {
   const path = req.path;
-  const isAdminPage = path.startsWith('/admin/') && path !== '/admin/login.html';
+  const isAdminPage = path.startsWith('/admin/') && !PUBLIC_ADMIN_PATHS.includes(path);
   const isApi = path.startsWith('/api/');
   if (!isAdminPage && !isApi) return next();
   if (isApi && ((path === '/api/disaster' && req.method === 'GET') || isPublicApiPath(path))) {
