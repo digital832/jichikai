@@ -101,6 +101,44 @@
   .accounting-gate-row label { display: flex; align-items: center; gap: 6px; }
   html, body { overflow-x: hidden; }
 
+
+  .menu-list {
+    margin-top: 18px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+  }
+  .menu-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    text-decoration: none;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+  }
+  .menu-row:last-child { border-bottom: none; }
+  .menu-row:active { background: var(--input-bg); }
+  .menu-row-icon {
+    flex: none;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+  .menu-row-icon.p-green { background: var(--green-light); }
+  .menu-row-icon.p-blue { background: #e8f0fe; }
+  .menu-row-icon.p-red { background: #fdeaea; }
+  .menu-row-icon.p-amber { background: #fff3d8; }
+  .menu-row-icon.p-gray { background: var(--input-bg); }
+  .menu-row-label { flex: 1; font-size: 15px; font-weight: 700; }
+  .menu-row-arrow { flex: none; font-size: 22px; color: var(--text-sub); line-height: 1; }
+
   @media (min-width: 640px) {
     .panel-grid { grid-template-columns: repeat(4, 1fr); }
   }
@@ -116,21 +154,9 @@
   <p class="field-hint" style="margin-top:0;">使いたい機能を選んでください</p>
 
   <div class="panel-grid">
-    <a class="panel-tile" href="broadcast.html">
-      <span class="panel-icon-circle p-green">📢</span>
-      <span class="panel-label">個別配信</span>
-    </a>
     <a class="panel-tile" href="schedule.html">
       <span class="panel-icon-circle p-blue">📅</span>
       <span class="panel-label">予約配信</span>
-    </a>
-    <a class="panel-tile" href="events.html">
-      <span class="panel-icon-circle p-green">🗓</span>
-      <span class="panel-label">行事の管理</span>
-    </a>
-    <a class="panel-tile" href="attendance.html">
-      <span class="panel-icon-circle p-green">📋</span>
-      <span class="panel-label">出欠状況</span>
     </a>
     <a class="panel-tile" href="disaster.html">
       <span class="panel-icon-circle p-red">🚨</span>
@@ -144,32 +170,56 @@
       <span class="panel-icon-circle p-amber">💰</span>
       <span class="panel-label">入出金</span>
     </a>
-    <a class="panel-tile" href="members.html">
-      <span class="panel-icon-circle p-blue">📇</span>
-      <span class="panel-label">名簿一覧</span>
-    </a>
-    <a class="panel-tile" href="places.html">
-      <span class="panel-icon-circle p-green">📍</span>
-      <span class="panel-label">場所の管理</span>
-    </a>
-    <a class="panel-tile" href="templates.html">
-      <span class="panel-icon-circle p-blue">📝</span>
-      <span class="panel-label">定型文</span>
-    </a>
-    <a class="panel-tile" href="officers.html">
-      <span class="panel-icon-circle p-gray">🎖</span>
-      <span class="panel-label">役員任命</span>
-    </a>
-    <a class="panel-tile" href="password.html#handover">
-      <span class="panel-icon-circle p-gray">🔁</span>
-      <span class="panel-label">自治会長を引き継ぐ</span>
-    </a>
-    <a class="panel-tile" href="qrcode.html">
-      <span class="panel-icon-circle p-blue">🔳</span>
-      <span class="panel-label">QRコード</span>
-    </a>
   </div>
   <p class="accounting-gate-row"><label><input type="checkbox" id="accountingCheck" /> 入出金を開く準備ができました（チェックしないと「入出金」は開けません）</label></p>
+
+  <div class="menu-list">
+    <a class="menu-row" href="attendance.html">
+      <span class="menu-row-icon p-green">📋</span>
+      <span class="menu-row-label">出欠状況</span>
+      <span class="menu-row-arrow">›</span>
+    </a>
+    <a class="menu-row" href="broadcast.html">
+      <span class="menu-row-icon p-green">📢</span>
+      <span class="menu-row-label">個別配信</span>
+      <span class="menu-row-arrow">›</span>
+    </a>
+    <a class="menu-row" href="events.html">
+      <span class="menu-row-icon p-green">🗓</span>
+      <span class="menu-row-label">行事の管理</span>
+      <span class="menu-row-arrow">›</span>
+    </a>
+    <a class="menu-row" href="members.html">
+      <span class="menu-row-icon p-blue">📇</span>
+      <span class="menu-row-label">名簿一覧</span>
+      <span class="menu-row-arrow">›</span>
+    </a>
+    <a class="menu-row" href="places.html">
+      <span class="menu-row-icon p-green">📍</span>
+      <span class="menu-row-label">場所の管理</span>
+      <span class="menu-row-arrow">›</span>
+    </a>
+    <a class="menu-row" href="templates.html">
+      <span class="menu-row-icon p-blue">📝</span>
+      <span class="menu-row-label">定型文</span>
+      <span class="menu-row-arrow">›</span>
+    </a>
+    <a class="menu-row" href="officers.html">
+      <span class="menu-row-icon p-gray">🎖</span>
+      <span class="menu-row-label">役員任命</span>
+      <span class="menu-row-arrow">›</span>
+    </a>
+    <a class="menu-row" href="password.html#handover">
+      <span class="menu-row-icon p-gray">🔁</span>
+      <span class="menu-row-label">自治会長を引き継ぐ</span>
+      <span class="menu-row-arrow">›</span>
+    </a>
+    <a class="menu-row" href="qrcode.html">
+      <span class="menu-row-icon p-blue">🔳</span>
+      <span class="menu-row-label">QRコード</span>
+      <span class="menu-row-arrow">›</span>
+    </a>
+  </div>
 
   <div class="card" style="margin-top:20px;">
     <p class="card-heading">利用ログ</p>
