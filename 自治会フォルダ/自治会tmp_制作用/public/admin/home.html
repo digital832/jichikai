@@ -97,8 +97,6 @@
   .password-message { font-size: 13px; margin-top: 10px; min-height: 18px; }
   .password-message.success { color: #2d7d46; }
   .password-message.error { color: #c0392b; }
-  .accounting-gate-row { font-size: 13px; margin: 10px 2px 0; }
-  .accounting-gate-row label { display: flex; align-items: center; gap: 6px; }
   html, body { overflow-x: hidden; }
 
 
@@ -166,12 +164,11 @@
       <span class="panel-icon-circle p-green">🎙</span>
       <span class="panel-label">録音議事録</span>
     </a>
-    <a class="panel-tile" id="accountingTile" href="accounting.html">
+    <a class="panel-tile" href="accounting.html">
       <span class="panel-icon-circle p-amber">💰</span>
       <span class="panel-label">入出金</span>
     </a>
   </div>
-  <p class="accounting-gate-row"><label><input type="checkbox" id="accountingCheck" /> 入出金を開く準備ができました（チェックしないと「入出金」は開けません）</label></p>
 
   <div class="menu-list">
     <a class="menu-row" href="attendance.html">

@@ -108,14 +108,4 @@
     });
   }
 
-  const accountingTile = document.getElementById('accountingTile');
-  const accountingCheck = document.getElementById('accountingCheck');
-  if (accountingTile && accountingCheck) {
-    accountingTile.addEventListener('click', (e) => {
-      if (!accountingCheck.checked) {
-        e.preventDefault();
-        window.alert('「入出金を開く準備ができました」にチェックを入れてから開いてください');
-      }
-    });
-  }
 })();

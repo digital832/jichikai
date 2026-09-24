@@ -52,18 +52,18 @@ async function sendBroadcast(fields, baseUrl) {
         let text = baseText;
         if (attendanceSessionId) {
           const token = attendanceToken.encode(attendanceSessionId, member.lineUserId);
-          text += `\n\n▼出欠のご連絡はこちらから\n${baseUrl}/attend.html?token=${token}`;
+          text += `\n\n${baseUrl}/attend.html?token=${token}`;
           if (isOfficer(member)) {
             const summaryToken = attendanceToken.encodeSummary(attendanceSessionId);
-            text += `\n\n▼出欠状況（役員用）\n${baseUrl}/attendance-status.html?token=${summaryToken}`;
+            text += `\n\n${baseUrl}/attendance-status.html?token=${summaryToken}`;
           }
         }
         if (safetySessionId) {
           const token = attendanceToken.encode(safetySessionId, member.lineUserId);
-          text += `\n\n▼安否のご連絡はこちらから\n${baseUrl}/safety.html?token=${token}`;
+          text += `\n\n${baseUrl}/safety.html?token=${token}`;
           if (isOfficer(member)) {
             const summaryToken = attendanceToken.encodeSummary(safetySessionId);
-            text += `\n\n▼安否状況（役員用）\n${baseUrl}/safety-status.html?token=${summaryToken}`;
+            text += `\n\n${baseUrl}/safety-status.html?token=${summaryToken}`;
           }
         }
         try {
