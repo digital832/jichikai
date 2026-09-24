@@ -21,10 +21,11 @@
   .member-sub-label { font-size: 11px; color: var(--text-sub); line-height: 1.3; }
   .member-name-input { font-weight: 700; font-size: 14px; padding: 0 10px; max-width: 160px; height: 40px; box-sizing: border-box; }
   .member-role-badge {
-    flex: none; width: 140px; height: 40px; box-sizing: border-box;
-    display: flex; align-items: center; padding: 0 14px;
+    flex: none; width: 68px; height: 40px; box-sizing: border-box;
+    display: flex; align-items: center; justify-content: center; padding: 0 4px;
     background: var(--input-bg); border: 1px solid var(--border); border-radius: var(--radius-input);
-    font-size: 15px; color: var(--text);
+    font-size: 13px; color: var(--text); text-align: center; line-height: 1.2;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
   .community-name-label { font-size: 13px; color: var(--text-sub); margin: 0 0 4px; }
   .role-select-wrap { display: flex; align-items: center; }
@@ -33,6 +34,11 @@
     flex: none; font-size: 12px; font-weight: 700; padding: 0 12px; border-radius: 8px;
     height: 40px; box-sizing: border-box; display: inline-flex; align-items: center;
     background: var(--green); color: #fff; text-decoration: none; white-space: nowrap;
+  }
+  .member-message-button {
+    flex: none; width: 40px; height: 40px; box-sizing: border-box; border-radius: 8px;
+    display: inline-flex; align-items: center; justify-content: center; font-size: 18px;
+    background: var(--green); color: #fff; text-decoration: none;
   }
   .member-sub-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
   .member-delete-button {

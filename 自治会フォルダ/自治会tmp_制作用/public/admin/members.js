@@ -189,7 +189,7 @@
         <div class="member-info">
           <div class="member-name-row">
             <input class="text-input member-name-input" type="text" />
-            <a class="message-link-button">メッセージ</a>
+            <a class="member-message-button" title="メッセージを送る" aria-label="メッセージを送る">💬</a>
           </div>
           <div class="member-sub-row">
             <span class="member-sub-label"></span>
@@ -232,7 +232,7 @@
       const role = findRole(roleName);
       const color = role && /^#[0-9a-fA-F]{6}$/.test(role.color) ? role.color : '';
       if (color) badge.style.backgroundColor = color + '2e';
-      row.querySelector('.message-link-button').href = 'message.html?row=' + m.row;
+      row.querySelector('.member-message-button').href = 'message.html?row=' + m.row;
       row.querySelector('.member-delete-button').addEventListener('click', () => askDelete(m));
 
       memberListContainer.appendChild(row);
