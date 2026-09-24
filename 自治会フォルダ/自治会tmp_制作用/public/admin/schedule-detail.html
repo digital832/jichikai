@@ -73,6 +73,8 @@
         <option value="">— 行事を選ばない（自由入力） —</option>
       </select>
     </div>
+    <button class="add-event-button" type="button" id="addEventButton">＋ 新しい行事を追加</button>
+    <p class="field-hint"><a href="events.html">行事を管理</a></p>
   </div>
 
   <div class="card">
@@ -150,6 +152,42 @@
   <div class="footer-card">
     <button class="word-button" type="button" id="deleteScheduleButton" hidden>この予約を削除する</button>
     <button class="save-schedule-button" type="button" id="saveScheduleButton">この内容で予約する</button>
+  </div>
+</div>
+
+<div class="sheet-overlay" id="eventSheetOverlay">
+  <div class="sheet-panel" id="eventSheetPanel">
+    <div class="sheet-handle"></div>
+    <p class="card-heading">新しい行事を追加</p>
+
+    <div class="field">
+      <label class="field-label" for="newEventName">行事名<span class="required">必須</span></label>
+      <input class="text-input" type="text" id="newEventName" placeholder="例：資源ごみ収集" />
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="newEventPlace">📍 場所</label>
+      <input class="text-input" type="text" id="newEventPlace" placeholder="例：自治会館 集会室" />
+    </div>
+
+    <div class="field">
+      <label class="field-label">🕐 時間</label>
+      <div class="time-range">
+        <input class="time-input" type="time" id="newEventTimeStart" step="900" />
+        <span>〜</span>
+        <input class="time-input" type="time" id="newEventTimeEnd" step="900" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="newEventBelongings">🗑 持ち物</label>
+      <input class="text-input" type="text" id="newEventBelongings" placeholder="例：筆記用具、認め印" />
+    </div>
+
+    <div class="sheet-actions">
+      <button class="word-button" type="button" id="cancelEventButton">キャンセル</button>
+      <button class="send-button" type="button" id="saveEventButton">保存する</button>
+    </div>
   </div>
 </div>
 

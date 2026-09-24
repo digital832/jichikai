@@ -77,22 +77,90 @@
   }
 
   function renderEventOptions() {
+    const current = eventSelect.value;
+    eventSelect.innerHTML = '<option value="">— 行事を選ばない（自由入力） —</option>';
     events.forEach((ev) => {
       const option = document.createElement('option');
       option.value = String(ev.id);
       option.textContent = ev.name;
       eventSelect.appendChild(option);
     });
+    if (current) eventSelect.value = current;
   }
 
-  eventSelect.addEventListener('change', () => {
-    const ev = events.find((e) => String(e.id) === eventSelect.value);
+  function applyEventToForm(id) {
+    const ev = events.find((e) => String(e.id) === String(id));
     if (!ev) return;
     eventName.value = ev.name;
     setPlaceValue(ev.place);
     timeStart.value = ev.timeStart;
     timeEnd.value = ev.timeEnd;
     belongings.value = ev.belongings;
+  }
+
+  eventSelect.addEventListener('change', () => applyEventToForm(eventSelect.value));
+
+  // --- 行事の新規追加（配信ウィザードと同じスライドパネル） ---
+  const eventSheetOverlay = document.getElementById('eventSheetOverlay');
+  const newEventName = document.getElementById('newEventName');
+  const newEventPlace = document.getElementById('newEventPlace');
+  const newEventTimeStart = document.getElementById('newEventTimeStart');
+  const newEventTimeEnd = document.getElementById('newEventTimeEnd');
+  const newEventBelongings = document.getElementById('newEventBelongings');
+
+  function openEventSheet() {
+    newEventName.value = '';
+    newEventPlace.value = '';
+    newEventTimeStart.value = '09:00';
+    newEventTimeEnd.value = '';
+    newEventBelongings.value = '';
+    eventSheetOverlay.classList.add('open');
+  }
+
+  function closeEventSheet() {
+    eventSheetOverlay.classList.remove('open');
+  }
+
+  document.getElementById('addEventButton').addEventListener('click', openEventSheet);
+  document.getElementById('cancelEventButton').addEventListener('click', closeEventSheet);
+  eventSheetOverlay.addEventListener('click', (e) => {
+    if (e.target === eventSheetOverlay) closeEventSheet();
+  });
+
+  document.getElementById('saveEventButton').addEventListener('click', async () => {
+    const name = newEventName.value.trim();
+    if (!name) {
+      window.alert('行事名を入力してください');
+      return;
+    }
+    const fields = {
+      name,
+      place: newEventPlace.value.trim(),
+      timeStart: newEventTimeStart.value,
+      timeEnd: newEventTimeEnd.value,
+      belongings: newEventBelongings.value.trim(),
+    };
+    const saveButton = document.getElementById('saveEventButton');
+    saveButton.disabled = true;
+    try {
+      const res = await fetch('/api/events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(fields),
+      });
+      if (!res.ok) throw new Error('追加に失敗しました');
+      events = await fetchEvents();
+      renderEventOptions();
+      const added = events[events.length - 1];
+      eventSelect.value = String(added.id);
+      applyEventToForm(added.id);
+      closeEventSheet();
+    } catch (err) {
+      console.error(err);
+      window.alert('行事の保存に失敗しました');
+    } finally {
+      saveButton.disabled = false;
+    }
   });
 
   // --- 対象グループ ---
