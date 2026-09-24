@@ -64,8 +64,10 @@
         maxNativeZoom: 18,
       }).addTo(map);
     }
-    // hidden解除の直後はコンテナのサイズを地図が正しく把握できないため、再計算させる
-    setTimeout(() => map.invalidateSize(), 0);
+    // hidden解除の直後はコンテナのサイズを地図が正しく把握できない（特にスマホは描画が遅く0msでは間に合わないことがある）ため、
+    // 描画完了後（requestAnimationFrame）と、念のため少し時間を置いた後の2段階で再計算させる
+    requestAnimationFrame(() => map.invalidateSize());
+    setTimeout(() => map.invalidateSize(), 300);
 
     map.eachLayer((layer) => {
       if (layer instanceof L.CircleMarker) map.removeLayer(layer);
