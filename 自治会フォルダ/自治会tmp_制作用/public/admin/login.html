@@ -4,12 +4,10 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>管理画面ログイン</title>
+<link rel="stylesheet" href="broadcast.css" />
 <style>
-  * { box-sizing: border-box; }
   html, body {
-    margin: 0;
     height: 100%;
-    font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
   }
   body {
     min-height: 100vh;
@@ -17,33 +15,14 @@
     align-items: center;
     justify-content: center;
     padding: 24px;
-    background: #000 url('login-bg.jpg') center/cover no-repeat;
+    background: #10241a url('login-bg.jpg') center/cover no-repeat;
     position: relative;
   }
   body::before {
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, rgba(0,0,0,0.15), rgba(0,0,0,0.4));
-  }
-  .brand {
-    position: relative;
-    text-align: center;
-    margin-bottom: 28px;
-    color: #fff;
-    text-shadow: 0 2px 10px rgba(0,0,0,0.45);
-  }
-  .brand-title {
-    font-size: 34px;
-    letter-spacing: 0.12em;
-    margin: 0;
-    font-weight: 600;
-  }
-  .brand-sub {
-    font-size: 13px;
-    letter-spacing: 0.2em;
-    margin: 8px 0 0;
-    opacity: 0.9;
+    background: linear-gradient(180deg, rgba(6, 30, 18, 0.35), rgba(6, 30, 18, 0.6));
   }
   .stage {
     position: relative;
@@ -52,75 +31,58 @@
     align-items: center;
     width: 100%;
   }
-  .card {
-    background: rgba(255, 255, 255, 0.92);
-    backdrop-filter: blur(6px);
-    border-radius: 4px;
-    box-shadow: 0 12px 40px rgba(0,0,0,0.25);
-    padding: 36px 32px;
-    width: 300px;
+  .brand {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #fff;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.35);
+  }
+  .brand-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0;
+  }
+  .login-card {
+    background: var(--card-bg);
+    border-radius: var(--radius-card);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.25);
+    padding: 28px 24px;
+    width: 100%;
+    max-width: 320px;
     text-align: center;
   }
-  h1 {
+  .login-card h1 {
     font-size: 16px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    margin: 0 0 22px;
-    color: #2b2b2b;
+    font-weight: 700;
+    margin: 0 0 18px;
+    color: var(--text);
   }
-  input {
-    width: 100%;
-    box-sizing: border-box;
+  #code {
     font-size: 24px;
     letter-spacing: 8px;
     text-align: center;
     padding: 12px 0;
-    border: 1px solid #cfcac2;
-    border-radius: 2px;
-    margin-bottom: 16px;
-    font-family: inherit;
-    background: #fdfcfa;
-  }
-  input:focus {
-    outline: none;
-    border-color: #2d7d46;
-  }
-  button {
-    width: 100%;
-    padding: 12px 0;
-    font-size: 15px;
-    letter-spacing: 0.15em;
-    border: none;
-    border-radius: 2px;
-    background: #2d3d33;
-    color: #fff;
-    cursor: pointer;
-    font-family: inherit;
-  }
-  button:disabled {
-    background: #9aa79f;
-    cursor: default;
+    margin-bottom: 14px;
   }
   .error {
-    color: #c0392b;
+    color: var(--red);
     font-size: 13px;
     min-height: 18px;
-    margin-bottom: 10px;
+    margin-bottom: 6px;
   }
 </style>
 </head>
 <body>
   <div class="stage">
     <div class="brand">
-      <p class="brand-title">自治会アプリ</p>
-      <p class="brand-sub">管理画面</p>
+      <p class="brand-title">🏠 自治会アプリ</p>
     </div>
-    <div class="card">
-      <h1>ログイン</h1>
+    <div class="login-card">
+      <h1>管理画面ログイン</h1>
       <form id="login-form">
-        <input type="text" id="code" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off" placeholder="6桁の番号" autofocus />
+        <input class="text-input" type="text" id="code" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off" placeholder="6桁の番号" autofocus />
         <div class="error" id="error"></div>
-        <button type="submit" id="submit">ログイン</button>
+        <button class="send-button" type="submit" id="submit">ログイン</button>
       </form>
     </div>
   </div>
