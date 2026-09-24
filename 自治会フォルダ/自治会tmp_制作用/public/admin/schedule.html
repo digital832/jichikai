@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>予約配信</title>
+<link rel="stylesheet" href="broadcast.css" />
+<style>
+  .page-title { font-size: 20px; font-weight: 700; margin: 0 0 16px; }
+  .back-link { color: var(--green-dark); text-decoration: none; font-weight: 700; font-size: 14px; }
+  .schedule-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+  }
+  .schedule-row:last-child { border-bottom: none; }
+  .schedule-info { min-width: 0; }
+  .schedule-name { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+  .schedule-meta { font-size: 12px; color: var(--text-sub); }
+  .schedule-actions { flex: none; display: flex; align-items: center; gap: 8px; }
+  .schedule-status {
+    flex: none;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .schedule-status.pending { background: #e8f0fe; color: #1155e0; }
+  .schedule-status.sent { background: var(--green-light); color: var(--green-dark); }
+  .schedule-status.failed { background: #fdeaea; color: var(--red); }
+  .schedule-edit-btn,
+  .schedule-delete-btn {
+    flex: none;
+    border: none;
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .schedule-edit-btn {
+    background: var(--green-light);
+    color: var(--green-dark);
+  }
+  .schedule-delete-btn {
+    background: #fdeaea;
+    color: var(--red);
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <a class="back-link" href="home.html">← ホームへ戻る</a>
+  </div>
+
+  <h1 class="page-title">📅 予約配信</h1>
+  <p class="field-hint" style="margin-top:-10px;margin-bottom:16px;">あらかじめ配信の日時を指定しておくと、その日時になったときに自動でLINE配信されます。</p>
+
+  <div class="card">
+    <button class="add-event-button" type="button" id="addScheduleButton">＋ 新しい予約を追加</button>
+  </div>
+
+  <div class="card">
+    <p class="card-heading">予約の一覧</p>
+    <div id="scheduleListContainer"></div>
+  </div>
+</div>
+
+<script src="auth-guard.js"></script>
+<script src="schedule.js"></script>
+</body>
+</html>

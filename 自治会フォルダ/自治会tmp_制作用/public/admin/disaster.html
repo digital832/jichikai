@@ -28,27 +28,19 @@
   }
   .big-red-button:disabled { opacity: 0.6; cursor: default; }
 
-  .status-banner { border-radius: var(--radius-card); padding: 18px; margin-bottom: 16px; }
-  .status-banner.is-clear { background: var(--green-light); border: 1px solid var(--green); }
-  .status-banner.is-alert { background: #fdeaea; border: 2px solid var(--red); }
-  .status-banner-title { font-size: 15px; font-weight: 800; margin: 0 0 8px; display: flex; align-items: center; gap: 8px; }
-  .status-banner.is-alert .status-banner-title { color: var(--red); }
-  .status-banner-nums { font-size: 14px; margin: 0; line-height: 1.7; }
-  .status-banner-nums strong { font-size: 16px; }
-  .status-banner-link { display: inline-block; margin-top: 10px; font-size: 14px; font-weight: 700; color: var(--green-dark); text-decoration: none; }
-  .status-banner.is-alert .status-banner-link { color: var(--red); }
+  .status-banner-button {
+    display: block; text-align: center; padding: 16px; margin-bottom: 16px;
+    border-radius: var(--radius-card); background: var(--text); color: #fff;
+    font-size: 16px; font-weight: 800; text-decoration: none;
+  }
 
-  .safety-session-row { padding: 14px 0; border-bottom: 1px solid var(--border); cursor: pointer; }
+  .safety-session-row { padding: 14px 0; border-bottom: 1px solid var(--border); }
   .safety-session-row:last-child { border-bottom: none; }
+  .safety-session-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+  .safety-session-info { cursor: pointer; min-width: 0; }
   .safety-session-name { font-weight: 700; font-size: 15px; margin: 0; }
   .safety-session-meta { font-size: 13px; color: var(--text-sub); margin: 4px 0 0; }
   .safety-missing-alert { background: #fdeaea; color: var(--red); font-weight: 700; border-radius: 10px; padding: 8px 10px; margin-top: 6px; font-size: 13px; }
-
-  .safety-detail-map { width: 100%; height: 260px; border-radius: 14px; margin: 10px 0; background: var(--input-bg); }
-  .safety-response-row { padding: 10px 0; border-bottom: 1px solid var(--border); }
-  .safety-response-row:last-child { border-bottom: none; }
-  .safety-response-name { font-size: 14px; font-weight: 700; margin: 0; }
-  .safety-response-status { font-size: 13px; color: var(--text-sub); margin: 2px 0 0; }
 
   .menu-button {
     display: inline-block;
@@ -99,7 +91,7 @@
 <body class="bousai-page">
 <div class="page">
   <div class="topbar">
-    <a class="menu-button" href="broadcast.html" style="text-decoration:none;">▷ 配信ウィザードへ</a>
+    <a class="menu-button" href="home.html" style="text-decoration:none;">🏠 ホーム</a>
   </div>
 
   <p class="page-title">🚨 防災</p>
@@ -136,8 +128,9 @@
   <div class="card">
     <p class="card-heading"><span class="badge">🏠</span>拠点（自治会館など）</p>
     <div class="field">
-      <label class="field-label" for="baseNameInput">名称</label>
-      <input class="text-input" id="baseNameInput" placeholder="例：〇〇自治会館" />
+      <label class="field-label" for="baseNameSelect">名称</label>
+      <select class="select-input" id="baseNameSelect"></select>
+      <p class="field-hint">選ぶと住所が自動で入ります。候補にない場合は<a href="places.html">場所の管理</a>で追加してください。</p>
     </div>
     <div class="field">
       <label class="field-label" for="baseAddressInput">住所</label>
@@ -152,8 +145,9 @@
   <div class="card">
     <p class="card-heading"><span class="badge">⛑</span>避難所を追加・編集</p>
     <div class="field">
-      <label class="field-label" for="shelterNameInput">名称</label>
-      <input class="text-input" id="shelterNameInput" placeholder="例：〇〇小学校" />
+      <label class="field-label" for="shelterNameSelect">名称</label>
+      <select class="select-input" id="shelterNameSelect"></select>
+      <p class="field-hint">選ぶと住所が自動で入ります。候補にない場合は<a href="places.html">場所の管理</a>で追加してください。</p>
     </div>
     <div class="field">
       <label class="field-label" for="shelterAddressInput">住所</label>
@@ -174,18 +168,7 @@
   <a class="menu-button" href="/disaster.html" target="_blank" rel="noopener" style="display:flex;justify-content:center;text-decoration:none;">👀 住民用の画面を見る</a>
 </div>
 
-<div class="sheet-overlay" id="safetyDetailOverlay">
-  <div class="sheet-panel" id="safetyDetailPanel">
-    <div class="sheet-handle"></div>
-    <p class="card-heading" id="safetyDetailTitle">安否状況の詳細</p>
-    <div class="safety-detail-map" id="safetyDetailMap"></div>
-    <div id="safetyDetailList"></div>
-    <div class="sheet-actions">
-      <button class="word-button" type="button" id="closeSafetyDetailButton">閉じる</button>
-    </div>
-  </div>
-</div>
-
+<script src="auth-guard.js"></script>
 <script src="disaster.js"></script>
 </body>
 </html>

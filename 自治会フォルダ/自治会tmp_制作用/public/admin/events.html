@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>行事の管理</title>
+<link rel="stylesheet" href="broadcast.css" />
+<style>
+  .page-title { font-size: 20px; font-weight: 700; margin: 0 0 16px; }
+  .event-list-row.editing { flex-direction: column; align-items: stretch; }
+  .event-list-row.editing .event-list-actions { justify-content: flex-end; margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <a class="menu-button" href="home.html" style="text-decoration:none;">🏠 ホーム</a>
+  </div>
+
+  <h1 class="page-title">🗓 行事の管理</h1>
+  <p class="field-hint" style="margin-top:-10px;margin-bottom:16px;">ここで登録した行事が、個別配信・出欠状況の「行事」の選択肢に出てきます。</p>
+
+  <div class="card">
+    <p class="card-heading">行事を追加する</p>
+    <div class="field">
+      <label class="field-label" for="newEventName">行事名<span class="required">必須</span></label>
+      <input class="text-input" type="text" id="newEventName" placeholder="例：資源ごみ収集" />
+    </div>
+    <div class="field">
+      <label class="field-label" for="newEventPlace">📍 場所<span class="field-hint" style="font-weight:400;">（任意）</span></label>
+      <input class="text-input" type="text" id="newEventPlace" placeholder="例：自治会館 集会室" />
+    </div>
+    <div class="field">
+      <label class="field-label">🕐 時間<span class="field-hint" style="font-weight:400;">（任意）</span></label>
+      <div class="time-range">
+        <input class="time-input" type="time" id="newEventTimeStart" step="900" />
+        <span>〜</span>
+        <input class="time-input" type="time" id="newEventTimeEnd" step="900" />
+      </div>
+    </div>
+    <div class="field">
+      <label class="field-label" for="newEventBelongings">🗑 持ち物<span class="field-hint" style="font-weight:400;">（任意）</span></label>
+      <input class="text-input" type="text" id="newEventBelongings" placeholder="例：筆記用具、認め印" />
+    </div>
+    <button class="send-button" type="button" id="addEventButton" style="width:100%;">＋ この行事を保存する</button>
+  </div>
+
+  <div class="card">
+    <p class="card-heading">登録ずみの行事（編集・削除はここから）</p>
+    <div id="eventListContainer"></div>
+  </div>
+</div>
+
+<script src="auth-guard.js"></script>
+<script src="events.js"></script>
+</body>
+</html>

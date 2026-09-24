@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>入出金アーカイブ</title>
+<link rel="stylesheet" href="broadcast.css" />
+<style>
+  .page-title { font-size: 20px; font-weight: 700; margin: 0 0 16px; }
+  .back-link { color: var(--green-dark); text-decoration: none; font-weight: 700; font-size: 14px; }
+  .topbar { justify-content: space-between; }
+  .home-link { color: var(--text-sub); text-decoration: none; font-weight: 700; font-size: 14px; }
+
+  .transaction-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .transaction-row:last-child { border-bottom: none; }
+  .transaction-info { display: flex; flex-direction: column; gap: 2px; }
+  .transaction-date { font-size: 12px; color: var(--text-sub); }
+  .transaction-desc { font-size: 14px; font-weight: 700; }
+  .transaction-amount { font-size: 18px; font-weight: 700; }
+  .transaction-amount.income { color: var(--green-dark); }
+  .transaction-amount.expense { color: var(--red); }
+  .transaction-actions { flex: none; display: flex; gap: 6px; }
+  .transaction-edit,
+  .transaction-delete {
+    flex: none;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .transaction-edit { background: var(--green-light); color: var(--green-dark); text-decoration: none; display: inline-flex; align-items: center; }
+  .transaction-delete { background: #fdeaea; color: var(--red); }
+
+  .archive-month-group { margin-bottom: 24px; }
+  .archive-month-group:last-child { margin-bottom: 0; }
+  .archive-month-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 4px;
+  }
+  .archive-month-title { font-size: 16px; font-weight: 700; }
+  .archive-month-summary { font-size: 13px; color: var(--text-sub); }
+
+  .balance-card { text-align: center; }
+  .balance-label { font-size: 14px; color: var(--text-sub); margin: 0 0 4px; }
+  .balance-amount { font-size: 32px; font-weight: 700; margin: 0 0 16px; }
+  .balance-sub-row { display: flex; justify-content: space-around; }
+  .balance-sub { font-size: 14px; }
+  .balance-sub .amount { font-size: 18px; font-weight: 700; display: block; }
+  .balance-sub.income .amount { color: var(--green-dark); }
+  .balance-sub.expense .amount { color: var(--red); }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <a class="back-link" href="accounting.html">← 入出金管理へ戻る</a>
+    <a class="home-link" href="home.html">🏠 ホーム</a>
+  </div>
+
+  <h1 class="page-title">📒 入出金アーカイブ</h1>
+  <p class="field-hint" style="margin-top:-10px;margin-bottom:16px;">これまでに登録したすべての入出金の記録です。</p>
+
+  <div class="card balance-card">
+    <p class="balance-label">全期間の収支</p>
+    <p class="balance-amount" id="overallBalance">¥0</p>
+    <div class="balance-sub-row">
+      <div class="balance-sub income">収入合計<span class="amount" id="overallIncome">¥0</span></div>
+      <div class="balance-sub expense">支出合計<span class="amount" id="overallExpense">¥0</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <select class="select-input" id="archiveMonthFilter" style="margin-bottom:12px;">
+      <option value="all">全て</option>
+    </select>
+    <div id="transactionListContainer"></div>
+  </div>
+</div>
+
+<script src="auth-guard.js"></script>
+<script src="transactionList.js"></script>
+<script src="transactions-archive.js"></script>
+</body>
+</html>

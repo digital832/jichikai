@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<title>安否状況</title>
+<style>
+  :root { --green: #06c755; --red: #ef4444; --amber: #f59e0b; --bg: #f4f6f5; --text: #1c1f1e; --text-sub: #6b716f; --border: #e4e7e5; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Hiragino Sans", "Noto Sans JP", "Yu Gothic", sans-serif;
+    padding: 20px;
+  }
+  .page { max-width: 480px; margin: 0 auto; }
+  .card {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    padding: 24px 20px;
+    margin-bottom: 14px;
+  }
+  .event-name { font-size: 20px; font-weight: 700; margin: 0 0 4px; }
+  .event-date { font-size: 14px; color: var(--text-sub); margin: 0 0 4px; }
+  .officer-note { font-size: 11px; color: var(--text-sub); margin: 0; }
+  .counts { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+  .count-box { flex: 1; min-width: 70px; text-align: center; background: var(--bg); border-radius: 12px; padding: 14px 4px; }
+  .count-num { font-size: 22px; font-weight: 700; }
+  .count-label { font-size: 11px; color: var(--text-sub); margin-top: 2px; }
+  .list-title { font-size: 14px; font-weight: 700; margin: 0 0 10px; }
+  .list-title.alert { color: var(--red); }
+  .resp-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+  .resp-row:last-child { border-bottom: none; }
+  .resp-status { font-weight: 700; }
+  .resp-status.safe { color: var(--green); }
+  .resp-status.missing { color: var(--amber); }
+  .resp-status.sos { color: var(--red); }
+  .missing-detail { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
+  .error-text { color: var(--red); text-align: center; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div id="loadingView"><p>読み込み中です…</p></div>
+
+  <div id="contentView" hidden>
+    <div class="card">
+      <p class="event-name" id="eventNameText"></p>
+      <p class="event-date" id="eventDateText"></p>
+      <p class="officer-note">※このリンクは役員向けです。個人を特定しないため、誰が開いても同じ結果が見えます。</p>
+      <div class="counts">
+        <div class="count-box"><div class="count-num" id="safeCount">0</div><div class="count-label">全員無事</div></div>
+        <div class="count-box"><div class="count-num" id="missingCount">0</div><div class="count-label">行方不明</div></div>
+        <div class="count-box"><div class="count-num" id="sosCount">0</div><div class="count-label">SOS</div></div>
+        <div class="count-box"><div class="count-num" id="noReplyCount">0</div><div class="count-label">未回答</div></div>
+      </div>
+    </div>
+    <div class="card" id="urgentCard" hidden>
+      <p class="list-title alert">⚠ 要注意（行方不明・SOS）</p>
+      <div id="urgentList"></div>
+    </div>
+    <div class="card">
+      <p class="list-title">回答済みの方</p>
+      <div id="respList"></div>
+    </div>
+  </div>
+
+  <div id="errorView" hidden><p class="error-text">このリンクは無効です。</p></div>
+</div>
+<script src="safety-status.js"></script>
+</body>
+</html>

@@ -13,7 +13,7 @@ async function main() {
   console.log(`トークン未設定: ${withoutToken.length}人`);
 
   const events = await sheetsClient.getEvents();
-  console.log(`イベント数: ${events.length}件`);
+  console.log(`行事数: ${events.length}件`);
 }
 
 main().catch((err) => {

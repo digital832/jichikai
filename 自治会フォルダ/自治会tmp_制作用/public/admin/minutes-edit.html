@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>議事録の編集</title>
+<link rel="stylesheet" href="broadcast.css" />
+<style>
+  .page-title { font-size: 20px; font-weight: 700; margin: 0 0 16px; }
+  #editTitle { font-size: 16px; padding: 14px; }
+  #editSummary { min-height: 240px; }
+  .edit-actions { display: flex; gap: 10px; margin-top: 16px; }
+  .edit-actions button, .edit-actions a { flex: 1; text-align: center; }
+  .edit-loading { text-align: center; color: var(--text-sub); padding: 24px 0; }
+  #editTime { width: 90%; max-width: 90%; }
+  .attendee-select { margin-bottom: 8px; }
+  .topbar { justify-content: space-between; }
+  .home-link { color: var(--text-sub); text-decoration: none; font-weight: 700; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <a class="menu-button" href="recording.html" style="text-decoration:none;">▷ 録音・議事録一覧へ</a>
+    <a class="home-link" href="home.html">🏠 ホーム</a>
+  </div>
+
+  <h1 class="page-title">議事録の編集</h1>
+
+  <div class="card" id="editCard">
+    <p class="edit-loading" id="editLoading">読み込み中...</p>
+    <div id="editForm" style="display:none;">
+      <div class="field">
+        <label class="field-label" for="editTitle">タイトル<span class="required">必須</span></label>
+        <input class="textarea-input" type="text" id="editTitle" />
+      </div>
+      <div class="field">
+        <label class="field-label" for="editDate">📅 日付</label>
+        <input class="date-input" type="date" id="editDate" />
+      </div>
+      <div class="field">
+        <label class="field-label" for="editTime">🕐 時刻</label>
+        <input class="time-input" type="time" id="editTime" step="900" />
+      </div>
+      <div class="field">
+        <label class="field-label" for="editPlace">場所</label>
+        <select class="select-input" id="editPlace"></select>
+      </div>
+      <div class="field">
+        <label class="field-label">出席者</label>
+        <div id="editAttendeeList"></div>
+        <button class="word-button" type="button" id="editAddAttendeeButton" style="width:100%;margin-top:4px;">＋ 出席者を追加</button>
+      </div>
+      <div class="field">
+        <label class="field-label" for="editSummary">議事録（名前の間違いなどはここを直してください）</label>
+        <textarea class="textarea-input" id="editSummary"></textarea>
+      </div>
+      <div class="edit-actions">
+        <a class="word-button" href="recording.html">キャンセル</a>
+        <button class="send-button" type="button" id="saveButton">保存する</button>
+      </div>
+      <p class="field-hint" id="saveStatus" style="text-align:center;margin-top:10px;"></p>
+    </div>
+  </div>
+</div>
+
+<script src="auth-guard.js"></script>
+<script src="minutes-edit.js"></script>
+</body>
+</html>

@@ -52,13 +52,36 @@ router.get('/sessions/:id', async (req, res) => {
   }
 });
 
-// 会員向け：トークンからイベント情報を取得（回答フォーム表示用）
+router.delete('/sessions/:id', async (req, res) => {
+  try {
+    await sheetsClient.deleteAttendanceSession(req.params.id);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('出欠セッション削除に失敗:', err);
+    res.status(500).json({ error: '出欠状況の削除に失敗しました' });
+  }
+});
+
+// 会員向け：トークンから行事情報を取得（回答フォーム表示用）
 router.get('/respond/:token', async (req, res) => {
   try {
     const { sessionId } = attendanceToken.decode(req.params.token);
     const session = await sheetsClient.getAttendanceSession(sessionId);
     if (!session) return res.status(404).json({ error: 'このリンクは無効です' });
     res.json({ eventName: session.eventName, eventDate: session.eventDate });
+  } catch (err) {
+    res.status(400).json({ error: 'このリンクは無効です' });
+  }
+});
+
+// 役員向け：集計結果をトークンから取得（ログイン不要。個人を特定しないURLで、誰が開いても同じ結果が見える）
+router.get('/summary/:token', async (req, res) => {
+  try {
+    const { sessionId } = attendanceToken.decodeSummary(req.params.token);
+    const session = await sheetsClient.getAttendanceSession(sessionId);
+    if (!session) return res.status(404).json({ error: 'このリンクは無効です' });
+    const responses = await sheetsClient.getAttendanceResponses(sessionId);
+    res.json({ session, responses, summary: summarize(responses) });
   } catch (err) {
     res.status(400).json({ error: 'このリンクは無効です' });
   }

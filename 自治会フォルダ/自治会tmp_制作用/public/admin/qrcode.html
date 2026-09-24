@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>QRコード</title>
+<link rel="stylesheet" href="broadcast.css" />
+<style>
+  .page-title { font-size: 20px; font-weight: 700; margin: 0 0 16px; }
+  .qr-card-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .qr-open-link { font-size: 13px; font-weight: 700; color: var(--green-dark); text-decoration: none; white-space: nowrap; }
+  .qr-frame { width: 100%; height: 70vh; border: 1px solid var(--border); border-radius: 8px; margin-top: 10px; }
+  .qr-image { max-width: 100%; margin-top: 10px; border: 1px solid var(--border); border-radius: 8px; }
+  .qr-friend-link { margin-top: 8px; font-size: 12px; word-break: break-all; }
+  .qr-friend-link a { color: var(--green-dark); }
+  .qr-empty { color: var(--text-sub, #666); font-size: 14px; }
+  .qr-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+  .qr-tab-button {
+    flex: 1;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-sub, #666);
+    font-size: 14px;
+    font-weight: 700;
+    padding: 10px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .qr-tab-button.active { background: var(--green-dark); border-color: var(--green-dark); color: #fff; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <a class="menu-button" href="home.html" style="text-decoration:none;">🏠 ホーム</a>
+  </div>
+
+  <h1 class="page-title">QRコード</h1>
+  <p class="field-hint" style="margin-top:-10px;margin-bottom:16px;">連携しているGoogleドライブのQRコードをここで確認・印刷できます。</p>
+
+  <div class="qr-tabs">
+    <button type="button" class="qr-tab-button active" id="qrTabOriginals">原紙</button>
+    <button type="button" class="qr-tab-button" id="qrTabFlyers">チラシ</button>
+  </div>
+
+  <div id="qrOriginalsContainer"></div>
+  <div id="qrFlyersContainer" hidden></div>
+</div>
+
+<script src="auth-guard.js"></script>
+<script src="qrcode.js"></script>
+</body>
+</html>

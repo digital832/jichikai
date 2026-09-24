@@ -90,24 +90,11 @@
     if (!sessions || sessions.length === 0) return;
 
     const latest = sessions[0];
-    const unresponded = Math.max(0, latest.totalRecipients - latest.responded);
-    const hasMissing = latest.missing > 0;
-
-    const banner = document.createElement('div');
-    banner.className = 'status-banner ' + (hasMissing ? 'is-alert' : 'is-clear');
-    banner.innerHTML = `
-      <p class="status-banner-title">${hasMissing ? '⚠️ 行方不明の方がいます' : '✅ 最新の安否確認'}：${latest.eventName}${latest.eventDate ? '（' + latest.eventDate + '）' : ''}</p>
-      <p class="status-banner-nums">
-        全員無事：<strong>${latest.safe}人</strong>
-        行方不明：<strong>${latest.missing}人</strong>
-        未回答：<strong>${unresponded}人</strong>
-      </p>
-      ${hasMissing && latest.missingNames && latest.missingNames.length > 0
-        ? `<div class="safety-missing-alert">⚠ 行方不明者情報: ${latest.missingNames.join('、')}</div>`
-        : ''}
-      <a class="status-banner-link" href="#safetySessionList">くわしく見る ▼</a>
-    `;
-    statusBannerContainer.appendChild(banner);
+    const link = document.createElement('a');
+    link.className = 'status-banner-button';
+    link.href = `safety-detail.html?id=${encodeURIComponent(latest.id)}`;
+    link.textContent = '📋 安否状況';
+    statusBannerContainer.appendChild(link);
   }
 
   function renderSafetySessionRow(session) {
@@ -115,8 +102,15 @@
     row.className = 'safety-session-row';
     const unresponded = Math.max(0, session.totalRecipients - session.responded);
     row.innerHTML = `
-      <p class="safety-session-name">${session.eventName}${session.eventDate ? '（' + session.eventDate + '）' : ''}</p>
-      <p class="safety-session-meta">全員無事: ${session.safe}人 / 行方不明: ${session.missing}人 / 未回答: ${unresponded}人</p>
+      <div class="safety-session-top">
+        <div class="safety-session-info">
+          <p class="safety-session-name">${session.eventName}${session.eventDate ? '（' + session.eventDate + '）' : ''}</p>
+          <p class="safety-session-meta">SOS: ${session.sos}人 / 無事: ${session.safe}人 / 家族不明: ${session.missing}人 / 未回答: ${unresponded}人</p>
+        </div>
+        <div class="event-list-actions">
+          <button type="button" class="delete-btn">削除</button>
+        </div>
+      </div>
     `;
     if (session.missingNames && session.missingNames.length > 0) {
       const alertBox = document.createElement('div');
@@ -124,7 +118,20 @@
       alertBox.textContent = `⚠ 行方不明者情報: ${session.missingNames.join('、')}`;
       row.appendChild(alertBox);
     }
-    row.addEventListener('click', () => openSafetyDetail(session));
+    row.querySelector('.safety-session-info').addEventListener('click', () => {
+      window.location.href = `safety-detail.html?id=${encodeURIComponent(session.id)}`;
+    });
+    row.querySelector('.delete-btn').addEventListener('click', async () => {
+      if (!window.confirm(`「${session.eventName}」の安否確認を削除しますか？`)) return;
+      try {
+        const res = await fetch(`/api/safety/sessions/${encodeURIComponent(session.id)}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error('削除に失敗しました');
+        await refreshSafetySessions();
+      } catch (err) {
+        console.error(err);
+        window.alert('安否確認の削除に失敗しました');
+      }
+    });
     return row;
   }
 
@@ -149,103 +156,19 @@
     }
   }
 
-  // 安否状況の詳細（回答者ごとの現在地を地図で表示）
-  const safetyDetailOverlay = document.getElementById('safetyDetailOverlay');
-  const safetyDetailTitle = document.getElementById('safetyDetailTitle');
-  const safetyDetailMapDiv = document.getElementById('safetyDetailMap');
-  const safetyDetailList = document.getElementById('safetyDetailList');
-  let safetyDetailMap = null;
-
-  async function openSafetyDetail(session) {
-    safetyDetailTitle.textContent = `安否状況の詳細：${session.eventName}`;
-    safetyDetailList.innerHTML = '読み込み中...';
-    safetyDetailOverlay.classList.add('open');
-
-    try {
-      const res = await fetch(`/api/safety/sessions/${encodeURIComponent(session.id)}`);
-      if (!res.ok) throw new Error('取得に失敗しました');
-      const data = await res.json();
-      renderSafetyDetailMap(data.responses);
-      renderSafetyDetailList(data.responses);
-    } catch (err) {
-      console.error(err);
-      safetyDetailList.innerHTML = '<p class="event-list-empty">詳細の取得に失敗しました</p>';
-    }
-  }
-
-  function renderSafetyDetailMap(responses) {
-    const points = responses.filter((r) => r.lat && r.lng);
-
-    if (safetyDetailMap) {
-      safetyDetailMap.remove();
-      safetyDetailMap = null;
-    }
-
-    if (points.length === 0) {
-      safetyDetailMapDiv.textContent = 'まだ現在地を報告した人はいません';
-      return;
-    }
-    safetyDetailMapDiv.textContent = '';
-
-    safetyDetailMap = L.map(safetyDetailMapDiv).setView([points[0].lat, points[0].lng], 14);
-    L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png', {
-      attribution: '地理院タイル',
-      maxNativeZoom: 18,
-    }).addTo(safetyDetailMap);
-
-    points.forEach((r) => {
-      const color = r.status === '行方不明' ? '#ef4a4a' : '#05a648';
-      L.circleMarker([r.lat, r.lng], {
-        radius: 9, color: '#fff', weight: 2, fillColor: color, fillOpacity: 1,
-      }).addTo(safetyDetailMap).bindPopup(`<b>${r.realName || '（名前未登録）'}</b><br>${r.status}`);
-    });
-
-    if (points.length > 1) {
-      safetyDetailMap.fitBounds(points.map((r) => [r.lat, r.lng]), { padding: [30, 30] });
-    }
-  }
-
-  function renderSafetyDetailList(responses) {
-    safetyDetailList.innerHTML = '';
-    if (responses.length === 0) {
-      safetyDetailList.innerHTML = '<p class="event-list-empty">まだ回答がありません</p>';
-      return;
-    }
-    responses.forEach((r) => {
-      const row = document.createElement('div');
-      row.className = 'safety-response-row';
-      const name = document.createElement('p');
-      name.className = 'safety-response-name';
-      name.textContent = r.realName || '（名前未登録）';
-      const status = document.createElement('p');
-      status.className = 'safety-response-status';
-      status.textContent = `${r.status}${r.lat && r.lng ? '（現在地を報告済み）' : ''}`;
-      row.appendChild(name);
-      row.appendChild(status);
-      safetyDetailList.appendChild(row);
-    });
-  }
-
-  document.getElementById('closeSafetyDetailButton').addEventListener('click', () => {
-    safetyDetailOverlay.classList.remove('open');
-  });
-  safetyDetailOverlay.addEventListener('click', (e) => {
-    if (e.target === safetyDetailOverlay) safetyDetailOverlay.classList.remove('open');
-  });
-
   refreshSafetySessions();
 
   // ------------------------------------------------------------------
   // ③ 避難場所の準備をする（拠点・避難所）
   // ------------------------------------------------------------------
-  const baseNameInput = document.getElementById('baseNameInput');
+  const baseNameSelect = document.getElementById('baseNameSelect');
   const baseAddressInput = document.getElementById('baseAddressInput');
   const baseCheckButton = document.getElementById('baseCheckButton');
   const baseMapDiv = document.getElementById('baseMap');
   const baseMapHint = document.getElementById('baseMapHint');
   const baseSaveButton = document.getElementById('baseSaveButton');
 
-  const shelterNameInput = document.getElementById('shelterNameInput');
+  const shelterNameSelect = document.getElementById('shelterNameSelect');
   const shelterAddressInput = document.getElementById('shelterAddressInput');
   const shelterCheckButton = document.getElementById('shelterCheckButton');
   const shelterMapDiv = document.getElementById('shelterMap');
@@ -253,6 +176,63 @@
   const shelterAddButton = document.getElementById('shelterAddButton');
 
   const shelterListContainer = document.getElementById('shelterListContainer');
+
+  // 場所マスタ（「場所の管理」で登録した場所）を名称の選択肢として使い、選んだら住所を自動で反映する
+  let masterPlaces = [];
+
+  async function loadMasterPlaces() {
+    try {
+      const res = await fetch('/api/places');
+      if (!res.ok) throw new Error('場所取得に失敗しました');
+      const data = await res.json();
+      masterPlaces = data.places || [];
+    } catch (err) {
+      console.error(err);
+      masterPlaces = [];
+    }
+    renderNameOptions(baseNameSelect);
+    renderNameOptions(shelterNameSelect);
+  }
+
+  function renderNameOptions(selectEl) {
+    const current = selectEl.value;
+    selectEl.innerHTML = '';
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = '— 場所を選ぶ —';
+    selectEl.appendChild(placeholder);
+    masterPlaces.forEach((p) => {
+      const option = document.createElement('option');
+      option.value = p.name;
+      option.textContent = p.name;
+      selectEl.appendChild(option);
+    });
+    setNameSelectValue(selectEl, current);
+  }
+
+  // 保存済みの名称が場所マスタに無い場合（未登録・削除済みなど）も選択肢が消えないよう一時的に追加する
+  function setNameSelectValue(selectEl, name) {
+    const value = name || '';
+    const hasOption = [...selectEl.options].some((o) => o.value === value);
+    if (value && !hasOption) {
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = value;
+      selectEl.appendChild(option);
+    }
+    selectEl.value = value;
+  }
+
+  function onNameSelectChange(selectEl, addressInput) {
+    const selected = masterPlaces.find((p) => p.name === selectEl.value);
+    addressInput.value = selected ? selected.address || '' : addressInput.value;
+    addressInput.dispatchEvent(new Event('input'));
+  }
+
+  baseNameSelect.addEventListener('change', () => onNameSelectChange(baseNameSelect, baseAddressInput));
+  shelterNameSelect.addEventListener('change', () => onNameSelectChange(shelterNameSelect, shelterAddressInput));
+
+  loadMasterPlaces();
 
   let baseMap = null;
   let baseMarker = null;
@@ -373,7 +353,7 @@
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: baseNameInput.value.trim(),
+          name: baseNameSelect.value.trim(),
           address: baseAddressInput.value.trim(),
           lat: baseCoords.lat,
           lng: baseCoords.lng,
@@ -395,7 +375,7 @@
 
   function stopEditShelter() {
     editingShelterRow = null;
-    shelterNameInput.value = '';
+    setNameSelectValue(shelterNameSelect, '');
     shelterAddressInput.value = '';
     shelterMapDiv.hidden = true;
     shelterMapHint.textContent = '';
@@ -407,7 +387,7 @@
 
   function startEditShelter(s) {
     editingShelterRow = s.row;
-    shelterNameInput.value = s.name;
+    setNameSelectValue(shelterNameSelect, s.name);
     shelterAddressInput.value = s.address;
     shelterCoords = { lat: s.lat, lng: s.lng };
     shelterMapDiv.hidden = false;
@@ -426,7 +406,7 @@
     shelterAddButton.disabled = false;
     shelterAddButton.textContent = 'この内容で更新する';
     shelterCancelEditLink.hidden = false;
-    shelterNameInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    shelterNameSelect.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
   shelterCancelEditLink.addEventListener('click', (e) => {
@@ -436,7 +416,7 @@
 
   shelterAddButton.addEventListener('click', async () => {
     if (!shelterCoords) return;
-    const name = shelterNameInput.value.trim();
+    const name = shelterNameSelect.value.trim();
     if (!name) {
       window.alert('避難所の名称を入力してください');
       return;
@@ -477,7 +457,7 @@
       const data = await res.json();
 
       if (data.base) {
-        baseNameInput.value = data.base.name;
+        setNameSelectValue(baseNameSelect, data.base.name);
         baseAddressInput.value = data.base.address;
       }
 

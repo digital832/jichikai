@@ -57,6 +57,23 @@
     cursor: pointer;
   }
 
+  .update-button {
+    display: none;
+    width: 100%;
+    padding: 20px;
+    margin-top: 8px;
+    border: none;
+    border-radius: 999px;
+    background: #fff3d8;
+    color: #8a5b00;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    box-sizing: border-box;
+  }
+
   .transaction-row {
     display: flex;
     align-items: center;
@@ -72,23 +89,100 @@
   .transaction-amount { font-size: 18px; font-weight: 700; }
   .transaction-amount.income { color: var(--green-dark); }
   .transaction-amount.expense { color: var(--red); }
+  .transaction-actions { flex: none; display: flex; gap: 6px; }
+  .transaction-edit,
   .transaction-delete {
     flex: none;
     border: none;
-    background: #fdeaea;
-    color: var(--red);
     border-radius: 8px;
     padding: 8px 12px;
     font-size: 12px;
     font-weight: 700;
     cursor: pointer;
   }
+  .transaction-edit { background: var(--green-light); color: var(--green-dark); text-decoration: none; display: inline-flex; align-items: center; }
+  .transaction-delete { background: #fdeaea; color: var(--red); }
+
+  .statement-item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 0;
+    border-bottom: 1px solid #eee;
+  }
+  .statement-item:last-child { border-bottom: none; }
+  .statement-item-info { flex: 1 1 160px; min-width: 0; }
+  .statement-item-period { font-size: 12px; color: var(--text-sub); }
+  .statement-item-title { font-size: 16px; font-weight: 700; }
+  .statement-item-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .statement-item-actions button,
+  .statement-item-actions a {
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: none;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .statement-open-button { background: #eef2fb; color: #1155e0; }
+  .statement-edit-button { background: #fff3d8; color: #8a5b00; }
+  .statement-delete-button { background: #fde8e8; color: var(--red); }
+  .statement-send-button { background: #e3f8ea; color: #147a3d; }
+  .statement-send-panel {
+    display: none;
+    flex: 1 1 100%;
+    gap: 8px;
+    margin-top: 8px;
+    align-items: center;
+  }
+  .statement-send-panel select { flex: 1 1 auto; }
+  .statement-send-status { flex: 1 1 100%; font-size: 13px; color: var(--text-sub); }
+  .statement-empty { text-align: center; color: var(--text-sub); padding: 12px 0; }
+  .statement-show-all-link {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 14px;
+    margin-top: 12px;
+    border-radius: 16px;
+    border: 1px solid #ddd;
+    background: #fff;
+    color: var(--text);
+    font-weight: 700;
+    text-decoration: none;
+    box-sizing: border-box;
+  }
+
+  .budget-group-title { font-size: 13px; font-weight: 700; color: var(--text-sub); margin: 14px 0 6px; }
+  .new-category-row { display: flex; gap: 8px; align-items: center; }
+  .new-category-row .text-input { flex: 1; }
+  .category-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .category-row:last-child { border-bottom: none; }
+  .category-row-fields { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; }
+  .category-name-input { font-weight: 700; font-size: 14px; }
+  .category-select-row { display: flex; gap: 8px; }
+  .category-select-row select { flex: 1; min-width: 0; }
+
+  .budget-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; flex-wrap: wrap; border-bottom: 1px solid var(--border); }
+  .budget-row:last-child { border-bottom: none; }
+  .budget-row-name { flex: 1 1 auto; font-size: 14px; min-width: 0; }
+  .budget-row-budget { font-size: 12px; font-weight: 400; color: var(--text-sub); }
 </style>
 </head>
 <body>
 <div class="page">
   <div class="topbar">
-    <a class="menu-button" href="broadcast.html" style="text-decoration:none;">▷ 配信ウィザードへ</a>
+    <a class="menu-button" href="home.html" style="text-decoration:none;">🏠 ホーム</a>
   </div>
 
   <div class="card balance-card">
@@ -97,6 +191,10 @@
     <div class="balance-sub-row">
       <div class="balance-sub income">収入合計<span class="amount" id="totalIncome">¥0</span></div>
       <div class="balance-sub expense">支出合計<span class="amount" id="totalExpense">¥0</span></div>
+    </div>
+    <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:14px;">
+      <button class="template-button" type="button" id="openingBalanceButton">期首残高を登録する</button>
+      <button class="template-button" type="button" id="manageBudgetsButton">予算額を設定</button>
     </div>
   </div>
 
@@ -119,6 +217,14 @@
     </div>
 
     <div class="field">
+      <label class="field-label" for="categoryInput" style="justify-content:space-between;">
+        <span>📂 科目（決算書の項目）</span>
+        <button class="template-button" type="button" id="manageCategoriesButton">科目を管理</button>
+      </label>
+      <select class="select-input" id="categoryInput"></select>
+    </div>
+
+    <div class="field">
       <label class="field-label" for="descriptionInput">内容</label>
       <input class="text-input" type="text" id="descriptionInput" placeholder="例：会費、郵便代など" />
     </div>
@@ -128,9 +234,110 @@
 
   <div class="card">
     <p class="card-heading">記録一覧</p>
+    <p class="field-hint" style="margin-top:-8px;">直近1か月分を表示しています。編集はそれぞれの「編集」から行えます。</p>
     <div id="transactionListContainer"></div>
+    <a class="statement-show-all-link" id="transactionShowAllLink" href="transactions-archive.html" style="display:none;">もっと見る（すべて表示）</a>
+  </div>
+
+  <div class="card">
+    <p class="card-heading"><span class="badge">📊</span>決算書</p>
+    <p class="field-hint" style="margin-top:-8px;">科目ごとに集計した収支決算書（PDF）を作成し、指定のGoogleドライブに保存します。</p>
+    <a class="register-button" href="statement.html" style="display:block;box-sizing:border-box;text-align:center;text-decoration:none;">決算書を作成する</a>
+    <a class="update-button" id="updateStatementButton" href="statement.html">今年度の決算書を更新する</a>
+  </div>
+
+  <div class="card">
+    <p class="card-heading">決算書一覧</p>
+    <div id="statementListContainer"></div>
+    <a class="statement-show-all-link" id="statementShowAllLink" href="accounting-archive.html" style="display:none;">もっと見る（すべて表示）</a>
   </div>
 </div>
+
+<div class="sheet-overlay" id="categoryListOverlay">
+  <div class="sheet-panel" id="categoryListPanel">
+    <div class="sheet-handle"></div>
+    <p class="card-heading">科目マスタ</p>
+    <p class="field-hint" style="margin-top:-8px;">入出金の記録・決算書で使う科目（収入・支出の項目）を追加・編集・削除できます。</p>
+
+    <div class="field">
+      <label class="field-label" for="newCategoryName">新しい科目名</label>
+      <div class="new-category-row">
+        <input class="text-input" type="text" id="newCategoryName" placeholder="例：夏祭り協賛金" />
+        <button class="icon-button" type="button" id="addCategoryButton">＋</button>
+      </div>
+      <div class="category-select-row" style="margin-top:8px;">
+        <select class="select-input" id="newCategorySection">
+          <option value="収入">収入</option>
+          <option value="支出">支出</option>
+        </select>
+        <select class="select-input" id="newCategoryGroup" style="display:none;"></select>
+      </div>
+    </div>
+
+    <p class="budget-group-title">収入の部</p>
+    <div id="categoryIncomeListContainer"></div>
+    <p class="budget-group-title">支出の部</p>
+    <div id="categoryExpenseListContainer"></div>
+
+    <div class="sheet-actions">
+      <button class="word-button" type="button" id="closeCategoryListButton">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet-overlay" id="openingBalanceOverlay">
+  <div class="sheet-panel" id="openingBalancePanel">
+    <div class="sheet-handle"></div>
+    <p class="card-heading">期首残高を登録する</p>
+    <p class="field-hint" style="margin-top:-8px;">年度の始まりに、その時点の実際の残高（前年度からの繰越金）を入金として記録します。これを登録しておくと、出納帳の残高が年間を通じて正しく表示されます。</p>
+
+    <div class="field">
+      <label class="field-label" for="openingBalanceDate">📅 年度開始日</label>
+      <input class="date-input" type="date" id="openingBalanceDate" />
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="openingBalanceAmount">金額</label>
+      <input class="amount-input" type="text" inputmode="numeric" id="openingBalanceAmount" placeholder="0" />
+    </div>
+
+    <div class="sheet-actions">
+      <button class="word-button" type="button" id="cancelOpeningBalanceButton">キャンセル</button>
+      <button class="send-button" type="button" id="saveOpeningBalanceButton">登録する</button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet-overlay" id="budgetManageOverlay">
+  <div class="sheet-panel" id="budgetManagePanel">
+    <div class="sheet-handle"></div>
+    <p class="card-heading">予算額を設定</p>
+    <p class="field-hint" style="margin-top:-8px;" id="budgetManageYearHint"></p>
+    <div id="budgetListContainer"></div>
+    <div class="sheet-actions">
+      <button class="word-button" type="button" id="closeBudgetManageButton">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet-overlay" id="budgetSetOverlay">
+  <div class="sheet-panel" id="budgetSetPanel">
+    <div class="sheet-handle"></div>
+    <p class="card-heading" id="budgetSetTitle">予算額を設定</p>
+    <div class="field">
+      <label class="field-label" for="budgetSetAmount">金額</label>
+      <input class="text-input" type="text" inputmode="numeric" id="budgetSetAmount" placeholder="0" />
+    </div>
+    <div class="sheet-actions">
+      <button class="word-button" type="button" id="cancelBudgetSetButton">キャンセル</button>
+      <button class="send-button" type="button" id="saveBudgetSetButton">保存する</button>
+    </div>
+  </div>
+</div>
+
+<script src="auth-guard.js"></script>
+<script src="statementList.js"></script>
+<script src="transactionList.js"></script>
 <script src="accounting.js"></script>
 </body>
 </html>

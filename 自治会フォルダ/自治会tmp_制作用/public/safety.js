@@ -118,7 +118,7 @@
       const res = await fetch('/api/safety/respond', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, status: '行方不明', missingNames: '本人（現在地を報告済み）' }),
+        body: JSON.stringify({ token, status: 'SOS' }),
       });
       if (!res.ok) throw new Error('送信に失敗しました');
       await sendLocation(lat, lng);

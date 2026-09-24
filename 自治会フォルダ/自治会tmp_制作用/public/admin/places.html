@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>場所の管理</title>
+<link rel="stylesheet" href="broadcast.css" />
+<style>
+  .page-title { font-size: 20px; font-weight: 700; margin: 0 0 16px; }
+  .place-row { display: flex; align-items: center; gap: 10px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .place-row:last-child { border-bottom: none; }
+  .place-row-name { flex: 1; font-size: 15px; font-weight: 700; min-width: 0; word-break: break-all; }
+  .place-row-address { font-size: 13px; font-weight: 400; color: var(--muted, #666); margin-top: 2px; word-break: break-all; }
+  .place-row-actions { display: flex; gap: 8px; flex: none; }
+  .place-row-actions button { padding: 8px 12px; }
+  .place-edit-wrap { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .place-row.editing { flex-direction: column; align-items: stretch; }
+  .place-row.editing .place-row-actions { justify-content: flex-end; margin-top: 8px; }
+  .place-edit-input { margin-bottom: 0; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <a class="menu-button" href="home.html" style="text-decoration:none;">🏠 ホーム</a>
+  </div>
+
+  <h1 class="page-title">場所の管理</h1>
+  <p class="field-hint" style="margin-top:-10px;margin-bottom:16px;">ここで登録した場所が、お知らせ配信・予約配信の「場所」の選択肢に出てきます。</p>
+
+  <div class="card">
+    <p class="card-heading">場所を追加する</p>
+    <div class="field">
+      <label class="field-label" for="newPlaceName">場所の名前<span class="required">必須</span></label>
+      <input class="text-input" type="text" id="newPlaceName" placeholder="例：自治会館 集会室" />
+    </div>
+    <div class="field">
+      <label class="field-label" for="newPlaceAddress">住所<span class="field-hint" style="font-weight:400;">（任意）</span></label>
+      <input class="text-input" type="text" id="newPlaceAddress" placeholder="例：〇〇市〇〇町1-2-3" />
+    </div>
+    <button class="send-button" type="button" id="addPlaceButton" style="width:100%;">＋ この場所を保存する</button>
+  </div>
+
+  <div class="card">
+    <p class="card-heading">登録ずみの場所（編集・削除はここから）</p>
+    <div id="placeListContainer"></div>
+  </div>
+</div>
+
+<script src="auth-guard.js"></script>
+<script src="places.js"></script>
+</body>
+</html>

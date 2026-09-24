@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>安否状況</title>
+<link rel="stylesheet" href="broadcast.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+  .bousai-page .page-title { font-size: 22px; font-weight: 800; margin: 4px 0 4px; display: flex; align-items: center; gap: 8px; }
+  .bousai-page .page-lead { font-size: 14px; color: var(--text-sub); margin: 0 0 18px; line-height: 1.6; }
+  .bousai-page .pill-option { font-size: 14px; padding: 11px 18px; }
+
+  .status-tag-group { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .status-tag { padding: 11px 16px; border-radius: 999px; border: 2px solid var(--border); background: var(--input-bg); color: var(--text); font-size: 14px; font-weight: 700; cursor: pointer; }
+  .status-tag .count { margin-left: 4px; }
+  .status-tag[data-tag="sos"].active { background: #fdeaea; border-color: var(--red); color: var(--red); }
+  .status-tag[data-tag="safe"].active { background: var(--green-light); border-color: var(--green); color: var(--green-dark); }
+  .status-tag[data-tag="missing"].active { background: #fff4e5; border-color: #f0a63e; color: #b3691a; }
+  .status-tag[data-tag="unresponded"].active { background: var(--input-bg); border-color: var(--text-sub); color: var(--text); }
+
+  .safety-detail-map { width: 100%; height: 240px; border-radius: 14px; margin-bottom: 16px; background: var(--input-bg); }
+  .member-row { padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .member-row:last-child { border-bottom: none; }
+  .member-row-name { font-size: 15px; font-weight: 700; margin: 0; }
+  .member-row-meta { font-size: 13px; color: var(--text-sub); margin: 3px 0 0; }
+</style>
+</head>
+<body class="bousai-page">
+<div class="page">
+  <div class="topbar">
+    <a class="menu-button" href="disaster.html" style="text-decoration:none;">← 防災ページに戻る</a>
+  </div>
+
+  <p class="page-title">📋 安否状況</p>
+  <p class="page-lead" id="sessionTitleText">読み込み中...</p>
+
+  <div class="status-tag-group" id="statusTagGroup"></div>
+
+  <div class="safety-detail-map" id="safetyMap" hidden></div>
+
+  <div class="card">
+    <p class="card-heading" id="memberListHeading">一覧</p>
+    <div id="memberListContainer"><p class="event-list-empty">読み込み中...</p></div>
+  </div>
+</div>
+
+<script src="auth-guard.js"></script>
+<script src="safety-detail.js"></script>
+</body>
+</html>

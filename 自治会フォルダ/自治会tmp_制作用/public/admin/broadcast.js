@@ -26,6 +26,56 @@
   const timeEnd = document.getElementById('timeEnd');
   const belongings = document.getElementById('belongings');
 
+  // 場所マスタ（登録された場所を選択肢として出す。行事に紐づく未登録の場所名が来た場合は、
+  // 選べる場所が消えてしまわないよう一時的な選択肢として追加する）
+  let places = [];
+
+  async function fetchPlaces() {
+    const res = await fetch('/api/places');
+    if (!res.ok) throw new Error('場所取得に失敗しました');
+    const data = await res.json();
+    return data.places || [];
+  }
+
+  function renderPlaceOptions() {
+    place.innerHTML = '';
+    places.forEach((p) => {
+      const option = document.createElement('option');
+      option.value = p.name;
+      option.textContent = p.name;
+      place.appendChild(option);
+    });
+  }
+
+  function setPlaceValue(name) {
+    const value = name || '';
+    const hasOption = [...place.options].some((o) => o.value === value);
+    if (value && !hasOption) {
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = value;
+      place.appendChild(option);
+    } else if (!value && ![...place.options].some((o) => o.value === '')) {
+      const option = document.createElement('option');
+      option.value = '';
+      option.textContent = '（場所未設定）';
+      place.appendChild(option);
+    }
+    place.value = value;
+  }
+
+  async function refreshPlaces() {
+    places = await fetchPlaces();
+    const current = place.value;
+    renderPlaceOptions();
+    setPlaceValue(current);
+  }
+
+  refreshPlaces().catch((err) => {
+    console.error(err);
+    window.alert('場所一覧の取得に失敗しました');
+  });
+
   function findEvent(id) {
     return events.find((e) => e.id === id);
   }
@@ -44,13 +94,13 @@
   function applyEventToForm(id) {
     const ev = findEvent(id);
     if (!ev) {
-      place.value = '';
+      setPlaceValue('');
       timeStart.value = '';
       timeEnd.value = '';
       belongings.value = '';
       return;
     }
-    place.value = ev.place;
+    setPlaceValue(ev.place);
     timeStart.value = ev.timeStart;
     timeEnd.value = ev.timeEnd;
     belongings.value = ev.belongings;
@@ -58,7 +108,7 @@
 
   async function fetchEvents() {
     const res = await fetch('/api/events');
-    if (!res.ok) throw new Error('イベント取得に失敗しました');
+    if (!res.ok) throw new Error('行事取得に失敗しました');
     const data = await res.json();
     return data.events || [];
   }
@@ -73,7 +123,7 @@
 
   refreshEvents().catch((err) => {
     console.error(err);
-    window.alert('イベント一覧の取得に失敗しました');
+    window.alert('行事一覧の取得に失敗しました');
   });
 
   // 対象グループのピル選択（固定3つ＋管理地区フォルダから取得した班名を動的表示）
@@ -129,7 +179,7 @@
     }
   });
 
-  // イベント登録・編集：スライドパネル
+  // 行事登録・編集：スライドパネル
   const overlay = document.getElementById('eventSheetOverlay');
   const eventFormTitle = document.getElementById('eventFormTitle');
   const newEventName = document.getElementById('newEventName');
@@ -142,7 +192,7 @@
   function openSheet(eventToEdit) {
     if (eventToEdit) {
       editingEventId = eventToEdit.id;
-      eventFormTitle.textContent = 'イベントを編集';
+      eventFormTitle.textContent = '行事を編集';
       newEventName.value = eventToEdit.name;
       newEventPlace.value = eventToEdit.place;
       newEventTimeStart.value = eventToEdit.timeStart;
@@ -150,7 +200,7 @@
       newEventBelongings.value = eventToEdit.belongings;
     } else {
       editingEventId = null;
-      eventFormTitle.textContent = '新しいイベントを追加';
+      eventFormTitle.textContent = '新しい行事を追加';
       newEventName.value = '';
       newEventPlace.value = '';
       newEventTimeStart.value = '09:00';
@@ -173,7 +223,7 @@
   document.getElementById('saveEventButton').addEventListener('click', async () => {
     const name = newEventName.value.trim();
     if (!name) {
-      window.alert('イベント名を入力してください');
+      window.alert('行事名を入力してください');
       return;
     }
     const fields = {
@@ -210,13 +260,13 @@
       closeSheet();
     } catch (err) {
       console.error(err);
-      window.alert('イベントの保存に失敗しました');
+      window.alert('行事の保存に失敗しました');
     } finally {
       saveButton.disabled = false;
     }
   });
 
-  // イベント一覧：編集・削除
+  // 行事一覧：編集・削除
   const listOverlay = document.getElementById('eventListOverlay');
   const eventListContainer = document.getElementById('eventListContainer');
 
@@ -230,7 +280,7 @@
     if (events.length === 0) {
       const empty = document.createElement('p');
       empty.className = 'event-list-empty';
-      empty.textContent = '登録されているイベントはありません';
+      empty.textContent = '登録されている行事はありません';
       eventListContainer.appendChild(empty);
       return;
     }
@@ -262,7 +312,7 @@
           renderEventList();
         } catch (err) {
           console.error(err);
-          window.alert('イベントの削除に失敗しました');
+          window.alert('行事の削除に失敗しました');
         }
       });
       eventListContainer.appendChild(row);
@@ -334,6 +384,15 @@
     if (t) messageBody.value = t.text;
   });
 
+  function resetForm() {
+    eventDate.value = '';
+    applyEventToForm(Number(eventSelect.value));
+    messageBody.value = '';
+    renderTemplateOptions();
+    document.getElementById('confirmAttendance').checked = false;
+    groupPillGroup.querySelectorAll('.pill-option').forEach((el, i) => el.classList.toggle('active', i === 0));
+  }
+
   document.getElementById('printFolderLink').addEventListener('click', (e) => {
     e.preventDefault();
     window.alert('印刷フォルダのURLが未設定です。管理者に設定を依頼してください。');
@@ -381,95 +440,6 @@
     }
   });
 
-  // 出欠状況（ヘッダーのボタンから開くパネルにまとめて表示）
-  const attendanceOngoingList = document.getElementById('attendanceOngoingList');
-  const attendanceHistoryOverlay = document.getElementById('attendanceHistoryOverlay');
-  const attendanceHistoryList = document.getElementById('attendanceHistoryList');
-
-  function renderSessionRow(session) {
-    const row = document.createElement('div');
-    row.className = 'event-list-row';
-    const unresponded = Math.max(0, session.totalRecipients - session.responded);
-    row.innerHTML = `
-      <div class="event-list-info" style="cursor:pointer;">
-        <span class="event-list-name"></span>
-        <span class="event-list-meta"></span>
-      </div>
-    `;
-    row.querySelector('.event-list-name').textContent = `${session.eventName}${session.eventDate ? '（' + session.eventDate + '）' : ''}`;
-    row.querySelector('.event-list-meta').textContent =
-      `参加: ${session.attending}人 / 不参加: ${session.notAttending}人 / 未回答: ${unresponded}人（タップで参加者名を表示）`;
-
-    const namesBox = document.createElement('div');
-    namesBox.className = 'attendance-names';
-    namesBox.hidden = true;
-
-    let loaded = false;
-    row.querySelector('.event-list-info').addEventListener('click', async () => {
-      namesBox.hidden = !namesBox.hidden;
-      if (namesBox.hidden || loaded) return;
-      namesBox.textContent = '読み込み中...';
-      try {
-        const res = await fetch(`/api/attendance/sessions/${session.id}`);
-        if (!res.ok) throw new Error('取得に失敗しました');
-        const data = await res.json();
-        const attendingNames = data.responses.filter((r) => r.status === '参加').map((r) => r.realName || '(名前未設定)');
-        const notAttendingNames = data.responses.filter((r) => r.status === '不参加').map((r) => r.realName || '(名前未設定)');
-        namesBox.innerHTML = `
-          <div><strong>参加：</strong>${attendingNames.length ? attendingNames.join('、') : 'なし'}</div>
-          <div style="margin-top:4px;"><strong>不参加：</strong>${notAttendingNames.length ? notAttendingNames.join('、') : 'なし'}</div>
-        `;
-        loaded = true;
-      } catch (err) {
-        console.error(err);
-        namesBox.textContent = '取得に失敗しました';
-      }
-    });
-
-    const wrapper = document.createElement('div');
-    wrapper.appendChild(row);
-    wrapper.appendChild(namesBox);
-    return wrapper;
-  }
-
-  async function loadAttendancePanel() {
-    attendanceOngoingList.innerHTML = '読み込み中...';
-    attendanceHistoryList.innerHTML = '';
-    try {
-      const res = await fetch('/api/attendance/sessions');
-      if (!res.ok) throw new Error('取得に失敗しました');
-      const data = await res.json();
-
-      attendanceOngoingList.innerHTML = '';
-      if (data.ongoing.length === 0) {
-        attendanceOngoingList.innerHTML = '<p class="event-list-empty">現在受付中の出欠確認はありません</p>';
-      } else {
-        data.ongoing.forEach((s) => attendanceOngoingList.appendChild(renderSessionRow(s)));
-      }
-
-      attendanceHistoryList.innerHTML = '';
-      if (data.past.length === 0) {
-        attendanceHistoryList.innerHTML = '<p class="event-list-empty">過去の出欠確認はありません</p>';
-      } else {
-        data.past.forEach((s) => attendanceHistoryList.appendChild(renderSessionRow(s)));
-      }
-    } catch (err) {
-      console.error(err);
-      attendanceOngoingList.innerHTML = '<p class="event-list-empty">出欠状況の取得に失敗しました</p>';
-    }
-  }
-
-  document.getElementById('attendanceHeaderButton').addEventListener('click', () => {
-    attendanceHistoryOverlay.classList.add('open');
-    loadAttendancePanel();
-  });
-  document.getElementById('closeAttendanceHistoryButton').addEventListener('click', () => {
-    attendanceHistoryOverlay.classList.remove('open');
-  });
-  attendanceHistoryOverlay.addEventListener('click', (e) => {
-    if (e.target === attendanceHistoryOverlay) attendanceHistoryOverlay.classList.remove('open');
-  });
-
   document.getElementById('lineSendButton').addEventListener('click', async (e) => {
     const button = e.currentTarget;
     if (!window.confirm('この内容でLINE配信します。よろしいですか？')) return;
@@ -488,6 +458,7 @@
           (data.failedAccountCount ? `\n送信に失敗したアカウント数: ${data.failedAccountCount}` : '')
       );
       if (data.attendanceSessionId) loadAttendancePanel();
+      resetForm();
     } catch (err) {
       console.error(err);
       window.alert('配信に失敗しました: ' + err.message);

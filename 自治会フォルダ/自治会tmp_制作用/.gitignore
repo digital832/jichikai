@@ -1,3 +1,10 @@
 node_modules/
 .env
 *.json.key
+*.log
+
+# 秘密情報・一時ファイル（コミットしない）
+env-vars.yaml
+cookies.txt
+cloudbuild.debug.yaml
+.claude/settings.local.json

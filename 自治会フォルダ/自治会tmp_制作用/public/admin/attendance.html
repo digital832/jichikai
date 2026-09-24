@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>出欠状況</title>
+<link rel="stylesheet" href="broadcast.css" />
+<style>
+  .page-title { font-size: 20px; font-weight: 700; margin: 0 0 16px; }
+  .back-link { color: var(--green-dark); text-decoration: none; font-weight: 700; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <a class="back-link" href="home.html">← ホームへ戻る</a>
+  </div>
+
+  <h1 class="page-title">📋 出欠状況</h1>
+
+  <div class="card">
+    <p class="card-heading">今回開催分</p>
+    <div id="attendanceOngoingList">読み込み中...</div>
+  </div>
+
+  <div class="card">
+    <p class="card-heading">以前の参加状況</p>
+    <div id="attendanceHistoryList"></div>
+  </div>
+</div>
+
+<script src="auth-guard.js"></script>
+<script src="attendance.js"></script>
+</body>
+</html>

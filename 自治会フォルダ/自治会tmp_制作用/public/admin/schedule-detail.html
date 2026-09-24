@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>予約配信の設定</title>
+<link rel="stylesheet" href="broadcast.css" />
+<style>
+  .page-title { font-size: 20px; font-weight: 700; margin: 0 0 16px; }
+  .back-link { color: var(--green-dark); text-decoration: none; font-weight: 700; font-size: 14px; }
+  .schedule-send-card {
+    background: #eaf0fd;
+    border: 1px solid #c7d7fb;
+  }
+  .schedule-send-card .date-input,
+  .schedule-send-card .time-input {
+    background: #fff;
+    border-color: #c7d7fb;
+    width: 90%;
+    max-width: 90%;
+  }
+  .save-schedule-button {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 999px;
+    background: #1155e0;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(17, 85, 224, 0.35);
+    cursor: pointer;
+  }
+  .status-note {
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-sub);
+    margin-bottom: 12px;
+  }
+  .topbar { justify-content: space-between; }
+  .home-link { color: var(--text-sub); text-decoration: none; font-weight: 700; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <a class="back-link" href="schedule.html">← 予約配信の一覧へ戻る</a>
+    <a class="home-link" href="home.html">🏠 ホーム</a>
+  </div>
+
+  <h1 class="page-title" id="pageTitle">📅 新しい予約配信</h1>
+  <p class="status-note" id="statusNote" hidden></p>
+
+  <div class="wizard-grid">
+  <div class="card schedule-send-card">
+    <p class="card-heading"><span class="badge" style="background:#1155e0;">1</span>配信予定日時</p>
+    <p class="field-hint" style="margin-top:-8px;margin-bottom:14px;">この日時になると自動でLINE配信されます。</p>
+    <div class="field">
+      <label class="field-label" for="sendDate">📅 配信日</label>
+      <input class="date-input" type="date" id="sendDate" name="sendDate" />
+    </div>
+    <div class="field">
+      <label class="field-label" for="sendTime">🕐 配信時刻</label>
+      <input class="time-input" type="time" id="sendTime" name="sendTime" step="60" />
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="card-heading"><span class="badge">2</span>行事をえらぶ</p>
+    <div class="field">
+      <select class="select-input" id="eventSelect">
+        <option value="">— 行事を選ばない（自由入力） —</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="card-heading"><span class="badge">3</span>くわしい内容を入力する</p>
+
+    <div class="field">
+      <label class="field-label" for="eventName">📝 行事名</label>
+      <input class="text-input" type="text" id="eventName" name="eventName" placeholder="例：資源ごみ収集" />
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="eventDate">📅 行事日</label>
+      <input class="date-input" type="date" id="eventDate" name="eventDate" />
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="place">📍 場所</label>
+      <select class="select-input" id="place" name="place"></select>
+      <p class="field-hint"><a href="places.html">場所を管理</a></p>
+    </div>
+
+    <div class="field">
+      <label class="field-label">🕐 時間</label>
+      <div class="time-range">
+        <input class="time-input" type="time" id="timeStart" name="timeStart" step="900" />
+        <span>〜</span>
+        <input class="time-input" type="time" id="timeEnd" name="timeEnd" step="900" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="belongings">🗑 持ち物</label>
+      <input class="text-input" type="text" id="belongings" name="belongings" placeholder="例：筆記用具、認め印" />
+    </div>
+
+    <div class="field">
+      <label class="field-label">👥 対象グループ</label>
+      <div class="pill-group" id="groupPillGroup"></div>
+      <p class="field-hint">なにも選ばなければ「全員」に配信されます。</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="card-heading"><span class="badge">4</span>確認方法をえらぶ</p>
+    <div class="toggle-card-row">
+      <div>
+        <div class="toggle-text-label">✅ 参加人数を確認する</div>
+        <div class="toggle-text-hint">配信と同時に、参加できるかどうかを会員から返信してもらいます</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="confirmAttendance" />
+        <span class="switch-track"></span>
+      </label>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="card-heading with-action">
+      <span class="card-heading-left"><span class="badge">5</span>メッセージを書く</span>
+      <a class="template-button" href="templates.html" style="text-decoration:none;">定型文を管理</a>
+    </p>
+    <div class="field">
+      <label class="field-label" for="templateSelect">📋 定型文から選ぶ</label>
+      <select class="select-input" id="templateSelect">
+        <option value="">— 定型文を選ぶ —</option>
+      </select>
+    </div>
+    <div class="field">
+      <label class="field-label" for="messageBody">内容（改行はEnterでOK）</label>
+      <textarea class="textarea-input" id="messageBody" name="messageBody" placeholder="ここにお知らせしたい内容を書いてください"></textarea>
+    </div>
+  </div>
+  </div>
+
+  <div class="footer-card">
+    <button class="word-button" type="button" id="deleteScheduleButton" hidden>この予約を削除する</button>
+    <button class="save-schedule-button" type="button" id="saveScheduleButton">この内容で予約する</button>
+  </div>
+</div>
+
+<script src="auth-guard.js"></script>
+<script src="schedule-detail.js"></script>
+</body>
+</html>

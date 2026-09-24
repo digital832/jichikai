@@ -21,16 +21,32 @@ router.get('/', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-  const { date, type, amount, description } = req.body;
+  const { date, type, amount, description, category } = req.body;
   if (!date || (type !== '入金' && type !== '出金') || !amount) {
     return res.status(400).json({ error: '日付・種別・金額は必須です' });
   }
   try {
-    await sheetsClient.addTransaction({ date, type, amount: Number(amount), description: description || '' });
+    await sheetsClient.addTransaction({ date, type, amount: Number(amount), description: description || '', category: category || '' });
     res.json({ ok: true });
   } catch (err) {
     console.error('入出金の登録に失敗:', err);
     res.status(500).json({ error: '入出金の登録に失敗しました' });
+  }
+});
+
+router.put('/:row', async (req, res) => {
+  const { date, type, amount, description, category } = req.body;
+  if (!date || (type !== '入金' && type !== '出金') || !amount) {
+    return res.status(400).json({ error: '日付・種別・金額は必須です' });
+  }
+  try {
+    await sheetsClient.updateTransaction(Number(req.params.row), {
+      date, type, amount: Number(amount), description: description || '', category: category || '',
+    });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('入出金の更新に失敗:', err);
+    res.status(500).json({ error: '入出金の更新に失敗しました' });
   }
 });
 

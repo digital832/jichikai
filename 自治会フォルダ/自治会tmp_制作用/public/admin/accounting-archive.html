@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>決算書アーカイブ</title>
+<link rel="stylesheet" href="broadcast.css" />
+<style>
+  .page-title { font-size: 20px; font-weight: 700; margin: 0 0 16px; }
+  .back-link { color: var(--green-dark); text-decoration: none; font-weight: 700; font-size: 14px; }
+  .topbar { justify-content: space-between; }
+  .home-link { color: var(--text-sub); text-decoration: none; font-weight: 700; font-size: 14px; }
+
+  .statement-item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 0;
+    border-bottom: 1px solid #eee;
+  }
+  .statement-item:last-child { border-bottom: none; }
+  .statement-item-info { flex: 1 1 160px; min-width: 0; }
+  .statement-item-period { font-size: 12px; color: var(--text-sub); }
+  .statement-item-title { font-size: 16px; font-weight: 700; }
+  .statement-item-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .statement-item-actions button,
+  .statement-item-actions a {
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: none;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .statement-open-button { background: #eef2fb; color: #1155e0; }
+  .statement-edit-button { background: #fff3d8; color: #8a5b00; }
+  .statement-delete-button { background: #fde8e8; color: var(--red); }
+  .statement-send-button { background: #e3f8ea; color: #147a3d; }
+  .statement-send-panel {
+    display: none;
+    flex: 1 1 100%;
+    gap: 8px;
+    margin-top: 8px;
+    align-items: center;
+  }
+  .statement-send-panel select { flex: 1 1 auto; }
+  .statement-send-status { flex: 1 1 100%; font-size: 13px; color: var(--text-sub); }
+  .statement-empty { text-align: center; color: var(--text-sub); padding: 12px 0; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <a class="back-link" href="accounting.html">← 入出金管理へ戻る</a>
+    <a class="home-link" href="home.html">🏠 ホーム</a>
+  </div>
+
+  <h1 class="page-title">📊 決算書アーカイブ</h1>
+  <p class="field-hint" style="margin-top:-10px;margin-bottom:16px;">これまでに作成したすべての決算書です。年度を選ぶと、その年度の決算書だけ表示されます。</p>
+
+  <div class="card">
+    <div class="field">
+      <label class="field-label" for="yearFilterSelect">年度で絞り込む</label>
+      <select class="select-input" id="yearFilterSelect">
+        <option value="">すべての年度</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="card">
+    <div id="statementListContainer"></div>
+  </div>
+</div>
+
+<script src="auth-guard.js"></script>
+<script src="statementList.js"></script>
+<script src="accounting-archive.js"></script>
+</body>
+</html>

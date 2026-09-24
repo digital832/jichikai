@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>記録を編集</title>
+<link rel="stylesheet" href="broadcast.css" />
+<style>
+  .page-title { font-size: 20px; font-weight: 700; margin: 0 0 16px; }
+  .back-link { color: var(--green-dark); text-decoration: none; font-weight: 700; font-size: 14px; }
+  .topbar { justify-content: space-between; }
+  .home-link { color: var(--text-sub); text-decoration: none; font-weight: 700; font-size: 14px; }
+
+  .type-toggle { display: flex; gap: 10px; margin-bottom: 16px; }
+  .type-button {
+    flex: 1;
+    padding: 18px;
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    background: var(--input-bg);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-sub);
+    cursor: pointer;
+  }
+  .type-button.income.active { background: var(--green-light); border-color: var(--green); color: var(--green-dark); }
+  .type-button.expense.active { background: #fdeaea; border-color: var(--red); color: var(--red); }
+
+  .amount-input {
+    width: 100%;
+    padding: 20px;
+    font-size: 28px;
+    font-weight: 700;
+    text-align: right;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-input);
+    color: var(--text);
+  }
+
+  .register-button {
+    width: 100%;
+    padding: 20px;
+    margin-top: 8px;
+    border: none;
+    border-radius: 999px;
+    background: var(--green);
+    color: #fff;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .delete-record-button {
+    width: 100%;
+    padding: 14px;
+    margin-top: 8px;
+    border: 1px solid var(--red);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--red);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <a class="back-link" href="accounting.html">← 入出金管理へ戻る</a>
+    <a class="home-link" href="home.html">🏠 ホーム</a>
+  </div>
+
+  <h1 class="page-title">記録を編集する</h1>
+
+  <div class="card">
+    <div class="type-toggle">
+      <button class="type-button income active" type="button" id="incomeButton">入金</button>
+      <button class="type-button expense" type="button" id="expenseButton">出金</button>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="amountInput">金額</label>
+      <input class="amount-input" type="text" inputmode="numeric" id="amountInput" placeholder="0" />
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="dateInput">📅 日付</label>
+      <input class="text-input" type="text" id="dateInput" placeholder="例：2026/10/01" />
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="categoryInput">📂 科目（決算書の項目）</label>
+      <select class="select-input" id="categoryInput"></select>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="descriptionInput">内容</label>
+      <input class="text-input" type="text" id="descriptionInput" placeholder="例：会費、郵便代など" />
+    </div>
+
+    <button class="register-button" type="button" id="saveButton">更新する</button>
+    <button class="delete-record-button" type="button" id="deleteButton">この記録を削除する</button>
+  </div>
+</div>
+
+<script src="auth-guard.js"></script>
+<script src="transaction-edit.js"></script>
+</body>
+</html>

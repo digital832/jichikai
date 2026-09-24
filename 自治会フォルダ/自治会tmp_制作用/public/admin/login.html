@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>管理画面ログイン</title>
+<style>
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f4f5f7;
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+  }
+  .card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    padding: 32px 28px;
+    width: 280px;
+    text-align: center;
+  }
+  h1 {
+    font-size: 18px;
+    margin: 0 0 20px;
+    color: #333;
+  }
+  input {
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 24px;
+    letter-spacing: 6px;
+    text-align: center;
+    padding: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-bottom: 14px;
+  }
+  button {
+    width: 100%;
+    padding: 10px 0;
+    font-size: 15px;
+    border: none;
+    border-radius: 8px;
+    background: #2d7d46;
+    color: #fff;
+    cursor: pointer;
+  }
+  button:disabled {
+    background: #9db8a4;
+    cursor: default;
+  }
+  .error {
+    color: #c0392b;
+    font-size: 13px;
+    min-height: 18px;
+    margin-bottom: 10px;
+  }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>管理画面ログイン</h1>
+    <form id="login-form">
+      <input type="text" id="code" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off" placeholder="6桁の番号" autofocus />
+      <div class="error" id="error"></div>
+      <button type="submit" id="submit">ログイン</button>
+    </form>
+  </div>
+  <script>
+    const form = document.getElementById('login-form');
+    const codeInput = document.getElementById('code');
+    const errorEl = document.getElementById('error');
+    const submitBtn = document.getElementById('submit');
+
+    codeInput.addEventListener('input', () => {
+      codeInput.value = codeInput.value.replace(/[^0-9]/g, '').slice(0, 6);
+    });
+
+    // 「戻る」でこのページがブラウザのキャッシュ(bfcache)から復元された時、
+    // ログイン成功時に無効化したままのボタンが固まって見えてしまうため、表示のたびに戻す
+    window.addEventListener('pageshow', () => {
+      submitBtn.disabled = false;
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorEl.textContent = '';
+      const code = codeInput.value;
+      if (code.length !== 6) {
+        errorEl.textContent = '6桁の番号を入力してください';
+        return;
+      }
+      submitBtn.disabled = true;
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          errorEl.textContent = data.error || 'ログインに失敗しました';
+          submitBtn.disabled = false;
+          return;
+        }
+        const params = new URLSearchParams(location.search);
+        location.href = params.get('next') || '/admin/home.html';
+      } catch (err) {
+        errorEl.textContent = '通信に失敗しました';
+        submitBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

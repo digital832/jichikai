@@ -33,12 +33,127 @@
     color: var(--text-sub);
   }
   .record-timer.active { color: var(--red); }
+  .minutes-link-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 24px;
+    margin-top: 16px;
+    border-radius: 20px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    background: #1155e0;
+    text-decoration: none;
+  }
+  .minutes-error {
+    color: var(--red);
+    text-align: center;
+    font-weight: 700;
+    margin-top: 10px;
+  }
+  .fallback-download-button {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 16px;
+    margin-top: 12px;
+    border-radius: 16px;
+    background: #eee;
+    color: #333;
+    text-decoration: none;
+    font-weight: 700;
+  }
+  .minutes-item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 0;
+    border-bottom: 1px solid #eee;
+  }
+  .minutes-item:last-child { border-bottom: none; }
+  .minutes-item-info { flex: 1 1 200px; min-width: 0; }
+  .minutes-item-date { font-size: 13px; color: var(--text-sub); }
+  .minutes-item-title {
+    font-size: 16px;
+    font-weight: 700;
+    overflow-wrap: break-word;
+  }
+  .minutes-item-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .minutes-item-actions button,
+  .minutes-item-actions a {
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: none;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .minutes-open-button { background: #eef2fb; color: #1155e0; }
+  .minutes-edit-button { background: #fff3d8; color: #8a5b00; }
+  .minutes-delete-button { background: #fde8e8; color: var(--red); }
+  .minutes-show-all-button {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 14px;
+    margin-top: 12px;
+    border-radius: 16px;
+    border: 1px solid #ddd;
+    background: #fff;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .minutes-empty { text-align: center; color: var(--text-sub); padding: 12px 0; }
+  .attendee-select { margin-bottom: 8px; }
+  #meetingTime { width: 90%; max-width: 90%; }
+  .minutes-send-button { background: #e3f8ea; color: #147a3d; }
+  .minutes-send-panel {
+    display: none;
+    flex: 1 1 100%;
+    gap: 8px;
+    margin-top: 8px;
+    align-items: center;
+  }
+  .minutes-send-panel select { flex: 1 1 auto; }
+  .minutes-send-status { flex: 1 1 100%; font-size: 13px; color: var(--text-sub); }
 </style>
 </head>
 <body>
 <div class="page">
   <div class="topbar">
-    <a class="menu-button" href="broadcast.html" style="text-decoration:none;">▷ 配信ウィザードへ</a>
+    <a class="menu-button" href="home.html" style="text-decoration:none;">🏠 ホーム</a>
+  </div>
+
+  <div class="card">
+    <p class="card-heading"><span class="badge">📝</span>会議情報</p>
+    <div class="field">
+      <label class="field-label" for="meetingName">会議名</label>
+      <select class="select-input" id="meetingName"></select>
+    </div>
+    <div class="field">
+      <label class="field-label" for="meetingDate">📅 日付</label>
+      <input class="date-input" type="date" id="meetingDate" />
+    </div>
+    <div class="field">
+      <label class="field-label">🕐 時刻</label>
+      <input class="time-input" type="time" id="meetingTime" step="900" />
+    </div>
+    <div class="field">
+      <label class="field-label" for="meetingPlace">場所</label>
+      <select class="select-input" id="meetingPlace"></select>
+      <p class="field-hint"><a href="places.html">場所を管理</a></p>
+    </div>
+    <div class="field">
+      <label class="field-label">出席者</label>
+      <div id="attendeeList"></div>
+      <button class="word-button" type="button" id="addAttendeeButton" style="width:100%;margin-top:4px;">＋ 出席者を追加</button>
+    </div>
   </div>
 
   <div class="card">
@@ -46,9 +161,19 @@
     <p class="record-timer" id="recordTimer">00:00</p>
     <button class="record-button" type="button" id="recordButton">🔴 録音を開始</button>
     <p class="field-hint" id="recordStatus" style="text-align:center;margin-top:10px;"></p>
-    <p class="field-hint" style="text-align:center;">録音停止後、そのままこの端末にファイルとして保存されます（サーバーには保存されません）。</p>
+    <p class="field-hint" style="text-align:center;">録音を停止すると、自動で文字起こし・議事録の作成が始まります。</p>
+    <a class="minutes-link-button" id="minutesLink" href="#" target="_blank" rel="noopener" style="display:none;">📄 議事録を開く</a>
+    <p class="minutes-error" id="minutesError" style="display:none;"></p>
+    <a class="fallback-download-button" id="fallbackDownload" href="#" style="display:none;">🎙 録音ファイルをダウンロード（バックアップ）</a>
+  </div>
+
+  <div class="card">
+    <p class="card-heading"><span class="badge">📄</span>作成済みの議事録</p>
+    <div id="minutesList"></div>
+    <button class="minutes-show-all-button" type="button" id="minutesShowAllButton" style="display:none;">もっと見る（すべて表示）</button>
   </div>
 </div>
+<script src="auth-guard.js"></script>
 <script src="recording.js"></script>
 </body>
 </html>

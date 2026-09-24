@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>役員任命</title>
+<link rel="stylesheet" href="broadcast.css" />
+<style>
+  .password-input { letter-spacing: 6px; font-size: 20px; text-align: center; box-sizing: border-box; max-width: 100%; }
+  .password-message { font-size: 13px; margin-top: 10px; min-height: 18px; }
+  .password-message.success { color: #2d7d46; }
+  .password-message.error { color: #c0392b; }
+  .appoint-row {
+    border-bottom: 1px solid var(--border);
+    padding: 12px 0;
+  }
+  .appoint-row:last-child { border-bottom: none; }
+  .appoint-row-top { display: flex; gap: 8px; }
+  .appoint-row-top .appoint-role { flex: 1; min-width: 0; }
+  .appoint-row-top .appoint-group { flex: 1; min-width: 0; }
+  .appoint-row-name { margin-top: 8px; }
+  .appoint-row-bottom { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+  .appoint-issue-label {
+    display: flex; align-items: center; gap: 6px; font-size: 13px;
+    color: var(--text); flex: none; white-space: nowrap;
+  }
+  .share-warning {
+    background: var(--amber-bg, #fff8e6); color: #6b5000; border-radius: 12px;
+    padding: 10px 14px; font-size: 12px; line-height: 1.7; margin: 10px 0 14px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <a class="menu-button" href="members.html" style="text-decoration:none;">◁ 名簿一覧へ</a>
+    <a class="menu-button" href="members.html#roles" style="text-decoration:none;">🏷 役職設定</a>
+    <a class="menu-button" href="home.html" style="text-decoration:none;">🏠 ホーム</a>
+  </div>
+
+  <div class="card">
+    <p class="card-heading">役員任命</p>
+    <div id="chairmanGateArea">
+      <p class="field-hint" style="margin-top:-6px;">開くには自治会長の現在の番号を入力してください。</p>
+      <div class="field">
+        <label class="field-label" for="chairmanCode">自治会長の現在の番号<span class="required">必須</span></label>
+        <input class="text-input password-input" type="text" id="chairmanCode" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off" />
+      </div>
+      <p class="password-message" id="gateMessage"></p>
+      <button class="send-button" type="button" id="gateConfirmButton" style="width:100%;">確認する</button>
+    </div>
+
+    <div id="appointFormArea" hidden>
+      <p class="field-hint" style="margin-top:-6px;">役職と名前を選んでください。役員ごとに別々のパスワードは作りません。名前を選んでいない行は無視されます。</p>
+      <div id="appointRows"></div>
+      <button class="add-event-button" type="button" id="addAppointRowButton">＋ 行を追加</button>
+      <p class="share-warning">⚠ ログイン番号（パスワード）は全員共通の1つです。チェックした人にだけ、今の番号をLINEで共有します。番号を知る人が増えるほど漏れるリスクが高まるので、<b>共有する役員はできるだけ少人数にしてください</b>。共有された人は、他の人には絶対に教えないでください。</p>
+      <p class="password-message" id="appointMessage"></p>
+      <button class="send-button" type="button" id="appointSubmitButton" style="width:100%;">まとめて送信</button>
+    </div>
+  </div>
+</div>
+
+<script src="auth-guard.js"></script>
+<script src="officers.js"></script>
+</body>
+</html>

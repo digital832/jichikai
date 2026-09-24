@@ -51,6 +51,17 @@
   const memberListContainer = document.getElementById('memberListContainer');
   const roleListContainer = document.getElementById('roleListContainer');
   const roleListOverlay = document.getElementById('roleListOverlay');
+  const groupFilterSelect = document.getElementById('groupFilterSelect');
+  const memberPaginationEl = document.getElementById('memberPagination');
+  const PAGE_SIZE = 30;
+  let allMembers = [];
+  let currentPage = 1;
+
+  async function fetchSettings() {
+    const res = await fetch('/api/settings');
+    if (!res.ok) throw new Error('設定の取得に失敗しました');
+    return res.json();
+  }
 
   async function fetchMembers() {
     const res = await fetch('/api/members');
@@ -70,39 +81,123 @@
     return roles.find((r) => r.name === name);
   }
 
-  function buildRoleOptions(select, currentRole) {
-    select.innerHTML = '';
-    roles.forEach((r) => {
-      const option = document.createElement('option');
-      option.value = r.name;
-      option.textContent = r.name;
-      select.appendChild(option);
-    });
-    // 未設定の場合は「一般会員」があればそれをデフォルト表示する
-    const defaultRole = currentRole || (findRole('一般会員') ? '一般会員' : (roles[0] ? roles[0].name : ''));
-    select.value = defaultRole;
+  // 未設定の場合は「一般会員」があればそれをデフォルト表示する（ドロップダウンの表示と役員判定を一致させるため共通化）
+  function resolveDefaultRole(currentRole) {
+    return currentRole || (findRole('一般会員') ? '一般会員' : (roles[0] ? roles[0].name : ''));
   }
 
-  async function renderMembers() {
-    const members = await fetchMembers();
+  // 班フィルターのプルダウンを、今読み込んだ名簿に実際に含まれる所属（班）名で作り直す
+  function renderGroupFilterOptions() {
+    const groups = [...new Set(allMembers.map((m) => m.group).filter(Boolean))].sort((a, b) =>
+      a.localeCompare(b, 'ja')
+    );
+    const current = groupFilterSelect.value;
+    groupFilterSelect.innerHTML = '<option value="">すべて</option>';
+    groups.forEach((g) => {
+      const option = document.createElement('option');
+      option.value = g;
+      option.textContent = g;
+      groupFilterSelect.appendChild(option);
+    });
+    groupFilterSelect.value = groups.includes(current) ? current : '';
+  }
+
+  // 1〜3、現在ページの前後、最後のページだけ出して、間は「…」で省略する
+  function buildPaginationItems(current, total) {
+    const pages = new Set([1, total, current - 1, current, current + 1]);
+    const sorted = [...pages].filter((p) => p >= 1 && p <= total).sort((a, b) => a - b);
+    const items = [];
+    let prev = 0;
+    sorted.forEach((p) => {
+      if (prev && p - prev > 1) items.push('...');
+      items.push(p);
+      prev = p;
+    });
+    return items;
+  }
+
+  function renderPagination(totalPages) {
+    memberPaginationEl.innerHTML = '';
+    if (totalPages <= 1) return;
+
+    const prevBtn = document.createElement('button');
+    prevBtn.type = 'button';
+    prevBtn.textContent = '←';
+    prevBtn.disabled = currentPage <= 1;
+    prevBtn.addEventListener('click', () => {
+      currentPage -= 1;
+      renderMemberRows();
+    });
+    memberPaginationEl.appendChild(prevBtn);
+
+    buildPaginationItems(currentPage, totalPages).forEach((item) => {
+      if (item === '...') {
+        const span = document.createElement('span');
+        span.className = 'pagination-ellipsis';
+        span.textContent = '…';
+        memberPaginationEl.appendChild(span);
+        return;
+      }
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = String(item);
+      if (item === currentPage) btn.className = 'current';
+      btn.addEventListener('click', () => {
+        currentPage = item;
+        renderMemberRows();
+      });
+      memberPaginationEl.appendChild(btn);
+    });
+
+    const nextBtn = document.createElement('button');
+    nextBtn.type = 'button';
+    nextBtn.textContent = '→';
+    nextBtn.disabled = currentPage >= totalPages;
+    nextBtn.addEventListener('click', () => {
+      currentPage += 1;
+      renderMemberRows();
+    });
+    memberPaginationEl.appendChild(nextBtn);
+  }
+
+  function renderMemberRows() {
+    const selectedGroup = groupFilterSelect.value;
+    const filtered = allMembers
+      .filter((m) => !selectedGroup || m.group === selectedGroup)
+      .slice()
+      .sort((a, b) => (a.group || '').localeCompare(b.group || '', 'ja') || (a.realName || '').localeCompare(b.realName || '', 'ja'));
+
+    const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+    const members = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
     memberListContainer.innerHTML = '';
     if (members.length === 0) {
       memberListContainer.innerHTML = '<p class="event-list-empty">名簿に会員が登録されていません</p>';
+      memberPaginationEl.innerHTML = '';
       return;
     }
+    renderPagination(totalPages);
     members.forEach((m) => {
       const row = document.createElement('div');
       row.className = 'member-row';
       row.innerHTML = `
-        <div class="member-info">
-          <input class="text-input member-name-input" type="text" />
-          <span class="member-meta"></span>
-        </div>
         <div class="role-select-wrap">
-          <span class="role-color-dot"></span>
-          <select class="select-input member-role-select"></select>
+          <div class="member-role-badge"></div>
+        </div>
+        <div class="member-info">
+          <div class="member-name-row">
+            <input class="text-input member-name-input" type="text" />
+            <a class="message-link-button">メッセージ</a>
+          </div>
+          <div class="member-sub-row">
+            <span class="member-sub-label"></span>
+            <button class="member-delete-button" type="button">🗑 削除</button>
+          </div>
         </div>
       `;
+      row.querySelector('.member-sub-label').textContent = `${m.group || '所属なし'}／${m.lineName || 'LINE名不明'}`;
       const nameInput = row.querySelector('.member-name-input');
       nameInput.value = m.realName || '';
       nameInput.placeholder = 'こんにちは、等の誤入力があれば修正してください';
@@ -130,35 +225,83 @@
           nameInput.disabled = false;
         }
       });
-      row.querySelector('.member-meta').textContent = `LINE名: ${m.lineName} / 所属: ${m.group || '未設定'}`;
-      const select = row.querySelector('.member-role-select');
-      const colorDot = row.querySelector('.role-color-dot');
-      buildRoleOptions(select, m.role);
-      function updateColorDot() {
-        const role = findRole(select.value);
-        colorDot.style.background = role ? role.color : '#d5d9d6';
-      }
-      updateColorDot();
-      select.addEventListener('change', async () => {
-        select.disabled = true;
-        try {
-          const res = await fetch(`/api/members/${m.row}/role`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ role: select.value }),
-          });
-          if (!res.ok) throw new Error('更新に失敗しました');
-          updateColorDot();
-        } catch (err) {
-          console.error(err);
-          window.alert('役職の更新に失敗しました');
-        } finally {
-          select.disabled = false;
-        }
-      });
+      // 役職の変更は「役員任命」ページだけで行うため、ここでは色付きの表示のみ
+      const badge = row.querySelector('.member-role-badge');
+      const roleName = resolveDefaultRole(m.role);
+      badge.textContent = roleName;
+      const role = findRole(roleName);
+      const color = role && /^#[0-9a-fA-F]{6}$/.test(role.color) ? role.color : '';
+      if (color) badge.style.backgroundColor = color + '2e';
+      row.querySelector('.message-link-button').href = 'message.html?row=' + m.row;
+      row.querySelector('.member-delete-button').addEventListener('click', () => askDelete(m));
+
       memberListContainer.appendChild(row);
     });
   }
+
+  async function renderMembers() {
+    allMembers = await fetchMembers();
+    renderGroupFilterOptions();
+    renderMemberRows();
+  }
+
+  groupFilterSelect.addEventListener('change', () => {
+    currentPage = 1;
+    renderMemberRows();
+  });
+
+  // 名簿の削除：①はい／いいえの確認 → ②自治会長のパスワード → 削除
+  const deleteOverlay = document.getElementById('deleteOverlay');
+  const deleteCodeInput = document.getElementById('deleteCodeInput');
+  const deleteMessage = document.getElementById('deleteMessage');
+  let deleteTarget = null;
+
+  deleteCodeInput.addEventListener('input', () => {
+    deleteCodeInput.value = deleteCodeInput.value.replace(/[^0-9]/g, '').slice(0, 6);
+  });
+
+  function askDelete(m) {
+    const name = m.realName || m.lineName || '（名前なし）';
+    if (!window.confirm(`「${name}」さんを名簿から削除します。よろしいですか？`)) return;
+    deleteTarget = m;
+    document.getElementById('deleteTarget').textContent = `${name} さん`;
+    deleteCodeInput.value = '';
+    deleteMessage.textContent = '';
+    deleteOverlay.classList.add('open');
+    deleteCodeInput.focus();
+  }
+
+  document.getElementById('deleteCancelButton').addEventListener('click', () => {
+    deleteOverlay.classList.remove('open');
+    deleteTarget = null;
+  });
+
+  document.getElementById('deleteConfirmButton').addEventListener('click', async () => {
+    if (!deleteTarget) return;
+    if (deleteCodeInput.value.length !== 6) {
+      deleteMessage.textContent = '6桁の数字で入力してください';
+      return;
+    }
+    const btn = document.getElementById('deleteConfirmButton');
+    btn.disabled = true;
+    try {
+      const res = await fetch(`/api/members/${deleteTarget.row}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chairmanCode: deleteCodeInput.value }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || '削除に失敗しました');
+      deleteOverlay.classList.remove('open');
+      deleteTarget = null;
+      await renderMembers();
+      window.alert(data.notified ? '削除しました。自治会長にLINEで確認を送りました（間違いならそこから取り消せます）' : '削除しました（自治会長のLINEが見つからないため、確認は送っていません）');
+    } catch (err) {
+      deleteMessage.textContent = err.message || '削除に失敗しました';
+    } finally {
+      btn.disabled = false;
+    }
+  });
 
   async function moveRole(index, direction) {
     const target = index + direction;
@@ -301,8 +444,15 @@
   });
 
   async function init() {
+    const settings = await fetchSettings();
+    document.getElementById('communityNameLabel').textContent = settings.communityName || '';
     roles = await fetchRoles();
     await renderMembers();
+    // ヘッダーの「役職設定」ボタン（他ページ）から #roles 付きで来た場合、自動で役職マスタを開く
+    if (location.hash === '#roles') {
+      renderRoleList();
+      roleListOverlay.classList.add('open');
+    }
   }
   init().catch((err) => {
     console.error(err);

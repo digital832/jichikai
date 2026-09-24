@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>管理メニュー</title>
+<link rel="stylesheet" href="broadcast.css" />
+<style>
+  .page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .page-title {
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0 0 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .sync-now-btn {
+    flex: none;
+    background: var(--red);
+    color: #fff;
+    border: none;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 9px 14px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .sync-now-btn:disabled { opacity: 0.6; }
+  .sync-now-msg {
+    font-size: 11px;
+    color: var(--text-sub);
+    margin: 4px 0 0;
+    text-align: right;
+  }
+  .panel-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-top: 20px;
+  }
+  .panel-tile {
+    background: var(--card-bg);
+    border: 1px solid var(--green-dark);
+    border-radius: var(--radius-card);
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.04);
+    padding: 24px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    text-decoration: none;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  }
+  .panel-tile:active {
+    transform: scale(0.97);
+    box-shadow: none;
+  }
+  .panel-icon-circle {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex: none;
+  }
+  .panel-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    text-align: center;
+  }
+  .panel-icon-circle.p-green { background: var(--green-light); }
+  .panel-icon-circle.p-blue { background: #e8f0fe; }
+  .panel-icon-circle.p-red { background: #fdeaea; }
+  .panel-icon-circle.p-amber { background: #fff3d8; }
+  .panel-icon-circle.p-gray { background: var(--input-bg); }
+
+  .login-log-row {
+    display: flex; align-items: center; gap: 8px; padding: 8px 0;
+    border-bottom: 1px solid var(--border); font-size: 13px;
+  }
+  .login-log-row:last-child { border-bottom: none; }
+  .login-log-name { font-weight: 700; }
+  .login-log-time { color: var(--text-sub); font-size: 12px; margin-left: auto; white-space: nowrap; }
+  .password-input { letter-spacing: 6px; font-size: 20px; text-align: center; box-sizing: border-box; max-width: 100%; }
+  .password-message { font-size: 13px; margin-top: 10px; min-height: 18px; }
+  .password-message.success { color: #2d7d46; }
+  .password-message.error { color: #c0392b; }
+  .accounting-gate-row { font-size: 13px; margin: 10px 2px 0; }
+  .accounting-gate-row label { display: flex; align-items: center; gap: 6px; }
+  html, body { overflow-x: hidden; }
+
+  @media (min-width: 640px) {
+    .panel-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="page-header">
+    <h1 class="page-title" id="pageTitle">🏠 管理メニュー</h1>
+    <button class="sync-now-btn" id="syncNowBtn" type="button">🔄 名簿を今すぐ更新</button>
+  </div>
+  <p class="sync-now-msg" id="syncNowMsg"></p>
+  <p class="field-hint" style="margin-top:0;">使いたい機能を選んでください</p>
+
+  <div class="panel-grid">
+    <a class="panel-tile" href="broadcast.html">
+      <span class="panel-icon-circle p-green">📢</span>
+      <span class="panel-label">個別配信</span>
+    </a>
+    <a class="panel-tile" href="schedule.html">
+      <span class="panel-icon-circle p-blue">📅</span>
+      <span class="panel-label">予約配信</span>
+    </a>
+    <a class="panel-tile" href="events.html">
+      <span class="panel-icon-circle p-green">🗓</span>
+      <span class="panel-label">行事の管理</span>
+    </a>
+    <a class="panel-tile" href="attendance.html">
+      <span class="panel-icon-circle p-green">📋</span>
+      <span class="panel-label">出欠状況</span>
+    </a>
+    <a class="panel-tile" href="disaster.html">
+      <span class="panel-icon-circle p-red">🚨</span>
+      <span class="panel-label">防災・安全確認</span>
+    </a>
+    <a class="panel-tile" href="recording.html">
+      <span class="panel-icon-circle p-green">🎙</span>
+      <span class="panel-label">録音議事録</span>
+    </a>
+    <a class="panel-tile" id="accountingTile" href="accounting.html">
+      <span class="panel-icon-circle p-amber">💰</span>
+      <span class="panel-label">入出金</span>
+    </a>
+    <a class="panel-tile" href="members.html">
+      <span class="panel-icon-circle p-blue">📇</span>
+      <span class="panel-label">名簿一覧</span>
+    </a>
+    <a class="panel-tile" href="places.html">
+      <span class="panel-icon-circle p-green">📍</span>
+      <span class="panel-label">場所の管理</span>
+    </a>
+    <a class="panel-tile" href="templates.html">
+      <span class="panel-icon-circle p-blue">📝</span>
+      <span class="panel-label">定型文</span>
+    </a>
+    <a class="panel-tile" href="officers.html">
+      <span class="panel-icon-circle p-gray">🎖</span>
+      <span class="panel-label">役員任命</span>
+    </a>
+    <a class="panel-tile" href="password.html#handover">
+      <span class="panel-icon-circle p-gray">🔁</span>
+      <span class="panel-label">自治会長を引き継ぐ</span>
+    </a>
+    <a class="panel-tile" href="qrcode.html">
+      <span class="panel-icon-circle p-blue">🔳</span>
+      <span class="panel-label">QRコード</span>
+    </a>
+  </div>
+  <p class="accounting-gate-row"><label><input type="checkbox" id="accountingCheck" /> 入出金を開く準備ができました（チェックしないと「入出金」は開けません）</label></p>
+
+  <div class="card" style="margin-top:20px;">
+    <p class="card-heading">利用ログ</p>
+    <div id="loginLogLockedArea">
+      <p class="field-hint" style="margin-top:-6px;">自治会長の番号を入力すると表示されます。</p>
+      <div class="field">
+        <label class="field-label" for="loginLogUnlockCode">自治会長の現在の番号<span class="required">必須</span></label>
+        <input class="text-input password-input" type="text" id="loginLogUnlockCode" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off" />
+      </div>
+      <p class="password-message" id="loginLogUnlockMessage"></p>
+      <button class="send-button" type="button" id="loginLogUnlockButton" style="width:100%;">表示する</button>
+    </div>
+    <div id="loginLogList" hidden></div>
+  </div>
+</div>
+
+<script src="auth-guard.js"></script>
+<script src="home.js"></script>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>決算書作成</title>
+<link rel="stylesheet" href="broadcast.css" />
+<style>
+  .page-title { font-size: 20px; font-weight: 700; margin: 0 0 16px; }
+  .back-link { color: var(--green-dark); text-decoration: none; font-weight: 700; font-size: 14px; }
+  .topbar { justify-content: space-between; }
+  .home-link { color: var(--text-sub); text-decoration: none; font-weight: 700; font-size: 14px; }
+
+  .budget-group-title { font-size: 13px; font-weight: 700; color: var(--text-sub); margin: 14px 0 6px; }
+  .budget-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; flex-wrap: wrap; border-bottom: 1px solid var(--border); }
+  .budget-row:last-child { border-bottom: none; }
+  .budget-row-name { flex: 1 1 auto; font-size: 14px; min-width: 0; }
+  .budget-row-actual, .budget-row-budget { font-size: 12px; font-weight: 400; color: var(--text-sub); }
+
+  .transaction-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .transaction-row:last-child { border-bottom: none; }
+  .transaction-info { display: flex; flex-direction: column; gap: 2px; }
+  .transaction-date { font-size: 12px; color: var(--text-sub); }
+  .transaction-desc { font-size: 14px; font-weight: 700; }
+  .transaction-amount { font-size: 18px; font-weight: 700; }
+  .transaction-amount.income { color: var(--green-dark); }
+  .transaction-amount.expense { color: var(--red); }
+  .transaction-actions { flex: none; display: flex; gap: 6px; }
+  .transaction-edit,
+  .transaction-delete {
+    flex: none;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .transaction-edit { background: var(--green-light); color: var(--green-dark); text-decoration: none; display: inline-flex; align-items: center; }
+  .transaction-delete { background: #fdeaea; color: var(--red); }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <a class="back-link" href="accounting.html">← 入出金管理へ戻る</a>
+    <a class="home-link" href="home.html">🏠 ホーム</a>
+  </div>
+
+  <h1 class="page-title" id="statementFormTitle">📊 決算書を作成する</h1>
+
+  <div class="card">
+    <div class="field">
+      <label class="field-label" for="statementYearLabel">年度<span class="required">必須</span></label>
+      <input class="text-input" type="text" id="statementYearLabel" placeholder="例：2026年度" />
+    </div>
+
+    <div class="field">
+      <label class="field-label">📅 対象期間<span class="required">必須</span></label>
+      <div class="time-range">
+        <input class="date-input" type="date" id="statementPeriodStart" />
+        <span>〜</span>
+        <input class="date-input" type="date" id="statementPeriodEnd" />
+      </div>
+      <p class="field-hint">この期間内の日付で登録された入出金の記録を集計します。</p>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="statementCarryover">前年度繰越金</label>
+      <input class="text-input" type="text" id="statementCarryover" readonly style="background:var(--input-bg);" />
+      <p class="field-hint">入出金ページの「期首残高を登録する」で登録した金額を含め、対象期間の開始日より前の入出金の記録から自動計算した金額です（ここでは編集できません）。</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="card-heading">予算額（収入の部・支出の部）</p>
+    <p class="field-hint" style="margin-top:-8px;">「実績」は入出金の記録から集計した金額（表示のみ、直接編集はできません。変更するときは「内訳」から）。「予算」は見込みの金額で、「予算額を設定」から入力します。</p>
+    <div id="statementBudgetContainer"></div>
+  </div>
+
+  <div class="card">
+    <div class="sheet-actions">
+      <button class="word-button" type="button" id="cancelStatementButton">キャンセル</button>
+      <button class="send-button" type="button" id="saveStatementButton">作成する</button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet-overlay" id="budgetSetOverlay">
+  <div class="sheet-panel" id="budgetSetPanel">
+    <div class="sheet-handle"></div>
+    <p class="card-heading" id="budgetSetTitle">予算額を設定</p>
+    <div class="field">
+      <label class="field-label" for="budgetSetAmount">金額</label>
+      <input class="text-input" type="text" inputmode="numeric" id="budgetSetAmount" placeholder="0" />
+    </div>
+    <div class="sheet-actions">
+      <button class="word-button" type="button" id="cancelBudgetSetButton">キャンセル</button>
+      <button class="send-button" type="button" id="saveBudgetSetButton">保存する</button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet-overlay" id="budgetDetailOverlay">
+  <div class="sheet-panel" id="budgetDetailPanel">
+    <div class="sheet-handle"></div>
+    <p class="card-heading" id="budgetDetailTitle">内訳</p>
+    <p class="field-hint" style="margin-top:-8px;" id="budgetDetailPeriodHint"></p>
+    <div id="budgetDetailListContainer"></div>
+    <div class="sheet-actions">
+      <button class="word-button" type="button" id="closeBudgetDetailButton">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<script src="auth-guard.js"></script>
+<script src="statement-form.js"></script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>個別メッセージ</title>
+<link rel="stylesheet" href="broadcast.css" />
+<style>
+  .message-target { font-size: 13px; color: var(--text-sub); margin: 0 0 4px; }
+  .message-actions { display: flex; gap: 10px; margin-top: 14px; }
+  .message-actions .word-button, .message-actions .send-button { flex: 1; }
+  .message-result { font-size: 13px; margin-top: 12px; }
+  .message-result.ok { color: var(--green-dark); }
+  .message-result.ng { color: var(--red); }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <a class="menu-button" href="members.html" style="text-decoration:none;">◁ 名簿一覧へ戻る</a>
+  </div>
+
+  <div class="card">
+    <p class="message-target" id="targetLabel"></p>
+    <p class="card-heading" id="targetName">LINEメッセージを送る</p>
+    <div class="field">
+      <label class="field-label" for="messageBody">メッセージ（本人にだけ届きます）</label>
+      <textarea class="textarea-input" id="messageBody" placeholder="ここにメッセージを書いてください"></textarea>
+    </div>
+    <div class="message-actions">
+      <button class="word-button" type="button" id="cancelButton">戻る</button>
+      <button class="send-button" type="button" id="sendButton">▷ LINEで送信する</button>
+    </div>
+    <p class="message-result" id="resultMessage" hidden></p>
+  </div>
+</div>
+
+<script src="auth-guard.js"></script>
+<script src="message.js"></script>
+</body>
+</html>

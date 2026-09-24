@@ -6,7 +6,7 @@
 <title>お知らせ配信</title>
 <link rel="stylesheet" href="broadcast.css" />
 <style>
-  .topbar { justify-content: space-between; }
+  .topbar { justify-content: space-between; flex-wrap: wrap; row-gap: 8px; }
   .disaster-header-button {
     display: flex;
     align-items: center;
@@ -20,6 +20,19 @@
     font-weight: 700;
     text-decoration: none;
   }
+  .schedule-header-button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 44px;
+    padding: 0 16px;
+    border-radius: 999px;
+    background: #1155e0;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+  }
 </style>
 </head>
 <body>
@@ -27,29 +40,33 @@
 
   <div class="topbar">
     <a class="disaster-header-button" href="disaster.html">🚨 防災・安否確認</a>
+    <a class="schedule-header-button" href="schedule.html">📅 予約配信</a>
     <div class="menu-dropdown" id="menuDropdown">
       <button class="hamburger-button" type="button" id="menuToggleButton" aria-haspopup="true" aria-expanded="false" aria-label="メニューを開く">☰</button>
       <div class="menu-dropdown-panel" id="menuDropdownPanel">
-        <a class="menu-dropdown-item" href="broadcast.html">🏠 ホーム</a>
-        <button class="menu-dropdown-item" type="button" id="attendanceHeaderButton">📋 出欠状況</button>
+        <a class="menu-dropdown-item" href="home.html">🏠 ホーム</a>
+        <a class="menu-dropdown-item" href="attendance.html">📋 出欠状況</a>
+        <a class="menu-dropdown-item" href="schedule.html">📅 予約配信</a>
         <a class="menu-dropdown-item" href="recording.html">🎙 録音</a>
         <a class="menu-dropdown-item" href="accounting.html">💰 入出金</a>
         <a class="menu-dropdown-item" href="disaster.html">🚨 防災・安否確認</a>
         <a class="menu-dropdown-item" href="members.html">🏠 名簿一覧へ</a>
+        <a class="menu-dropdown-item" href="password.html">🔑 パスワード設定</a>
       </div>
     </div>
   </div>
 
   <div class="wizard-grid">
   <div class="card">
-    <p class="card-heading"><span class="badge">1</span>イベントをえらぶ</p>
+    <p class="card-heading"><span class="badge">1</span>行事をえらぶ</p>
     <div class="field">
       <div class="field-with-button">
         <select class="select-input" id="eventSelect"></select>
-        <button class="icon-button" type="button" id="manageEventsButton" title="イベントを編集・削除" aria-label="イベントを編集・削除">✏️</button>
+        <button class="icon-button" type="button" id="manageEventsButton" title="行事を編集・削除" aria-label="行事を編集・削除">✏️</button>
       </div>
     </div>
-    <button class="add-event-button" type="button" id="addEventButton">＋ 新しいイベントを追加</button>
+    <button class="add-event-button" type="button" id="addEventButton">＋ 新しい行事を追加</button>
+    <p class="field-hint"><a href="events.html">行事を管理</a></p>
   </div>
 
   <div class="card">
@@ -62,7 +79,8 @@
 
     <div class="field">
       <label class="field-label" for="place">📍 場所</label>
-      <input class="text-input" type="text" id="place" name="place" placeholder="例：自治会館 集会室" />
+      <select class="select-input" id="place" name="place"></select>
+      <p class="field-hint"><a href="places.html">場所を管理</a></p>
     </div>
 
     <div class="field">
@@ -123,14 +141,6 @@
   </div>
 
   <div class="footer-card">
-    <div class="checkbox-row">
-      <input type="checkbox" id="crossPost" />
-      <div>
-        <div class="checkbox-row-label">他の自治会にもお知らせする</div>
-        <div class="checkbox-row-hint">回覧板に掲載されます（1か月3回まで）</div>
-      </div>
-    </div>
-
     <a class="print-link" id="printFolderLink" href="#" target="_blank" rel="noopener">🖨 印刷フォルダを開く</a>
 
     <button class="word-button" type="button" id="wordSaveButton">📄 Wordで保存</button>
@@ -139,31 +149,15 @@
 
 </div>
 
-<div class="sheet-overlay" id="attendanceHistoryOverlay">
-  <div class="sheet-panel" id="attendanceHistoryPanel">
-    <div class="sheet-handle"></div>
-    <p class="card-heading">出欠状況</p>
-
-    <p class="field-label" style="margin-top:4px;">今回開催分</p>
-    <div id="attendanceOngoingList"></div>
-
-    <p class="field-label" style="margin-top:16px;">以前の参加状況</p>
-    <div id="attendanceHistoryList"></div>
-
-    <div class="sheet-actions">
-      <button class="word-button" type="button" id="closeAttendanceHistoryButton">閉じる</button>
-    </div>
-  </div>
-</div>
 
 <div class="sheet-overlay" id="eventListOverlay">
   <div class="sheet-panel" id="eventListPanel">
     <div class="sheet-handle"></div>
-    <p class="card-heading">イベント一覧</p>
+    <p class="card-heading">行事一覧</p>
     <div id="eventListContainer"></div>
     <div class="sheet-actions">
       <button class="word-button" type="button" id="closeEventListButton">閉じる</button>
-      <button class="send-button" type="button" id="addEventFromListButton">＋ 新しいイベントを追加</button>
+      <button class="send-button" type="button" id="addEventFromListButton">＋ 新しい行事を追加</button>
     </div>
   </div>
 </div>
@@ -171,10 +165,10 @@
 <div class="sheet-overlay" id="eventSheetOverlay">
   <div class="sheet-panel" id="eventSheetPanel">
     <div class="sheet-handle"></div>
-    <p class="card-heading" id="eventFormTitle">新しいイベントを追加</p>
+    <p class="card-heading" id="eventFormTitle">新しい行事を追加</p>
 
     <div class="field">
-      <label class="field-label" for="newEventName">イベント名<span class="required">必須</span></label>
+      <label class="field-label" for="newEventName">行事名<span class="required">必須</span></label>
       <input class="text-input" type="text" id="newEventName" placeholder="例：資源ごみ収集" />
     </div>
 
@@ -204,6 +198,7 @@
   </div>
 </div>
 
+<script src="auth-guard.js"></script>
 <script src="broadcast.js"></script>
 </body>
 </html>

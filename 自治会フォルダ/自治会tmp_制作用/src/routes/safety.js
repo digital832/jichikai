@@ -7,7 +7,14 @@ const router = express.Router();
 function summarize(responses) {
   const safe = responses.filter((r) => r.status === '全員無事').length;
   const missing = responses.filter((r) => r.status === '行方不明').length;
-  return { safe, missing, responded: responses.length };
+  const sos = responses.filter((r) => r.status === 'SOS').length;
+  return { safe, missing, sos, responded: responses.length };
+}
+
+// セッションの送信対象者のうち、まだ回答していない人を割り出す
+function findUnresponded(session, responses) {
+  const respondedIds = new Set(responses.map((r) => r.lineUserId));
+  return (session.recipients || []).filter((r) => !respondedIds.has(r.lineUserId));
 }
 
 router.get('/sessions', async (req, res) => {
@@ -35,10 +42,43 @@ router.get('/sessions/:id', async (req, res) => {
     const session = await sheetsClient.getSafetySession(req.params.id);
     if (!session) return res.status(404).json({ error: 'セッションが見つかりません' });
     const responses = await sheetsClient.getSafetyResponses(req.params.id);
-    res.json({ session, responses, summary: summarize(responses) });
+    const unresponded = findUnresponded(session, responses);
+    // 送信対象者リストが無い古いセッション（この機能追加より前に送信したもの）は、
+    // 名前までは分からないが、人数だけは合計人数から逆算できる
+    const unrespondedCount = session.recipients && session.recipients.length > 0
+      ? unresponded.length
+      : Math.max(0, session.totalRecipients - responses.length);
+    res.json({ session, responses, unresponded, summary: { ...summarize(responses), unresponded: unrespondedCount } });
   } catch (err) {
     console.error('安否詳細取得に失敗:', err);
     res.status(500).json({ error: '安否状況の取得に失敗しました' });
+  }
+});
+
+router.delete('/sessions/:id', async (req, res) => {
+  try {
+    await sheetsClient.deleteSafetySession(req.params.id);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('安否セッション削除に失敗:', err);
+    res.status(500).json({ error: '安否状況の削除に失敗しました' });
+  }
+});
+
+// 役員向け：集計結果をトークンから取得（ログイン不要。個人を特定しないURLで、誰が開いても同じ結果が見える）
+router.get('/summary/:token', async (req, res) => {
+  try {
+    const { sessionId } = attendanceToken.decodeSummary(req.params.token);
+    const session = await sheetsClient.getSafetySession(sessionId);
+    if (!session) return res.status(404).json({ error: 'このリンクは無効です' });
+    const responses = await sheetsClient.getSafetyResponses(sessionId);
+    const unresponded = findUnresponded(session, responses);
+    const unrespondedCount = session.recipients && session.recipients.length > 0
+      ? unresponded.length
+      : Math.max(0, session.totalRecipients - responses.length);
+    res.json({ session, responses, unresponded, summary: { ...summarize(responses), unresponded: unrespondedCount } });
+  } catch (err) {
+    res.status(400).json({ error: 'このリンクは無効です' });
   }
 });
 
@@ -53,9 +93,11 @@ router.get('/respond/:token', async (req, res) => {
   }
 });
 
+const VALID_STATUSES = ['全員無事', '行方不明', 'SOS'];
+
 router.post('/respond', async (req, res) => {
   const { token, status, missingNames } = req.body;
-  if (!token || (status !== '全員無事' && status !== '行方不明')) {
+  if (!token || !VALID_STATUSES.includes(status)) {
     return res.status(400).json({ error: '不正なリクエストです' });
   }
   try {
