@@ -1,8 +1,45 @@
 const express = require('express');
 const sheetsClient = require('../sheetsClient');
 const attendanceToken = require('../attendanceToken');
+const lineClient = require('../lineClient');
+const config = require('../config');
 
 const router = express.Router();
+
+// SOSは役員が画面を見ていなくても気づけるよう、送信された瞬間にLINEで自治会長・役員へ知らせる
+const OFFICER_ROLES = ['自治会長', '役員'];
+
+async function notifySosToOfficers(session, sessionId, member) {
+  try {
+    const members = await sheetsClient.getAllMembers();
+    const officers = members.filter((m) => OFFICER_ROLES.includes(m.role) && m.accessToken && m.lineUserId);
+    if (officers.length === 0) return;
+
+    const name = member ? (member.realName || member.lineName) : '（名前未登録）';
+    const lines = [
+      '【緊急】安否確認でSOSが送信されました',
+      session.eventName || 'お知らせ',
+      `SOSを送信した方: ${name}`,
+    ];
+    if (config.baseUrl) {
+      const token = attendanceToken.encodeSummary(sessionId);
+      lines.push('', '安否状況を確認してください:', `${config.baseUrl}/safety-status.html?token=${token}`);
+    }
+    const text = lines.join('\n');
+
+    const groups = new Map();
+    officers.forEach((o) => {
+      if (!groups.has(o.accessToken)) groups.set(o.accessToken, []);
+      groups.get(o.accessToken).push(o.lineUserId);
+    });
+    for (const [accessToken, lineUserIds] of groups.entries()) {
+      await lineClient.sendMulticast(accessToken, lineUserIds, text);
+    }
+  } catch (err) {
+    // SOS通知が失敗しても、本人の回答自体は記録済みなのでエラーは飲み込む（画面にはエラーを出さない）
+    console.error('SOS通知の送信に失敗:', err);
+  }
+}
 
 function summarize(responses) {
   const safe = responses.filter((r) => r.status === '全員無事').length;
@@ -114,6 +151,9 @@ router.post('/respond', async (req, res) => {
       status,
       missingNames: status === '行方不明' ? (missingNames || '') : '',
     });
+    if (status === 'SOS') {
+      await notifySosToOfficers(session, sessionId, member);
+    }
     res.json({ ok: true });
   } catch (err) {
     console.error('安否回答の記録に失敗:', err);

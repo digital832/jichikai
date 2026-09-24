@@ -130,6 +130,8 @@
       .forEach((r) => listEl.appendChild(makeRow(r)));
   }
 
+  let loadedOnce = false;
+
   async function init() {
     const res = await fetch(`/api/safety/summary/${encodeURIComponent(token)}`);
     if (!res.ok) throw new Error('invalid token');
@@ -144,7 +146,12 @@
     renderUrgent(data.responses);
     renderList(data.responses);
     showOnly(contentView);
+    loadedOnce = true;
   }
 
   init().catch(() => showOnly(errorView));
+  // 開いたままのスマホでSOS・行方不明の新着に気づけるよう、表示中は自動更新する
+  setInterval(() => {
+    if (!document.hidden && loadedOnce) init().catch(() => {});
+  }, 10000);
 })();

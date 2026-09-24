@@ -16,6 +16,7 @@
   ];
 
   let activeTag = 'sos';
+  let firstLoad = true; // 自動更新のたびに選んでいたタブが勝手に変わらないよう、既定タブの決定は初回だけ行う
   let map = null;
   let responses = [];
   let unresponded = [];
@@ -181,13 +182,20 @@
       unresponded = data.unresponded || [];
       summary = data.summary || summary;
       sessionTitleText.textContent = `${data.session.eventName}${data.session.eventDate ? '（' + data.session.eventDate + '）' : ''}`;
-      activeTag = pickDefaultTag();
+      if (firstLoad) {
+        activeTag = pickDefaultTag();
+        firstLoad = false;
+      }
       render();
     } catch (err) {
       console.error(err);
-      sessionTitleText.textContent = '安否状況の取得に失敗しました';
+      if (firstLoad) sessionTitleText.textContent = '安否状況の取得に失敗しました';
     }
   }
 
   load();
+  // SOS・行方不明などの新着に画面が張り付いたまま気づけるよう、開いている間は自動更新する
+  setInterval(() => {
+    if (!document.hidden) load();
+  }, 10000);
 })();
