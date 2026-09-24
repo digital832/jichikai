@@ -4,6 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
 <title>安否状況</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
   :root { --green: #06c755; --red: #ef4444; --amber: #f59e0b; --bg: #f4f6f5; --text: #1c1f1e; --text-sub: #6b716f; --border: #e4e7e5; }
   * { box-sizing: border-box; }
@@ -39,6 +41,10 @@
   .resp-status.sos { color: var(--red); }
   .missing-detail { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
   .error-text { color: var(--red); text-align: center; }
+  .safety-map { width: 100%; height: 220px; border-radius: 14px; margin-top: 14px; background: var(--bg); }
+  .resp-row.has-location { cursor: pointer; border-radius: 10px; margin: 0 -8px; padding-left: 8px; padding-right: 8px; }
+  .resp-row.has-location:active { background: var(--bg); }
+  .resp-location-hint { font-size: 11px; color: var(--green); font-weight: 700; margin-left: 6px; }
   [hidden] { display: none !important; }
 </style>
 </head>
@@ -57,6 +63,7 @@
         <div class="count-box"><div class="count-num" id="sosCount">0</div><div class="count-label">SOS</div></div>
         <div class="count-box"><div class="count-num" id="noReplyCount">0</div><div class="count-label">未回答</div></div>
       </div>
+      <div class="safety-map" id="safetyMap" hidden></div>
     </div>
     <div class="card" id="urgentCard" hidden>
       <p class="list-title alert">⚠ 要注意（行方不明・SOS）</p>
