@@ -23,6 +23,7 @@ const auth = require('./auth');
 const passcodeStore = require('./adminPasscodeStore');
 const { startScheduler } = require('./scheduler');
 const { startHandoverWatcher } = require('./handoverWatcher');
+const sampleCleanup = require('./sampleCleanup');
 
 const app = express();
 
@@ -64,4 +65,5 @@ app.listen(config.port, () => {
   console.log(`サーバーが起動しました: http://localhost:${config.port}`);
   startScheduler();
   startHandoverWatcher();
+  sampleCleanup.start();
 });

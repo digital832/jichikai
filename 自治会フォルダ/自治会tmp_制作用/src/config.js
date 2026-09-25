@@ -79,4 +79,8 @@ module.exports = {
     : 30 * 24 * 60 * 60 * 1000,
   // ログインセッションの署名に使う鍵。未設定ならADMIN_PASSCODEを流用する
   sessionSecret: process.env.SESSION_SECRET || process.env.ADMIN_PASSCODE || '',
+  // サンプル自治会など「見学者がQRコードから自由に登録できる」環境専用のスイッチ。
+  // trueの間、自治会長以外の会員は登録から一定時間後に自動で名簿から削除される。
+  // env-vars.yamlは一斉反映で上書きされないため、この設定は本家更新後も維持される。
+  sampleAutoCleanup: process.env.SAMPLE_AUTO_CLEANUP === 'true',
 };
