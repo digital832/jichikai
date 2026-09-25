@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const config = require('./config');
 const sheetsClient = require('./sheetsClient');
@@ -29,6 +30,8 @@ const sampleCleanup = require('./sampleCleanup');
 const app = express();
 
 app.get('/', (req, res) => res.redirect('/admin/home.html'));
+// ブラウザが<link>より先に自動で取りに行く /favicon.ico にも同じアイコンを返す
+app.get('/favicon.ico', (req, res) => res.type('image/png').sendFile(path.join(__dirname, '..', 'public', 'favicon-32.png')));
 
 app.use('/api/auth', express.json(), authRouter);
 app.use(auth.requireAuth);
