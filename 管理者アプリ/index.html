@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>自治会システム 管理者アプリ</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="page">
+  <div class="hero">
+    <h1>🏠 自治会システム 管理者アプリ</h1>
+    <p>よく使うツール・管理画面への入り口をまとめたローカル専用のランチャーです。このパソコンの中だけで使うファイルで、どこにも公開されていません。</p>
+  </div>
+
+  <div class="tile-grid" id="tileGrid"></div>
+
+  <h2 class="section-title">🧩 独立GAS一覧</h2>
+  <p class="section-desc">自治会サイトとは別に、Googleのアプリスクリプトで動いているコードです。直し方・反映のしかたを忘れないよう、ソースの場所と手順をまとめています。</p>
+  <div class="gas-list" id="gasList"></div>
+
+  <h2 class="section-title">🔗 班のWebhook URL一覧</h2>
+  <p class="section-desc">LINE DevelopersのMessaging API設定「Webhook URL」に貼るURLです（班ごとに別のURL）。「取得する」を押すと、Googleドライブ上の全班ぶんを読み込みます。新しい班は複製マニュアルの登録時にも表示されます。</p>
+  <div class="webhook-toolbar">
+    <button type="button" class="webhook-fetch" id="webhookFetchButton">🔄 取得する</button>
+    <a class="webhook-link" href="https://developers.line.biz/console/" target="_blank" rel="noopener">🛠 LINE Developers ↗</a>
+    <a class="webhook-link" href="https://manager.line.biz/" target="_blank" rel="noopener">💬 LINE Business ↗</a>
+    <span class="webhook-status" id="webhookStatus"></span>
+  </div>
+  <div class="webhook-list" id="webhookList"></div>
+
+  <h2 class="section-title">🩺 設定チェック（QRコード・班Webhook）</h2>
+  <p class="section-desc">複製した自治会で「QRコード画像があるか」「班のWebhookがLINE側に正しく設定されているか」を、Googleドライブ・LINEに直接問い合わせて自治会ごとに一覧表示します。班の数だけLINE APIを呼ぶため、数十秒かかることがあります。</p>
+  <div class="webhook-toolbar">
+    <button type="button" class="webhook-fetch" id="checkFetchButton">🔍 全部チェックする</button>
+    <span class="webhook-status" id="checkStatus"></span>
+  </div>
+  <div class="webhook-list" id="checkList"></div>
+
+  <h2 class="section-title">🌐 自治会サイト一覧</h2>
+  <p class="section-desc">実際に動いている（デプロイ済みの）自治会の管理画面です。新しい自治会を作ったら、下のリストにも追加してください。</p>
+  <div class="site-list" id="siteList"></div>
+
+  <footer>自治会システム_JS 管理者アプリ ／ ローカル専用</footer>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

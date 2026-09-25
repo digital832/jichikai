@@ -5,9 +5,9 @@
 <meta charset="UTF-8" />
 <style>
   :root {
-    --green: #06c755;
-    --green-dark: #05a648;
-    --green-light: #e7f9ee;
+    --green: #1a73e8;
+    --green-dark: #1558b0;
+    --green-light: #e8f0fe;
     --red: #ef4a4a;
     --red-light: #fdeaea;
     --amber: #b8860b;
@@ -100,6 +100,20 @@
     margin-bottom: 14px;
   }
   .note-box b { color: var(--amber); }
+
+  .stale-id-warning {
+    background: var(--red-light);
+    color: var(--red);
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.7;
+    margin-bottom: 14px;
+    display: none;
+  }
+  .stale-id-warning.show { display: block; }
+  .text-input.stale, .textarea-input.stale { border-color: var(--red); background: var(--red-light); }
 
   .auto-duplicate-box {
     background: var(--green-light);
@@ -278,6 +292,34 @@
     margin-bottom: 12px;
   }
   .back-button:hover { border-color: var(--green); color: var(--green-dark); }
+
+  .textarea-input { min-height: 90px; resize: vertical; font-family: "SFMono-Regular", Consolas, monospace; font-size: 12px; }
+  .copy-block { position: relative; margin-bottom: 14px; }
+  .copy-pre {
+    background: #1c1f1e;
+    color: #e7f9ee;
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.7;
+    padding: 14px 16px;
+    border-radius: var(--radius-input);
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+    margin: 0;
+  }
+  .copy-btn {
+    margin-top: 8px;
+    border: 1px solid var(--border);
+    background: #fff;
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 8px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .copy-btn.copied { background: var(--green-light); border-color: var(--green); color: var(--green-dark); }
 </style>
 </head>
 <body>
@@ -287,14 +329,14 @@
 
   <div class="hero">
     <h1>班別LINEリスト準備ツール</h1>
-    <p>班ごとにLINE公式アカウントを分ける場合の準備ツールです。テンプレートフォルダの複製から、班ごとのスプレッドシート作成・トークンの貼り付けまで、ボタン操作だけで行えます（うまくいかない場合は手作業の案内どおりに進めることもできます）。班名・トークンの入力途中の内容はこのブラウザにのみ保存され、「自動で複製する」を押したときだけこのツールの裏側（あなたのGoogleドライブ）に送られます。</p>
+    <p>自治会の複製セットアップを手伝うツールです。本家（架空自治会）からの複製（名簿スプレッドシート・グループフォルダ・リストtmp・議事録／会計／QRコードのフォルダが一度に揃います）から、班ごとにLINE公式アカウントを分ける場合の準備（班ごとのスプレッドシート作成・トークンの貼り付けまで）を、ボタン操作だけで行えます（うまくいかない場合は手作業の案内どおりに進めることもできます）。入力途中の内容はこのブラウザにのみ保存され、「自動で複製する」を押したときだけこのツールの裏側（あなたのGoogleドライブ）に送られます。</p>
   </div>
 
   <div class="card">
-    <p class="card-heading"><span class="badge">1</span>テンプレートをこの自治会用に複製する</p>
-    <p class="step-desc">マスターの<b>テンプレートリンク</b>には、あらかじめ<b>グループ</b>フォルダと、その中に複製元スプレッドシート「<b>リストtmp</b>」が入っています。<b>このマスターに直接手を加えず、フォルダごと丸ごと複製</b>してから使ってください。他の自治会のデータと混ざるのを防ぐためです。</p>
+    <p class="card-heading"><span class="badge">1</span>本家をこの自治会用に複製する</p>
+    <p class="step-desc">複製元は<b>本家（架空自治会）</b>です。新機能やタブの追加は、まず本家で試してください（次の複製から自動で反映されます）。本家には試験用のデータが入っているため、<b>決まった骨格だけを複製</b>します：名簿（共通マスタ以外のデータは空）／グループ内の班ひな形「リストtmp」／議事録・会計・QRコード（原紙・チラシ）・PDF・Wordのフォルダ。イベント文書や実在の班シートなどはコピーされません。複製すると、名簿スプレッドシートは自動で自治会名にリネームされ、システムのサービスアカウント（<code>id-533@jichikai-tmp.iam.gserviceaccount.com</code>）にも共有されます。</p>
     <div class="link-row">
-      <a class="ext-link" href="https://drive.google.com/drive/folders/1Y1kfOTFH0u3JzniYNgDs_rbCF-pxjfkV?usp=drive_link" target="_blank" rel="noopener">↗ マスターのテンプレートリンクを開く</a>
+      <a class="ext-link" href="https://drive.google.com/drive/folders/192uK_GWH6uf0P2BUrQIzHW2do3bB_O-n" target="_blank" rel="noopener">↗ 本家（架空自治会）を開く</a>
     </div>
 
     <div class="auto-duplicate-box">
@@ -318,6 +360,11 @@
     <div class="link-row" id="orgFolderLinkRow" hidden>
       <a class="ext-link" id="orgFolderLink" href="#" target="_blank" rel="noopener">↗ この自治会用フォルダを開く</a>
     </div>
+    <div class="field">
+      <label class="field-label" for="rosterSheetUrl">この自治会用・名簿スプレッドシートのURL</label>
+      <input class="text-input" type="text" id="rosterSheetUrl" placeholder="上の「自動で複製する」を押すとここに自動で入ります" readonly />
+      <p class="field-hint">下の「⑥環境変数（.env）の内容を作る」にも自動で反映されます。貼り付け作業は不要です。</p>
+    </div>
   </div>
 
   <div class="card">
@@ -332,6 +379,77 @@
 
   <div class="note-box">
     <b>チャンネルアクセストークンの扱いについて：</b>このトークンは班のLINE公式アカウントを操作できる重要な情報です。貼り付けるスプレッドシートの共有先は、必要な担当者だけに絞ってください。もし誤って外部に漏れた場合は、LINE Developersコンソールでトークンを再発行すればすぐに無効化できます。このツール自体へのアクセスも、Apps Scriptのデプロイ設定で必要な人だけに絞ってあります。
+  </div>
+
+  <div class="card">
+    <p class="card-heading"><span class="badge">6</span>環境変数（.env）の内容を作る</p>
+    <p class="step-desc">①で複製した名簿・グループフォルダの情報は自動で入っています。残りを入力すると、下に.envの中身が生成されます。</p>
+    <p class="stale-id-warning" id="staleIdWarning">⚠ このIDは別の自治会名（<span id="staleIdWarningOrgName"></span>）で複製した時のものが残っています。このまま.envを使うと違う自治会のデータに繋がってしまいます。上の①「自動で複製する」を、今の自治会名でもう一度押し直してください。</p>
+    <div class="field">
+      <label class="field-label" for="envSheetId">GOOGLE_SHEETS_SPREADSHEET_ID（名簿スプレッドシートID）</label>
+      <input class="text-input" type="text" id="envSheetId" placeholder="①を複製すると自動で入ります" readonly />
+    </div>
+    <div class="field">
+      <label class="field-label" for="envDistrictFolderId">GOOGLE_DRIVE_DISTRICT_FOLDER_ID（管理地区＝グループフォルダID）</label>
+      <input class="text-input" type="text" id="envDistrictFolderId" placeholder="①を複製すると自動で入ります（班を使わない場合は空欄のままでOK）" readonly />
+    </div>
+    <div class="field">
+      <label class="field-label" for="envPrivateKey">GOOGLE_SA_PRIVATE_KEY（秘密鍵）</label>
+      <textarea class="textarea-input" id="envPrivateKey" placeholder='1行・ダブルクォート囲みで貼り付け："-----BEGIN PRIVATE KEY-----\nMIIEv...\n-----END PRIVATE KEY-----\n"（改行は\nのまま、実際の改行にはしない。全自治会共通・使い回しの値）'></textarea>
+      <p class="field-hint"><b>コピー元：</b>デスクトップの「秘密鍵コピペ用.txt」を開き、「GOOGLE_SA_PRIVATE_KEY欄に貼り付け」の下の1行（<code>"</code>から<code>"</code>まで全部）をコピーしてください。全自治会共通の値なので、毎回この同じファイルから取ればOKです。</p>
+      <p class="field-hint">この内容はこのブラウザにのみ保存されます。人に渡すときは画面共有やチャットへの直接貼り付けを避け、口頭やパスワード管理ツールなど安全な方法で伝えてください。</p>
+    </div>
+    <div class="field">
+      <label class="field-label" for="envPrintFolderUrl">PRINT_FOLDER_URL（任意・印刷用Driveフォルダ）</label>
+      <input class="text-input" type="text" id="envPrintFolderUrl" placeholder="未定なら空欄でOK（後で設定可）" />
+    </div>
+    <p class="field-hint">BASE_URL（Cloud RunのURL）は複製マニュアルの⑥側で自動計算されるため、ここでは扱いません。</p>
+    <p class="stale-id-warning" id="privateKeyMissingWarning">⚠ 秘密鍵が未入力です。このまま.envをコピーして使うと、名簿・Sheets連携が認証エラーで動きません。上の欄に本物の秘密鍵を貼り付けてください。</p>
+
+    <p class="step-desc" style="margin-top:16px;"><b>録音→議事録の自動作成機能を使う場合</b>（使わないなら空欄のままでOK）</p>
+    <div class="field">
+      <label class="field-label" for="envGeminiKey">GEMINI_API_KEY（議事録の文字起こし・要約に使うAPIキー）</label>
+      <input class="text-input" type="text" id="envGeminiKey" placeholder="全自治会共通・使い回しの値" />
+      <p class="field-hint"><b>コピー元：</b>デスクトップの「秘密鍵コピペ用.txt」を開き、対応する行をコピー。</p>
+    </div>
+    <div class="field">
+      <label class="field-label" for="envOauthSecret">GOOGLE_OAUTH_CLIENT_SECRET</label>
+      <input class="text-input" type="text" id="envOauthSecret" placeholder="全自治会共通・使い回しの値" />
+    </div>
+    <div class="field">
+      <label class="field-label" for="envOauthRefreshToken">GOOGLE_OAUTH_REFRESH_TOKEN</label>
+      <input class="text-input" type="text" id="envOauthRefreshToken" placeholder="全自治会共通・使い回しの値" />
+      <p class="field-hint"><b>コピー元：</b>同じく「秘密鍵コピペ用.txt」から。これも阿部さん個人のGoogleアカウントに繋がる重要な値なので、秘密鍵と同じ扱いで慎重にコピペしてください。</p>
+    </div>
+    <div class="field">
+      <label class="field-label" for="envMinutesFolderId">MINUTES_DRIVE_FOLDER_ID（議事録PDFの保存先・自治会ごとに個別）</label>
+      <input class="text-input" type="text" id="envMinutesFolderId" placeholder="①を複製すると自動で入ります" readonly />
+    </div>
+    <div class="field">
+      <label class="field-label" for="envAccountingFolderId">ACCOUNTING_DRIVE_FOLDER_ID（決算書Excelの保存先・自治会ごとに個別）</label>
+      <input class="text-input" type="text" id="envAccountingFolderId" placeholder="①を複製すると自動で入ります" readonly />
+    </div>
+
+    <div class="copy-block">
+      <pre class="copy-pre" id="envOutput"></pre>
+      <button class="copy-btn" data-copy-target="envOutput" type="button">.envの内容をコピー</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="card-heading"><span class="badge">🔧</span>QRコードを一括更新する（メンテナンス）</p>
+    <p class="step-desc">新しい班が増えてQRコードを発行し直したときなどに、既存の自治会のQRコードをまとめて最新化します。対象の自治会を選んで実行すると、その自治会（複数班があれば班ごと全部）のQRコードを、今のLINEトークンをもとに作り直します。「QRコードチラシ」フォルダがまだ無い自治会には、<b>架空自治会</b>にあるひな形フォルダをそのままコピーします（中身の自動生成はしません）。</p>
+    <div class="field">
+      <label class="field-label" for="qrRefreshTarget">更新したい自治会</label>
+      <select class="text-input" id="qrRefreshTarget">
+        <option value="ALL">すべて</option>
+      </select>
+    </div>
+    <div class="auto-row">
+      <button type="button" class="auto-button" id="qrRefreshButton">🔄 QRコードを更新する</button>
+      <span class="auto-status" id="qrRefreshStatus"></span>
+    </div>
+    <div id="qrRefreshResult"></div>
   </div>
 
   <footer>班別LINEリスト準備ツール ／ 入力途中の内容はこのブラウザにのみ保存されます</footer>
@@ -359,6 +477,46 @@
   var ORG_NAME_STORAGE_KEY = 'hanListTool::orgName';
   var duplicateTemplateButton = document.getElementById('duplicateTemplateButton');
   var duplicateTemplateStatus = document.getElementById('duplicateTemplateStatus');
+  var rosterSheetUrlInput = document.getElementById('rosterSheetUrl');
+  var ROSTER_SHEET_URL_STORAGE_KEY = 'hanListTool::rosterSheetUrl';
+
+  var envSheetIdInput = document.getElementById('envSheetId');
+  var envDistrictFolderIdInput = document.getElementById('envDistrictFolderId');
+  var envPrivateKeyInput = document.getElementById('envPrivateKey');
+  var envPrintFolderUrlInput = document.getElementById('envPrintFolderUrl');
+  var envGeminiKeyInput = document.getElementById('envGeminiKey');
+  var envOauthSecretInput = document.getElementById('envOauthSecret');
+  var envOauthRefreshTokenInput = document.getElementById('envOauthRefreshToken');
+  var envMinutesFolderIdInput = document.getElementById('envMinutesFolderId');
+  var envAccountingFolderIdInput = document.getElementById('envAccountingFolderId');
+  var envOutputEl = document.getElementById('envOutput');
+  var SA_CLIENT_EMAIL = 'id-533@jichikai-tmp.iam.gserviceaccount.com';
+  // OAuthクライアントIDは非公開情報ではない（認証画面で誰でも見える値）ので直接埋め込む
+  var OAUTH_CLIENT_ID = '1048017269324-2qom0du3hvv3qdm4n0cpmmkoj8otij5c.apps.googleusercontent.com';
+  var ENV_FIELD_IDS = [
+    'envSheetId', 'envDistrictFolderId', 'envPrivateKey', 'envPrintFolderUrl',
+    'envGeminiKey', 'envOauthSecret', 'envOauthRefreshToken', 'envMinutesFolderId', 'envAccountingFolderId'
+  ];
+  var ENV_STORAGE_PREFIX = 'hanListTool::';
+
+  // このIDが「どの自治会名で①を複製した結果」なのかを覚えておき、今の自治会名とズレていたら警告する
+  // （前回別の自治会で複製した時のIDが、localStorageの復元でそのまま残ってしまう事故を防ぐ）
+  var IDS_ORG_NAME_STORAGE_KEY = 'hanListTool::idsForOrgName';
+  var idsForOrgName = localStorage.getItem(IDS_ORG_NAME_STORAGE_KEY) || '';
+  var staleIdWarning = document.getElementById('staleIdWarning');
+  var staleIdWarningOrgName = document.getElementById('staleIdWarningOrgName');
+
+  function updateStaleIdWarning() {
+    var currentOrgName = orgNameInput.value.trim();
+    var isStale = !!envSheetIdInput.value.trim() && !!idsForOrgName && !!currentOrgName && idsForOrgName !== currentOrgName;
+    staleIdWarning.classList.toggle('show', isStale);
+    envSheetIdInput.classList.toggle('stale', isStale);
+    envDistrictFolderIdInput.classList.toggle('stale', isStale);
+    envMinutesFolderIdInput.classList.toggle('stale', isStale);
+    envAccountingFolderIdInput.classList.toggle('stale', isStale);
+    if (isStale) staleIdWarningOrgName.textContent = idsForOrgName;
+  }
+
   var nextId = 1;
 
   function extractFolderId(url) {
@@ -371,10 +529,82 @@
     el.innerHTML = html;
   }
 
+  function saveEnvFields() {
+    ENV_FIELD_IDS.forEach(function (id) {
+      localStorage.setItem(ENV_STORAGE_PREFIX + id, document.getElementById(id).value);
+    });
+  }
+
+  function renderEnv() {
+    updateStaleIdWarning();
+    var privateKeyMissing = !envPrivateKeyInput.value.trim();
+    document.getElementById('privateKeyMissingWarning').classList.toggle('show', privateKeyMissing);
+    envPrivateKeyInput.classList.toggle('stale', privateKeyMissing);
+
+    var lines = [
+      '# ' + (orgNameInput.value.trim() || '（自治会名未入力）') + ' 用 環境変数',
+      'PORT=3000',
+      '',
+      'GOOGLE_SHEETS_SPREADSHEET_ID=' + (envSheetIdInput.value.trim() || '（①で複製してください）'),
+      'GOOGLE_DRIVE_DISTRICT_FOLDER_ID=' + envDistrictFolderIdInput.value.trim(),
+      '',
+      'GOOGLE_SA_CLIENT_EMAIL=' + SA_CLIENT_EMAIL,
+      'GOOGLE_SA_PRIVATE_KEY=' + (envPrivateKeyInput.value.trim() || '（秘密鍵を入力してください）'),
+      '',
+      'PRINT_FOLDER_URL=' + envPrintFolderUrlInput.value.trim(),
+      '',
+      'GEMINI_API_KEY=' + envGeminiKeyInput.value.trim(),
+      'GOOGLE_OAUTH_CLIENT_ID=' + OAUTH_CLIENT_ID,
+      'GOOGLE_OAUTH_CLIENT_SECRET=' + envOauthSecretInput.value.trim(),
+      'GOOGLE_OAUTH_REFRESH_TOKEN=' + envOauthRefreshTokenInput.value.trim(),
+      'MINUTES_DRIVE_FOLDER_ID=' + envMinutesFolderIdInput.value.trim(),
+      'ACCOUNTING_DRIVE_FOLDER_ID=' + envAccountingFolderIdInput.value.trim()
+    ];
+    envOutputEl.textContent = lines.join('\n');
+  }
+
+  ENV_FIELD_IDS.forEach(function (id) {
+    var el = document.getElementById(id);
+    var saved = localStorage.getItem(ENV_STORAGE_PREFIX + id);
+    if (saved) el.value = saved;
+    el.addEventListener('input', function () {
+      saveEnvFields();
+      renderEnv();
+    });
+  });
+  renderEnv();
+
+  document.querySelectorAll('.copy-btn[data-copy-target]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var target = document.getElementById(btn.getAttribute('data-copy-target'));
+      var text = target.textContent;
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+      document.body.removeChild(ta);
+      if (!ok && navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).catch(function () {});
+      }
+      var original = btn.textContent;
+      btn.textContent = 'コピーしました';
+      btn.classList.add('copied');
+      setTimeout(function () { btn.textContent = original; btn.classList.remove('copied'); }, 1500);
+    });
+  });
+
   orgNameInput.value = localStorage.getItem(ORG_NAME_STORAGE_KEY) || '';
   orgNameInput.addEventListener('input', function () {
     localStorage.setItem(ORG_NAME_STORAGE_KEY, orgNameInput.value);
+    renderEnv();
   });
+
+  rosterSheetUrlInput.value = localStorage.getItem(ROSTER_SHEET_URL_STORAGE_KEY) || '';
 
   duplicateTemplateButton.addEventListener('click', function () {
     var orgName = orgNameInput.value.trim();
@@ -389,7 +619,27 @@
       .withSuccessHandler(function (result) {
         orgFolderInput.value = result.url;
         orgFolderInput.dispatchEvent(new Event('input'));
-        setAutoStatus(duplicateTemplateStatus, 'ok', '✅ 複製が完了し、下のURL欄に自動で入力しました　<a href="' + result.url + '" target="_blank" rel="noopener">フォルダを開く ↗</a>');
+        var rosterNote = '　（⚠ 複製したフォルダに「_名簿」が見つからず、名簿のリネームはスキップされました）';
+        if (result.rosterUrl) {
+          rosterSheetUrlInput.value = result.rosterUrl;
+          localStorage.setItem(ROSTER_SHEET_URL_STORAGE_KEY, result.rosterUrl);
+          envSheetIdInput.value = result.rosterSpreadsheetId || '';
+          rosterNote = '　（下の⑥環境変数の欄にも自動で反映しました）';
+        }
+        if (result.groupFolderId) {
+          envDistrictFolderIdInput.value = result.groupFolderId;
+        }
+        if (result.minutesFolderId) {
+          envMinutesFolderIdInput.value = result.minutesFolderId;
+        }
+        if (result.accountingFolderId) {
+          envAccountingFolderIdInput.value = result.accountingFolderId;
+        }
+        idsForOrgName = orgName;
+        localStorage.setItem(IDS_ORG_NAME_STORAGE_KEY, orgName);
+        saveEnvFields();
+        renderEnv();
+        setAutoStatus(duplicateTemplateStatus, 'ok', '✅ 複製が完了し、下のURL欄に自動で入力しました' + rosterNote + '　<a href="' + result.url + '" target="_blank" rel="noopener">フォルダを開く ↗</a>');
         duplicateTemplateButton.disabled = false;
       })
       .withFailureHandler(function (error) {
@@ -479,7 +729,12 @@
 
     google.script.run
       .withSuccessHandler(function (result) {
-        setAutoStatus(statusEl, 'ok', '✅ 複製・貼り付けが完了しました　<a href="' + result.url + '" target="_blank" rel="noopener">シートを開く ↗</a>');
+        var qrNote = result.qrUrl
+          ? '　<a href="' + result.qrUrl + '" target="_blank" rel="noopener">QRコードを開く ↗</a>'
+          : '　⚠ QRコード生成に失敗（' + (result.qrError || '不明なエラー') + '）。シート自体は複製済みです';
+        setAutoStatus(statusEl, 'ok', '✅ 複製・貼り付けが完了しました　<a href="' + result.url + '" target="_blank" rel="noopener">シートを開く ↗</a>' + qrNote +
+          '<br />Webhook URL（LINE Developersに貼る）：<code style="word-break:break-all;">' + escapeHtml(result.webhookUrl) + '</code> ' +
+          '<button type="button" class="copy-btn webhook-copy" data-url="' + escapeHtml(result.webhookUrl) + '">コピー</button>');
         doneCheck.checked = true;
         doneCheck.dispatchEvent(new Event('change'));
         button.disabled = false;
@@ -518,7 +773,15 @@
         '① 「リストtmp」を右クリック →「コピーを作成」<br />' +
         '② ファイル名を <span class="filename-chip">（班名を入力してください）</span> に変更<br />' +
         '③ コピーしたシートの <b>C1セル</b> に、下のトークンを貼り付け<br />' +
-        '<span class="field-hint">貼り付けるトークン： <code class="copy-token-preview">（トークンを入力してください）</code></span>' +
+        '<span class="field-hint">貼り付けるトークン： <code class="copy-token-preview">（トークンを入力してください）</code></span><br />' +
+        '④ この班のWebhook URLをLINE側に登録する（班ごとのGASの作成・デプロイは不要になりました。全班共通のGASが受け持ちます）<br />' +
+        '　　a. 下の「🚀 自動で複製する」を押すと、この班専用のWebhook URLが表示されるのでコピー<br />' +
+        '　　b. この班のLINE公式アカウントに対応する <a href="https://developers.line.biz/console/" target="_blank" rel="noopener">LINE Developers</a> コンソールを開く<br />' +
+        '　　c. 「Messaging API設定」タブを開き、「Webhook URL」の欄にコピーしたURLを貼り付けて「更新」<br />' +
+        '　　d. その下の「Webhookの利用」のスイッチをオンにする<br />' +
+        '　　e. 「検証」ボタンを押して、成功のメッセージが出ればOK<br />' +
+        '⑤ <a href="https://manager.line.biz/" target="_blank" rel="noopener">LINE公式アカウントマネージャー</a>の「あいさつメッセージ」をオフにする（本名登録の案内は、友だち追加と同時にWebhookが自動で送るため。オフにしないと二重に届きます）<br />' +
+        '⑥ 会員用の友だち追加QRコードは、下の「🚀 自動で複製する」を押すと自動生成され、この自治会用フォルダの中の「QRコード」フォルダに保存されます（手作業は不要です）' +
       '</div>' +
       '<div class="auto-row">' +
         '<button type="button" class="auto-button">🚀 自動で複製する</button>' +
@@ -526,7 +789,7 @@
       '</div>' +
       '<div class="checkbox-row">' +
         '<input type="checkbox" class="han-done-check" id="hanDone' + id + '" />' +
-        '<label for="hanDone' + id + '">この班のスプレッドシート準備が完了した</label>' +
+        '<label for="hanDone' + id + '">この班のスプレッドシート準備・Webhook設定・あいさつメッセージのオフが完了した</label>' +
       '</div>';
 
     var nameInput = card.querySelector('.han-name-input');
@@ -592,6 +855,107 @@
   addButton.addEventListener('click', function () {
     addHan();
     saveAll();
+  });
+
+  // ---- Webhook URLのコピー（班登録の完了表示で使う。一覧は管理者アプリ側に移した） ----
+  function copyText(text, button) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+    if (!ok && navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).catch(function () {});
+    }
+    var original = button.textContent;
+    button.textContent = 'コピーしました';
+    button.classList.add('copied');
+    setTimeout(function () { button.textContent = original; button.classList.remove('copied'); }, 1500);
+  }
+
+  document.addEventListener('click', function (event) {
+    var btn = event.target.closest ? event.target.closest('.webhook-copy') : null;
+    if (btn) copyText(btn.getAttribute('data-url'), btn);
+  });
+
+  // ---- QRコード一括更新（メンテナンス） ----
+  var qrRefreshTargetSelect = document.getElementById('qrRefreshTarget');
+  var qrRefreshButton = document.getElementById('qrRefreshButton');
+  var qrRefreshStatus = document.getElementById('qrRefreshStatus');
+  var qrRefreshResult = document.getElementById('qrRefreshResult');
+
+  google.script.run
+    .withSuccessHandler(function (names) {
+      (names || []).forEach(function (name) {
+        var opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        qrRefreshTargetSelect.appendChild(opt);
+      });
+    })
+    .withFailureHandler(function (error) {
+      setAutoStatus(qrRefreshStatus, 'error', '自治会一覧の取得に失敗しました：' + (error && error.message ? error.message : error));
+    })
+    .listOrgNames();
+
+  function escapeHtml(text) {
+    var div = document.createElement('div');
+    div.textContent = text == null ? '' : String(text);
+    return div.innerHTML;
+  }
+
+  function renderQrRefreshResult(summary) {
+    if (!summary || !summary.length) {
+      qrRefreshResult.innerHTML = '<p class="field-hint">対象の自治会が見つかりませんでした。</p>';
+      return;
+    }
+    var html = '';
+    summary.forEach(function (item) {
+      html += '<div class="han-guide" style="margin-top:10px;">';
+      html += '<b>' + escapeHtml(item.org) + '</b><br />';
+      if (item.error) {
+        html += '⚠ ' + escapeHtml(item.error);
+      } else {
+        html += (item.refreshed && item.refreshed.length
+          ? '更新：' + item.refreshed.map(escapeHtml).join('、')
+          : '対象の班が見つかりませんでした');
+        if (item.errors && item.errors.length) {
+          html += '<br />⚠ 失敗：' + item.errors.map(function (e) {
+            return escapeHtml(e.han) + '（' + escapeHtml(e.message) + '）';
+          }).join('、');
+        }
+        html += '<br />QRコードチラシ：' + (item.flyerCopied ? 'ひな形をコピーしました' : 'すでにあるのでそのまま');
+      }
+      html += '</div>';
+    });
+    qrRefreshResult.innerHTML = html;
+  }
+
+  qrRefreshButton.addEventListener('click', function () {
+    var target = qrRefreshTargetSelect.value;
+    var targetLabel = target === 'ALL' ? 'すべての自治会' : target;
+    if (!confirm(targetLabel + 'のQRコードを作り直します。よろしいですか？')) return;
+
+    qrRefreshButton.disabled = true;
+    setAutoStatus(qrRefreshStatus, '', '実行中…（自治会数・班数によっては数十秒かかります）');
+    qrRefreshResult.innerHTML = '';
+
+    google.script.run
+      .withSuccessHandler(function (summary) {
+        setAutoStatus(qrRefreshStatus, 'ok', '✅ 完了しました');
+        renderQrRefreshResult(summary);
+        qrRefreshButton.disabled = false;
+      })
+      .withFailureHandler(function (error) {
+        setAutoStatus(qrRefreshStatus, 'error', '失敗しました：' + (error && error.message ? error.message : error));
+        qrRefreshButton.disabled = false;
+      })
+      .refreshAllQrCodes(target);
   });
 
   updateOrgFolderLink();

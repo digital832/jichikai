@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>行政区別 班数・世帯数チェック</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="page">
+  <a class="back-link" href="../index.html">← 管理者アプリ HOME</a>
+
+  <div class="hero">
+    <h1>📋 行政区別 班数・世帯数チェック</h1>
+  </div>
+
+  <div class="summary-card" id="grandSummary">
+    <div class="summary-title">全体の進捗</div>
+    <div class="summary-cols">
+      <div class="summary-row">
+        <span>世帯数 合計</span>
+        <span><b id="grandSetai">0</b> / <span id="grandSetaiTotal">-</span></span>
+      </div>
+      <div class="summary-row">
+        <span>予想人口数<i>(世帯数×2.2人)</i></span>
+        <span><b id="grandPop">0</b> / 約<span id="grandPopTotal">-</span>人</span>
+      </div>
+    </div>
+    <div class="progress-outer" id="grandProgress">
+      <div class="progress-seg seg-kadou"></div>
+      <div class="progress-seg seg-sesshoku"></div>
+      <div class="progress-seg seg-kibou"></div>
+    </div>
+    <div class="status-legend">
+      <span><i class="dot dot-kadou"></i>稼働</span>
+      <span><i class="dot dot-sesshoku"></i>接触</span>
+      <span><i class="dot dot-kibou"></i>希望</span>
+    </div>
+  </div>
+
+  <div class="filter-row">
+    <input type="search" id="searchBox" class="search-box" placeholder="行政区名・Noで検索（例: 通1区 / 4-38）" />
+    <select id="statusFilter" class="status-filter" data-status="">
+      <option value="">すべて</option>
+      <option value="kadou">稼働</option>
+      <option value="sesshoku">接触</option>
+      <option value="kibou">希望</option>
+    </select>
+  </div>
+
+  <div id="districtList"></div>
+
+  <button type="button" id="resetBtn" class="reset-btn">すべてのチェックをリセット</button>
+
+  <footer>
+    行政区別班数・世帯数一覧（令和8年8月31日現在）／住民基本台帳の世帯数とは異なります／自治会システム_JS 管理者アプリ
+  </footer>
+</div>
+<script src="data.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
