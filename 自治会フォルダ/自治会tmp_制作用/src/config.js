@@ -83,4 +83,6 @@ module.exports = {
   // trueの間、自治会長以外の会員は登録から一定時間後に自動で名簿から削除される。
   // env-vars.yamlは一斉反映で上書きされないため、この設定は本家更新後も維持される。
   sampleAutoCleanup: process.env.SAMPLE_AUTO_CLEANUP === 'true',
+  // サンプル自治会など「見学者に番号を教えてよい」環境専用。trueの間、ログイン画面に今のログイン番号を表示する
+  showLoginHint: process.env.SHOW_LOGIN_HINT === 'true',
 };

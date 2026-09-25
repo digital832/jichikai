@@ -11,10 +11,15 @@
   }
   body {
     min-height: 100vh;
+    /* スマホはアドレスバーの出入りで100vhが実際の画面より大きくなり、
+       カードが画面外にはみ出て「崩れて見える」ため、動的ビューポート単位で上書きする */
+    min-height: 100dvh;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 24px;
+    box-sizing: border-box;
+    overflow: hidden;
     background: #10241a url('login-bg.jpg') center/cover no-repeat;
     position: relative;
   }
@@ -64,12 +69,21 @@
     min-height: 18px;
     margin-bottom: 6px;
   }
+  .login-hint {
+    color: #fff;
+    background: rgba(0, 0, 0, 0.28);
+    border-radius: 999px;
+    font-size: 13px;
+    padding: 8px 14px;
+    margin: 0 0 14px;
+  }
 </style>
 </head>
 <body>
   <div class="stage">
     <div class="login-card">
       <h1>管理画面ログイン</h1>
+      <p class="login-hint" id="loginHint" hidden></p>
       <form id="login-form">
         <input class="text-input" type="text" id="code" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off" autofocus />
         <div class="error" id="error"></div>
@@ -82,6 +96,18 @@
     const codeInput = document.getElementById('code');
     const errorEl = document.getElementById('error');
     const submitBtn = document.getElementById('submit');
+    const loginHintEl = document.getElementById('loginHint');
+
+    // サンプル自治会など見学用の環境でだけ、今のログイン番号を案内する（通常の自治会では出ない）
+    fetch('/api/auth/login-hint')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.show && data.code) {
+          loginHintEl.textContent = `見学用ログイン番号: ${data.code}`;
+          loginHintEl.hidden = false;
+        }
+      })
+      .catch(() => {});
 
     codeInput.addEventListener('input', () => {
       codeInput.value = codeInput.value.replace(/[^0-9]/g, '').slice(0, 6);

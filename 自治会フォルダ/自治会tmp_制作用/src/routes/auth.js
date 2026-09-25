@@ -43,6 +43,12 @@ router.post('/login', async (req, res) => {
   return res.status(401).json({ error: '番号が違います' });
 });
 
+// サンプル自治会など、見学者にログイン番号を隠さなくていい環境専用（SHOW_LOGIN_HINT=trueの時だけ返す）
+router.get('/login-hint', (req, res) => {
+  if (!config.showLoginHint) return res.json({ show: false });
+  res.json({ show: true, code: passcodeStore.get() });
+});
+
 router.get('/login-log', async (req, res) => {
   if (!auth.isLoggedIn(req)) return res.status(401).json({ error: 'ログインが必要です' });
   try {
