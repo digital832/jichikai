@@ -1322,7 +1322,40 @@ async function markHandoverUsed(row) {
   });
 }
 
+// 後から機能追加で増えたタブは、複製済みの自治会のスプレッドシートには存在しない。
+// 起動時に足りないタブを1行目の見出しつきで自動作成し、「Unable to parse range」で機能が
+// 動かない（引き継ぎ・ログイン履歴など）状態を、複製のたびに手作業で直さなくて済むようにする。
+async function ensureRequiredSheets() {
+  const required = [
+    { title: config.google.loginLogSheetName, headers: ['氏名', '日時'] },
+    {
+      title: config.google.handoverSheetName,
+      headers: ['token', '送信元LINEID', '送信元氏名', '相手LINEID', '相手氏名', '使用済み', '作成日時', '新自治会長への案内済み', '1週間前通知済み', '期限通知済み'],
+    },
+  ];
+  const res = await sheets.spreadsheets.get({
+    spreadsheetId: config.google.spreadsheetId,
+    fields: 'sheets.properties.title',
+  });
+  const existing = new Set((res.data.sheets || []).map((s) => s.properties.title));
+  for (const { title, headers } of required) {
+    if (existing.has(title)) continue;
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId: config.google.spreadsheetId,
+      requestBody: { requests: [{ addSheet: { properties: { title } } }] },
+    });
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: config.google.spreadsheetId,
+      range: `${title}!A1`,
+      valueInputOption: 'RAW',
+      requestBody: { values: [headers] },
+    });
+    console.log(`スプレッドシートに不足していたタブ「${title}」を自動作成しました`);
+  }
+}
+
 module.exports = {
+  ensureRequiredSheets,
   getAllMembers,
   updateMemberRole,
   updateMemberRealName,

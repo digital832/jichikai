@@ -1,5 +1,6 @@
 const express = require('express');
 const config = require('./config');
+const sheetsClient = require('./sheetsClient');
 const eventsRouter = require('./routes/events');
 const templatesRouter = require('./routes/templates');
 const placesRouter = require('./routes/places');
@@ -55,15 +56,23 @@ app.use('/api/sync-roster', syncRouter);
 
 app.use(express.static('public'));
 
-passcodeStore.init().then(() => {
+async function boot() {
+  try {
+    await sheetsClient.ensureRequiredSheets();
+  } catch (err) {
+    console.error('必要なシートタブの確認・作成に失敗:', err.message);
+  }
+  // ログイン番号の読み込みが終わってから受付を始める（起動直後に番号が空のまま応答しないように）
+  await passcodeStore.init();
   if (!passcodeStore.get()) {
     console.warn('警告: ログイン番号が未設定のため、管理画面のログイン機能は無効です（誰でもアクセスできます）');
   }
-});
+  app.listen(config.port, () => {
+    console.log(`サーバーが起動しました: http://localhost:${config.port}`);
+    startScheduler();
+    startHandoverWatcher();
+    sampleCleanup.start();
+  });
+}
 
-app.listen(config.port, () => {
-  console.log(`サーバーが起動しました: http://localhost:${config.port}`);
-  startScheduler();
-  startHandoverWatcher();
-  sampleCleanup.start();
-});
+boot();
