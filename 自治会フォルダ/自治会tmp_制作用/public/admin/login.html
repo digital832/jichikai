@@ -22,7 +22,7 @@
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, rgba(6, 30, 18, 0.35), rgba(6, 30, 18, 0.6));
+    background: linear-gradient(180deg, rgba(6, 30, 18, 0.1), rgba(6, 30, 18, 0.25));
   }
   .stage {
     position: relative;
@@ -56,6 +56,7 @@
     text-align: center;
     padding: 12px 0;
     margin-bottom: 14px;
+    border-radius: 999px;
   }
   .error {
     color: var(--red);
@@ -70,7 +71,7 @@
     <div class="login-card">
       <h1>管理画面ログイン</h1>
       <form id="login-form">
-        <input class="text-input" type="text" id="code" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off" placeholder="6桁の番号" autofocus />
+        <input class="text-input" type="text" id="code" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off" autofocus />
         <div class="error" id="error"></div>
         <button class="send-button" type="submit" id="submit">ログイン</button>
       </form>
