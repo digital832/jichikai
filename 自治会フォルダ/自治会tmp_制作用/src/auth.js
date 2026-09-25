@@ -20,6 +20,8 @@ const PUBLIC_API_PATHS = [
 const PUBLIC_ADMIN_PATHS = [
   '/admin/login.html',
   '/admin/login-bg.jpg',
+  // ログイン画面が使う共通CSS。ここが未ログインで取れないと、スマホ(未ログイン)でだけ画面が崩れる
+  '/admin/broadcast.css',
 ];
 
 function sign(value) {
